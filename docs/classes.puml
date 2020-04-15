@@ -1,0 +1,15 @@
+@startuml P2P Bank
+class Main {
+}
+
+class Account {
+}
+
+class Bank {
+}
+
+class User {
+}
+
+interface Snapshot
+@enduml
