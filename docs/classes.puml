@@ -7,9 +7,10 @@ class Main {
 
 class Bank {
     + Bank()
-    + void transfer(String source, String dest, int amount)
+    + void register(String[] accounts, RemotaBank bank)
     + void deposit(String account, int amount)
     + void withdraw(String account, int amount)
+    + void transfer(String source, String dest, int amount)
     + void run()
 }
 
