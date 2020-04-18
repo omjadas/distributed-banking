@@ -20,9 +20,9 @@ class RemoteBank {
     - String[] accountIds
     + RemoteBank(String hostname)
     + String[] getAccountIds()
-    + void deposit(String account, int amount)
-    + void withdraw(String account, int amount)
-    + int getBalance(String account)
+    + void deposit(String accountId, int amount)
+    + void withdraw(String accountId, int amount)
+    + int getBalance(String accountId)
 }
 
 class Account {
