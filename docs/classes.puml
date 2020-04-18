@@ -35,8 +35,11 @@ class Account {
     + int getBalance()
 }
 
+class Snapshot {
+}
+
 interface java.lang.Runnable
-interface Snapshot
+interface Algorithm
 
 Main --* "1" Bank : - bank
 Main ..|> java.lang.Runnable
