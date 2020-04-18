@@ -1,15 +1,47 @@
 @startuml P2P Bank
 class Main {
-}
-
-class Account {
+    + Main()
+    + {static} void main(String[] args)
+    + void run()
 }
 
 class Bank {
+    + Bank()
+    + void transfer(String source, String dest, int amount)
+    + void deposit(String account, int amount)
+    + void withdraw(String account, int amount)
+    + void run()
 }
 
-class User {
+class RemoteBank {
+    - String hostname
+    - String[] ids
+    + RemoteBank(String hostname)
+    + String[] getIds()
+    + transfer()
 }
 
+class Account {
+    - String accountId
+    - int balance
+    + Account()
+    + void deposit(int amount)
+    + void withdraw(int amount)
+    + String getId()
+    + int getBalance()
+}
+
+interface java.lang.Runnable
 interface Snapshot
+
+Main ..* "1" Bank
+Main ..|> java.lang.Runnable
+
+Bank --* "1" java.net.ServerSocket
+Bank --* "0..*" Account
+Bank "[accountId]" --* "0..*" RemoteBank
+Bank ..|> java.lang.Runnable
+
+RemoteBank --* "1" java.net.Socket
+
 @enduml
