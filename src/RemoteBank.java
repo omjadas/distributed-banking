@@ -53,7 +53,7 @@ public class RemoteBank implements Runnable {
     public void run() {
         String input;
         try {
-            while ((input = in.readLine()) != null) {
+            while ((input = in.readLine()) != null && !Thread.interrupted()) {
                 String[] tokens = input.split(" ");
                 String command = tokens[0];
                 if (command.equals("register")) {

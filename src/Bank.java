@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 public class Bank implements Runnable {
@@ -9,13 +10,17 @@ public class Bank implements Runnable {
     private final HashMap<String, RemoteBank> remoteAccounts = new HashMap<>();
     private final HashMap<String, Account> localAccounts = new HashMap<>();
 
+    private final Set<Thread> remoteBankThreads = new HashSet<>();
+
     public Bank(int port) throws IOException {
         serverSocket = new ServerSocket(port);
     }
 
     public void connect(String hostname, int port) throws IOException {
         RemoteBank remoteBank = new RemoteBank(hostname, port, this);
-        new Thread(remoteBank).start();
+        Thread remoteBankThread = new Thread(remoteBank);
+        remoteBankThread.start();
+        remoteBankThreads.add(remoteBankThread);
     }
 
     public void open(String accountId) {
@@ -69,12 +74,19 @@ public class Bank implements Runnable {
     public void run() {
         Socket socket;
         try {
-            while ((socket = serverSocket.accept()) != null) {
-                RemoteBank remoteBank = new RemoteBank(socket, this);
-                new Thread(remoteBank).start();
+            while ((socket = serverSocket.accept()) != null &&
+                !Thread.interrupted()) {
+                RemoteBank remoteBank;
+                remoteBank = new RemoteBank(socket, this);
+                Thread remoteBankThread = new Thread(remoteBank);
+                remoteBankThread.start();
+                remoteBankThreads.add(remoteBankThread);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        remoteBankThreads.forEach(remoteBankThread -> {
+            remoteBankThread.interrupt();
+        });
     }
 }

@@ -20,10 +20,11 @@ public class Main implements Runnable {
 
     @Override
     public void run() {
-        new Thread(bank).start();
+        Thread bankThread = new Thread(bank);
+        bankThread.start();
         Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        while (!input.equals("exit")) {
+        while (!Thread.interrupted()) {
+            String input = scanner.nextLine();
             String[] tokens = input.split(" ");
             String command = tokens[0];
 
@@ -86,12 +87,16 @@ public class Main implements Runnable {
                             hostname,
                             port));
                 }
+            } else if (command.equals("exit")) {
+                break;
             } else {
                 System.out.println("Unknown command");
             }
 
             input = scanner.nextLine();
         }
+        bankThread.interrupt();
         scanner.close();
+        System.exit(0);
     }
 }

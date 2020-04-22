@@ -48,6 +48,7 @@ Main ..|> java.lang.Runnable
 
 Bank --* "1" java.net.ServerSocket : - serverSocket
 Bank --* "0..*" Account : - localAccounts
+Bank --* "0..*" java.lang.Thread : - remoteBankThreads
 Bank "[String accountId]" --* "1..*" RemoteBank : - remoteAccounts
 Bank ..|> java.lang.Runnable
 
