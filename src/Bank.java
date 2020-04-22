@@ -20,28 +20,33 @@ public class Bank implements Runnable {
         remoteAccounts.put(accountId, bank);
     }
 
-    public void deposit(String accountId, int amount) throws IOException {
+    public void deposit(String accountId, int amount) throws IOException,
+            UnknownAccountException {
         if (localAccounts.containsKey(accountId)) {
             localAccounts.get(accountId).deposit(amount);
         } else if (remoteAccounts.containsKey(accountId)) {
             remoteAccounts.get(accountId).deposit(accountId, amount);
         } else {
-            // Unknown account
+            throw new UnknownAccountException(
+                String.format("Unknown account %s", accountId));
         }
     }
 
-    public void withdraw(String accountId, int amount) throws IOException {
+    public void withdraw(String accountId, int amount) throws IOException,
+            UnknownAccountException {
         if (localAccounts.containsKey(accountId)) {
             localAccounts.get(accountId).withdraw(amount);
         } else if (remoteAccounts.containsKey(accountId)) {
             remoteAccounts.get(accountId).withdraw(accountId, amount);
         } else {
-            // Unknown account
+            throw new UnknownAccountException(
+                String.format("Unknown account %s", accountId));
         }
     }
 
     public void transfer(String sourceId, String destId, int amount)
-            throws IOException {
+            throws IOException,
+            UnknownAccountException {
         withdraw(sourceId, amount);
         deposit(destId, amount);
     }

@@ -68,7 +68,7 @@ public class RemoteBank implements Runnable {
                     // Unknown command
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | UnknownAccountException e) {
             e.printStackTrace();
         }
     }

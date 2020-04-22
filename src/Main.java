@@ -33,6 +33,8 @@ public class Main implements Runnable {
                             "Unable to deposit $%d into account %s",
                             accountId,
                             amount));
+                } catch (UnknownAccountException e) {
+                    System.out.println(e.getMessage());
                 }
             } else if (command == "withdraw") {
                 String accountId = tokens[1];
@@ -45,6 +47,8 @@ public class Main implements Runnable {
                             "Unable to withdraw $%d from account %s",
                             accountId,
                             amount));
+                } catch (UnknownAccountException e) {
+                    System.out.println(e.getMessage());
                 }
             } else if (command == "transfer") {
                 String sourceId = tokens[1];
@@ -59,6 +63,8 @@ public class Main implements Runnable {
                             amount,
                             sourceId,
                             destId));
+                } catch (UnknownAccountException e) {
+                    System.out.println(e.getMessage());
                 }
             } else if (command == "open") {
                 String accountId = tokens[1];
