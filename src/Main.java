@@ -119,6 +119,7 @@ public class Main implements Runnable {
             } else if (command.equals("balance")) {
                 if (tokens.length < 2) {
                     System.out.println("Please provide an account ID");
+                    continue;
                 }
 
                 String accountId = tokens[1];
