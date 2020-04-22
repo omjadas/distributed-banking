@@ -18,6 +18,10 @@ public class RemoteBank implements Runnable {
         this.in = new BufferedReader(
             new InputStreamReader(socket.getInputStream()));
         this.bank = bank;
+        out.write(
+            String.format(
+                "register %s",
+                String.join(" ", bank.getAccountIds())));
     }
 
     public RemoteBank(Socket socket, Bank bank) throws IOException {
@@ -56,6 +60,12 @@ public class RemoteBank implements Runnable {
                     for (int i = 1; i < tokens.length; i++) {
                         bank.register(tokens[i], this);
                     }
+                    out.write(
+                        String.format(
+                            "registerResponse %s",
+                            String.join(" ", bank.getAccountIds())));
+                    out.newLine();
+                    out.flush();
                 } else if (command.equals("deposit")) {
                     String accountId = tokens[1];
                     int amount = Integer.parseInt(tokens[2]);
@@ -64,6 +74,10 @@ public class RemoteBank implements Runnable {
                     String accountId = tokens[1];
                     int amount = Integer.parseInt(tokens[2]);
                     bank.withdraw(accountId, amount);
+                } else if (command.equals("registerResponse")) {
+                    for (int i = 1; i < tokens.length; i++) {
+                        bank.register(tokens[i], this);
+                    }
                 } else {
                     // Unknown command
                 }

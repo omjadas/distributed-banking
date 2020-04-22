@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Set;
 
 public class Bank implements Runnable {
     private final ServerSocket serverSocket;
@@ -10,6 +11,11 @@ public class Bank implements Runnable {
 
     public Bank(int port) throws IOException {
         serverSocket = new ServerSocket(port);
+    }
+
+    public void connect(String hostname, int port) throws IOException {
+        RemoteBank remoteBank = new RemoteBank(hostname, port, this);
+        new Thread(remoteBank).start();
     }
 
     public void open(String accountId) {
@@ -53,6 +59,10 @@ public class Bank implements Runnable {
 
     public int getBalance(String accountId) {
         return 0;
+    }
+
+    public Set<String> getAccountIds() {
+        return localAccounts.keySet();
     }
 
     @Override

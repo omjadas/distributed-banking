@@ -74,6 +74,18 @@ public class Main implements Runnable {
             } else if (command.equals("open")) {
                 String accountId = tokens[1];
                 bank.open(accountId);
+            } else if (command.equals("connect")) {
+                String hostname = tokens[1];
+                int port = Integer.parseInt(tokens[2]);
+                try {
+                    bank.connect(hostname, port);
+                } catch (IOException e) {
+                    System.out.println(
+                        String.format(
+                            "Unable to connect to bank %s:%d",
+                            hostname,
+                            port));
+                }
             } else {
                 System.out.println("Unknown command");
             }
