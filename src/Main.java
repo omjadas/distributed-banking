@@ -30,7 +30,7 @@ public class Main implements Runnable {
                 } catch (IOException e) {
                     System.out.println(
                         String.format(
-                            "Unable to deposit $%d from account %s",
+                            "Unable to deposit $%d into account %s",
                             accountId,
                             amount));
                 }
@@ -45,6 +45,20 @@ public class Main implements Runnable {
                             "Unable to withdraw $%d from account %s",
                             accountId,
                             amount));
+                }
+            } else if (command == "transfer") {
+                String sourceId = tokens[1];
+                String destId = tokens[2];
+                int amount = Integer.parseInt(tokens[3]);
+                try {
+                    bank.transfer(sourceId, destId, amount);
+                } catch (IOException e) {
+                    System.out.println(
+                        String.format(
+                            "Unable to transfer $%d from account %s to account %s",
+                            amount,
+                            sourceId,
+                            destId));
                 }
             }
 
