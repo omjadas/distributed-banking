@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class RemoteBank implements Runnable {
     private Socket socket;
     private BufferedWriter out;
     private BufferedReader in;
-    private String[] accountIds;
     private Bank bank;
 
     public RemoteBank(String hostname, int port, Bank bank) throws IOException {
@@ -25,10 +23,6 @@ public class RemoteBank implements Runnable {
         this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.bank = bank;
-    }
-
-    public String[] getAccountIds() {
-        return accountIds;
     }
 
     public void deposit(String accountId, int amount) throws IOException {

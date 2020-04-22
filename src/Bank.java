@@ -36,6 +36,9 @@ public class Bank implements Runnable {
         }
     }
 
+    public void transfer(String sourceId, String destId, int amount) {
+    }
+
     public int getBalance(String accountId) {
         return 0;
     }
