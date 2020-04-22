@@ -29,6 +29,12 @@ public class Main implements Runnable {
             String command = tokens[0];
 
             if (command.equals("deposit")) {
+                if (tokens.length < 3) {
+                    System.out.println(
+                        "Please provide an account ID and deposit amount");
+                    continue;
+                }
+
                 String accountId = tokens[1];
                 int amount = Integer.parseInt(tokens[2]);
                 try {
@@ -43,6 +49,12 @@ public class Main implements Runnable {
                     System.out.println(e.getMessage());
                 }
             } else if (command.equals("withdraw")) {
+                if (tokens.length < 3) {
+                    System.out.println(
+                        "Please provide an account ID and withdrawal amount");
+                    continue;
+                }
+
                 String accountId = tokens[1];
                 int amount = Integer.parseInt(tokens[2]);
                 try {
@@ -57,6 +69,12 @@ public class Main implements Runnable {
                     System.out.println(e.getMessage());
                 }
             } else if (command.equals("transfer")) {
+                if (tokens.length < 4) {
+                    System.out.println(
+                        "Please provide a source ID, destination ID and transfer amount");
+                    continue;
+                }
+
                 String sourceId = tokens[1];
                 String destId = tokens[2];
                 int amount = Integer.parseInt(tokens[3]);
@@ -73,9 +91,20 @@ public class Main implements Runnable {
                     System.out.println(e.getMessage());
                 }
             } else if (command.equals("open")) {
+                if (tokens.length < 2) {
+                    System.out.println("Please provide an account ID");
+                    continue;
+                }
+
                 String accountId = tokens[1];
                 bank.open(accountId);
             } else if (command.equals("connect")) {
+                if (tokens.length < 3) {
+                    System.out.println(
+                        "Please provide a hostname and port number");
+                    continue;
+                }
+
                 String hostname = tokens[1];
                 int port = Integer.parseInt(tokens[2]);
                 try {
@@ -92,8 +121,6 @@ public class Main implements Runnable {
             } else {
                 System.out.println("Unknown command");
             }
-
-            input = scanner.nextLine();
         }
         bankThread.interrupt();
         scanner.close();
