@@ -27,7 +27,7 @@ public class Main implements Runnable {
             String[] tokens = input.split(" ");
             String command = tokens[0];
 
-            if (command == "deposit") {
+            if (command.equals("deposit")) {
                 String accountId = tokens[1];
                 int amount = Integer.parseInt(tokens[2]);
                 try {
@@ -41,7 +41,7 @@ public class Main implements Runnable {
                 } catch (UnknownAccountException e) {
                     System.out.println(e.getMessage());
                 }
-            } else if (command == "withdraw") {
+            } else if (command.equals("withdraw")) {
                 String accountId = tokens[1];
                 int amount = Integer.parseInt(tokens[2]);
                 try {
@@ -55,7 +55,7 @@ public class Main implements Runnable {
                 } catch (UnknownAccountException e) {
                     System.out.println(e.getMessage());
                 }
-            } else if (command == "transfer") {
+            } else if (command.equals("transfer")) {
                 String sourceId = tokens[1];
                 String destId = tokens[2];
                 int amount = Integer.parseInt(tokens[3]);
@@ -71,7 +71,7 @@ public class Main implements Runnable {
                 } catch (UnknownAccountException e) {
                     System.out.println(e.getMessage());
                 }
-            } else if (command == "open") {
+            } else if (command.equals("open")) {
                 String accountId = tokens[1];
                 bank.open(accountId);
             } else {

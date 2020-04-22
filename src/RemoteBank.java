@@ -52,15 +52,15 @@ public class RemoteBank implements Runnable {
             while ((input = in.readLine()) != null) {
                 String[] tokens = input.split(" ");
                 String command = tokens[0];
-                if (command == "register") {
+                if (command.equals("register")) {
                     for (int i = 1; i < tokens.length; i++) {
                         bank.register(tokens[i], this);
                     }
-                } else if (command == "deposit") {
+                } else if (command.equals("deposit")) {
                     String accountId = tokens[1];
                     int amount = Integer.parseInt(tokens[2]);
                     bank.deposit(accountId, amount);
-                } else if (command == "withdraw") {
+                } else if (command.equals("withdraw")) {
                     String accountId = tokens[1];
                     int amount = Integer.parseInt(tokens[2]);
                     bank.withdraw(accountId, amount);
