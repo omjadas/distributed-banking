@@ -43,8 +43,8 @@ public class Bank implements Runnable {
         return 0;
     }
 
-	@Override
-	public void run() {
+    @Override
+    public void run() {
         Socket socket;
         try {
             while ((socket = serverSocket.accept()) != null) {
@@ -54,5 +54,5 @@ public class Bank implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-	}
+    }
 }

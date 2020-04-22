@@ -13,15 +13,19 @@ public class RemoteBank implements Runnable {
 
     public RemoteBank(String hostname, int port, Bank bank) throws IOException {
         this.socket = new Socket(hostname, port);
-        this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.out = new BufferedWriter(
+            new OutputStreamWriter(socket.getOutputStream()));
+        this.in = new BufferedReader(
+            new InputStreamReader(socket.getInputStream()));
         this.bank = bank;
     }
 
     public RemoteBank(Socket socket, Bank bank) throws IOException {
         this.socket = socket;
-        this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.out = new BufferedWriter(
+            new OutputStreamWriter(socket.getOutputStream()));
+        this.in = new BufferedReader(
+            new InputStreamReader(socket.getInputStream()));
         this.bank = bank;
     }
 
