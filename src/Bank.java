@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
 
 public class Bank implements Runnable {
@@ -11,13 +12,28 @@ public class Bank implements Runnable {
         serverSocket = new ServerSocket();
     }
 
-    public void register(String[] accountIds, RemoteBank bank) {
+    public void register(String accountId, RemoteBank bank) {
+        remoteAccounts.put(accountId, bank);
     }
 
-    public void deposit(String accountId, int amount) {
+    public void deposit(String accountId, int amount) throws IOException {
+        if (localAccounts.containsKey(accountId)) {
+            localAccounts.get(accountId).deposit(amount);
+        } else if (remoteAccounts.containsKey(accountId)) {
+            remoteAccounts.get(accountId).deposit(accountId, amount);
+        } else {
+            // Unknown account
+        }
     }
 
-    public void withdraw(String sourceId, String destId, int amount) {
+    public void withdraw(String accountId, int amount) throws IOException {
+        if (localAccounts.containsKey(accountId)) {
+            localAccounts.get(accountId).withdraw(amount);
+        } else if (remoteAccounts.containsKey(accountId)) {
+            remoteAccounts.get(accountId).withdraw(accountId, amount);
+        } else {
+            // Unknown account
+        }
     }
 
     public int getBalance(String accountId) {
@@ -26,5 +42,14 @@ public class Bank implements Runnable {
 
 	@Override
 	public void run() {
+        Socket socket;
+        try {
+            while ((socket = serverSocket.accept()) != null) {
+                RemoteBank remoteBank = new RemoteBank(socket, this);
+                new Thread(remoteBank).start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 }
