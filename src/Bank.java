@@ -12,6 +12,10 @@ public class Bank implements Runnable {
         serverSocket = new ServerSocket();
     }
 
+    public void open(String accountId) {
+        localAccounts.put(accountId, new Account(accountId));
+    }
+
     public void register(String accountId, RemoteBank bank) {
         remoteAccounts.put(accountId, bank);
     }

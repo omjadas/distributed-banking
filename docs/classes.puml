@@ -7,6 +7,7 @@ class Main {
 
 class Bank {
     + Bank()
+    + void open(String accountId)
     + void register(String accountId, RemoteBank bank)
     + void deposit(String accountId, int amount)
     + void withdraw(String accountId, int amount)

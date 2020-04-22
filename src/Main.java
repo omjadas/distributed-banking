@@ -60,6 +60,11 @@ public class Main implements Runnable {
                             sourceId,
                             destId));
                 }
+            } else if (command == "open") {
+                String accountId = tokens[1];
+                bank.open(accountId);
+            } else {
+                System.out.println("Unknown command");
             }
 
             input = scanner.nextLine();
