@@ -6,10 +6,10 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 public class RemoteBank implements Runnable {
-    private Socket socket;
-    private BufferedWriter out;
-    private BufferedReader in;
-    private Bank bank;
+    private final Socket socket;
+    private final BufferedWriter out;
+    private final BufferedReader in;
+    private final Bank bank;
 
     public RemoteBank(String hostname, int port, Bank bank) throws IOException {
         this.socket = new Socket(hostname, port);

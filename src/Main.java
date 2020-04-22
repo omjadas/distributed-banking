@@ -2,7 +2,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Main implements Runnable {
-    private Bank bank;
+    private final Bank bank;
 
     public Main() throws IOException {
         bank = new Bank();

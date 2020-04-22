@@ -4,9 +4,9 @@ import java.net.Socket;
 import java.util.HashMap;
 
 public class Bank implements Runnable {
-    private ServerSocket serverSocket;
-    private HashMap<String, RemoteBank> remoteAccounts = new HashMap<>();
-    private HashMap<String, Account> localAccounts = new HashMap<>();
+    private final ServerSocket serverSocket;
+    private final HashMap<String, RemoteBank> remoteAccounts = new HashMap<>();
+    private final HashMap<String, Account> localAccounts = new HashMap<>();
 
     public Bank() throws IOException {
         serverSocket = new ServerSocket();
