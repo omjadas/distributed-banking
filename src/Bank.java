@@ -8,8 +8,8 @@ public class Bank implements Runnable {
     private final HashMap<String, RemoteBank> remoteAccounts = new HashMap<>();
     private final HashMap<String, Account> localAccounts = new HashMap<>();
 
-    public Bank() throws IOException {
-        serverSocket = new ServerSocket();
+    public Bank(int port) throws IOException {
+        serverSocket = new ServerSocket(port);
     }
 
     public void open(String accountId) {

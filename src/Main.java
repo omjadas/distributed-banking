@@ -4,12 +4,17 @@ import java.util.Scanner;
 public class Main implements Runnable {
     private final Bank bank;
 
-    public Main() throws IOException {
-        bank = new Bank();
+    public Main(int port) throws IOException {
+        bank = new Bank(port);
     }
 
     public static void main(String[] args) throws IOException {
-        Main main = new Main();
+        if (args.length < 1) {
+            System.out.println("Port number must be provided");
+            System.exit(1);
+        }
+
+        Main main = new Main(Integer.parseInt(args[0]));
         new Thread(main).start();
     }
 
