@@ -62,8 +62,19 @@ public class Bank implements Runnable {
         deposit(destId, amount);
     }
 
+    public void printBalance(String accountId) throws IOException {
+        if (localAccounts.containsKey(accountId)) {
+            System.out.println(
+                String.format(
+                    "$%d",
+                    localAccounts.get(accountId).getBalance()));
+        } else if (remoteAccounts.containsKey(accountId)) {
+            remoteAccounts.get(accountId).printBalance(accountId);
+        }
+    }
+
     public int getBalance(String accountId) {
-        return 0;
+        return localAccounts.get(accountId).getBalance();
     }
 
     public Set<String> getAccountIds() {

@@ -45,8 +45,10 @@ public class RemoteBank implements Runnable {
         out.flush();
     }
 
-    public int getBalance(String accountId) {
-        return 0;
+    public void printBalance(String accountId) throws IOException {
+        out.write(String.format("getBalance %s", accountId));
+        out.newLine();
+        out.flush();
     }
 
     @Override
@@ -78,6 +80,14 @@ public class RemoteBank implements Runnable {
                     for (int i = 1; i < tokens.length; i++) {
                         bank.register(tokens[i], this);
                     }
+                } else if (command.equals("getBalance")) {
+                    String accountId = tokens[1];
+                    out.write(
+                        String.format(
+                            "getBalanceResponse %d",
+                            bank.getBalance(accountId)));
+                } else if (command.equals("getBalanceResponse")) {
+                    System.out.println(String.format("$%d", tokens[1]));
                 } else {
                     // Unknown command
                 }

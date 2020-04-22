@@ -116,6 +116,20 @@ public class Main implements Runnable {
                             hostname,
                             port));
                 }
+            } else if (command.equals("balance")) {
+                if (tokens.length < 2) {
+                    System.out.println("Please provide an account ID");
+                }
+
+                String accountId = tokens[1];
+                try {
+                    bank.printBalance(accountId);
+                } catch (IOException e) {
+                    System.out.println(
+                        String.format(
+                            "Unable to print balance for %s",
+                            accountId));
+                }
             } else if (command.equals("exit")) {
                 break;
             } else {
