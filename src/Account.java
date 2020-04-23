@@ -1,8 +1,9 @@
 public class Account {
-    private String accountId;
+    private final String accountId;
     private int balance;
 
-    public Account() {
+    public Account(String accountId) {
+        this.accountId = accountId;
     }
 
     public void deposit(int amount) {
