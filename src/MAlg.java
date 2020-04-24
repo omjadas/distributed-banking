@@ -52,7 +52,7 @@ public class MAlg {
 					bank.getBankID(), futureTick);
 		}
 		//broadcast dummy data
-		this.bank.broadcast();
+		this.bank.broadcastDummy();
 		checkAlgorithmTermination();
 		System.out.println("snapshot done");
 	}

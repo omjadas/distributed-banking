@@ -53,36 +53,32 @@ public class RemoteBank implements Runnable {
 	}
 
 	public void deposit(String accountId, int amount) throws IOException {
-		synchronized (MAlg.getInstance().lockObject) {
-			Gson gson = new Gson();
-			VectorClock.getInstance().tick(bank.getBankID());
-			Message message = new Message(
-					Command.DEPOSIT, bank.getBankID(), VectorClock.getInstance());
-			message.addAccoundID(accountId);
-			message.setAmount(amount);
-			out.write(gson.toJson(message));
-			out.newLine();
-			out.flush();
-			bank.sendMessageTo(remoteBankID);
-		}
+		Gson gson = new Gson();
+		VectorClock.getInstance().tick(bank.getBankID());
+		Message message = new Message(
+				Command.DEPOSIT, bank.getBankID(), VectorClock.getInstance());
+		message.addAccoundID(accountId);
+		message.setAmount(amount);
+		out.write(gson.toJson(message));
+		out.newLine();
+		out.flush();
+		bank.sendMessageTo(remoteBankID);
 		//        out.write(String.format("deposit %s %d", accountId, amount));
 		//        out.newLine();
 		//        out.flush();
 	}
 
 	public void withdraw(String accountId, int amount) throws IOException {
-		synchronized (MAlg.getInstance().lockObject) {
-			Gson gson = new Gson();
-			VectorClock.getInstance().tick(bank.getBankID());
-			Message message = new Message(
-					Command.WITHDRAW, bank.getBankID(), VectorClock.getInstance());
-			message.addAccoundID(accountId);
-			message.setAmount(amount);
-			out.write(gson.toJson(message));
-			out.newLine();
-			out.flush();
-			bank.sendMessageTo(remoteBankID);
-		}
+		Gson gson = new Gson();
+		VectorClock.getInstance().tick(bank.getBankID());
+		Message message = new Message(
+				Command.WITHDRAW, bank.getBankID(), VectorClock.getInstance());
+		message.addAccoundID(accountId);
+		message.setAmount(amount);
+		out.write(gson.toJson(message));
+		out.newLine();
+		out.flush();
+		bank.sendMessageTo(remoteBankID);
 		//        out.write(String.format("withdraw %s %d", accountId, amount));
 		//        out.newLine();
 		//        out.flush();
@@ -136,31 +132,26 @@ public class RemoteBank implements Runnable {
 	}
 
 	public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
-		
-		synchronized (MAlg.getInstance().lockObject) {
-			Gson gson = new Gson();
-			VectorClock.getInstance().tick(bank.getBankID());
-			Message message = new Message(
-					Command.SNAPSHOT, bank.getBankID(), VectorClock.getInstance());
-			message.setSnapshot(snapshot);
-			message.setMessageHistory(bank.getHistory());
-			out.write(gson.toJson(message));
-			out.newLine();
-			out.flush();
-		}
+		Gson gson = new Gson();
+		VectorClock.getInstance().tick(bank.getBankID());
+		Message message = new Message(
+				Command.SNAPSHOT, bank.getBankID(), VectorClock.getInstance());
+		message.setSnapshot(snapshot);
+		message.setMessageHistory(bank.getHistory());
+		out.write(gson.toJson(message));
+		out.newLine();
+		out.flush();
 	}
 
 	public void sendWhiteMessageToInitiator(Message whiteMessage) throws IOException {
-		synchronized (MAlg.getInstance().lockObject) {
-			Gson gson = new Gson();
-			VectorClock.getInstance().tick(bank.getBankID());
-			Message message = new Message(
-					Command.SNAPSHOT, bank.getBankID(), VectorClock.getInstance());
-			message.setWhiteMessage(whiteMessage);
-			out.write(gson.toJson(message));
-			out.newLine();
-			out.flush();
-		}
+		Gson gson = new Gson();
+		VectorClock.getInstance().tick(bank.getBankID());
+		Message message = new Message(
+				Command.WHITE_MESSAGE, bank.getBankID(), VectorClock.getInstance());
+		message.setWhiteMessage(whiteMessage);
+		out.write(gson.toJson(message));
+		out.newLine();
+		out.flush();
 	}
 
 	@Override
@@ -224,16 +215,26 @@ public class RemoteBank implements Runnable {
 
 	//process an input
 	public void process(String input) throws IOException, UnknownAccountException {
+		System.out.println(input);
 		synchronized (MAlg.getInstance().lockObject) {
 			Gson gson = new Gson();
 			Message message = gson.fromJson(input, Message.class);
-			
+
+			InitiatorInfo info = MAlg.getInstance().getInitiatorInfo();
+			//exclude REGISTER and REGISTER_RESPONSE messages
 			if (remoteBankID != null) {
-				bank.receiveMessageFrom(remoteBankID);
+				if (info == null) {
+					bank.receiveMessageFrom(remoteBankID);
+				}
+				else if (message.getVectorClock().findTick(info.getInitiatorID()) <
+						info.getFutureTick()) {
+					//then this is a white message
+					bank.receiveMessageFrom(remoteBankID);
+				}
 			}
 
 			//check only when there is an initiator
-			if (MAlg.getInstance().getInitiatorInfo() != null) {
+			if (info != null) {
 				checkTakeSnapshot(message);
 				checkFwdWhiteMessage(message);
 			}
@@ -242,7 +243,7 @@ public class RemoteBank implements Runnable {
 			VectorClock.getInstance().merge(message.getVectorClock());
 			VectorClock.getInstance().tick(bank.getBankID());
 
-			//process message
+			//process messages
 			if (message.getCommand() == Command.REGISTER) {
 				bank.getRemoteBanks().put(message.getSourceID(), this);
 				remoteBankID = message.getSourceID();
@@ -296,8 +297,8 @@ public class RemoteBank implements Runnable {
 			else if (message.getCommand() == Command.TAKE_SNAPSHOT) {
 				UUID initiatorID = message.getSourceID();
 				long futureTick = message.getFutureTick();
-				InitiatorInfo info = new InitiatorInfo(initiatorID, futureTick);
-				MAlg.getInstance().setInitiatorInfo(info);
+				InitiatorInfo newInfo = new InitiatorInfo(initiatorID, futureTick);
+				MAlg.getInstance().setInitiatorInfo(newInfo);
 
 				VectorClock.getInstance().tick(bank.getBankID());
 				Message respMessage = new Message(
@@ -347,10 +348,8 @@ public class RemoteBank implements Runnable {
 				MAlg.getInstance().getInitiatorInfo().getFutureTick();
 
 		if (whiteProcess && redMessage) {
-			//restore 1 since this is a red message
-			bank.sendMessageTo(remoteBankID);
 			Snapshot snapshot = MAlg.getInstance().saveState();
-			//update local vector clock
+			//update local vector clock before send snapshot
 			VectorClock.getInstance().merge(message.getVectorClock());
 			VectorClock.getInstance().tick(bank.getBankID());
 			bank.sendSnapshotToInitiator(snapshot);
@@ -371,7 +370,7 @@ public class RemoteBank implements Runnable {
 			//update local vector clock
 			VectorClock.getInstance().merge(message.getVectorClock());
 			VectorClock.getInstance().tick(bank.getBankID());
-			
+
 			if (bank.getBankID() != initiatorID) {
 				bank.sendWhiteMessageToInitiator(message);
 			}
