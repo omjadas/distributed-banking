@@ -1,15 +1,18 @@
+
 public class Account {
-    private String accountId;
+    private final String accountId;
     private int balance;
 
-    public Account() {
+    public Account(String accountId) {
+        this.accountId = accountId;
+        this.balance = 500;
     }
 
-    public void deposit(int amount) {
+    public synchronized void deposit(int amount) {
         balance += amount;
     }
 
-    public void withdraw(int amount) {
+    public synchronized void withdraw(int amount) {
         balance -= amount;
     }
 
@@ -17,7 +20,7 @@ public class Account {
         return accountId;
     }
 
-    public int getBalance() {
+    public synchronized int getBalance() {
         return balance;
     }
 }

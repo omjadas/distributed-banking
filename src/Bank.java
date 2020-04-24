@@ -1,30 +1,163 @@
+
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class Bank implements Runnable {
-    private ServerSocket serverSocket;
-    private HashMap<String, RemoteBank> remoteAccounts = new HashMap<>();
-    private HashMap<String, Account> localAccounts = new HashMap<>();
-
-    public Bank() throws IOException {
-        serverSocket = new ServerSocket();
+    private final ServerSocket serverSocket;
+    private final UUID bankID;
+    private final HashMap<String, RemoteBank> remoteAccounts = new HashMap<>();
+    private final HashMap<String, Account> localAccounts = new HashMap<>();
+    private final HashMap<UUID, RemoteBank> remoteBanks = new HashMap<>();
+    private final Set<Thread> remoteBankThreads = new HashSet<>();
+    private final WhiteMessageHistory messageHistory;
+    
+    public Bank(UUID bankID, int port) throws IOException {
+    	this.bankID = bankID;
+        serverSocket = new ServerSocket(port);
+        messageHistory = new WhiteMessageHistory(bankID);
     }
 
-    public void register(String[] accountIds, RemoteBank bank) {
+    public void connect(String hostname, int port) throws IOException {
+        RemoteBank remoteBank = new RemoteBank(hostname, port, this);
+        Thread remoteBankThread = new Thread(remoteBank);
+        remoteBankThread.start();
+        remoteBankThreads.add(remoteBankThread);
     }
 
-    public void deposit(String accountId, int amount) {
+    public void open(String accountId) {
+        localAccounts.put(accountId, new Account(accountId));
     }
 
-    public void withdraw(String sourceId, String destId, int amount) {
+    public void register(String accountId, RemoteBank bank) {
+        remoteAccounts.put(accountId, bank);
+    }
+
+    public void deposit(String accountId, int amount) throws IOException,
+            UnknownAccountException {
+        if (localAccounts.containsKey(accountId)) {
+            localAccounts.get(accountId).deposit(amount);
+        } else if (remoteAccounts.containsKey(accountId)) {
+            remoteAccounts.get(accountId).deposit(accountId, amount);
+        } else {
+            throw new UnknownAccountException(
+                String.format("Unknown account %s", accountId));
+        }
+    }
+
+    public void withdraw(String accountId, int amount) throws IOException,
+            UnknownAccountException {
+        if (localAccounts.containsKey(accountId)) {
+            localAccounts.get(accountId).withdraw(amount);
+        } else if (remoteAccounts.containsKey(accountId)) {
+            remoteAccounts.get(accountId).withdraw(accountId, amount);
+        } else {
+            throw new UnknownAccountException(
+                String.format("Unknown account %s", accountId));
+        }
+    }
+
+    public void transfer(String sourceId, String destId, int amount)
+            throws IOException,
+            UnknownAccountException {
+        withdraw(sourceId, amount);
+        deposit(destId, amount);
+    }
+
+    public void printBalance(String accountId) throws IOException {
+        if (localAccounts.containsKey(accountId)) {
+            System.out.println(
+                String.format(
+                    "$%d",
+                    localAccounts.get(accountId).getBalance()));
+        } else if (remoteAccounts.containsKey(accountId)) {
+            remoteAccounts.get(accountId).printBalance(accountId);
+        }
     }
 
     public int getBalance(String accountId) {
-        return 0;
+        return localAccounts.get(accountId).getBalance();
     }
 
-	@Override
-	public void run() {
+    public Set<String> getAccountIds() {
+        return localAccounts.keySet();
+    }
+
+    @Override
+    public void run() {
+        Socket socket;
+        try {
+            while ((socket = serverSocket.accept()) != null &&
+                !Thread.interrupted()) {
+                RemoteBank remoteBank;
+                remoteBank = new RemoteBank(socket, this);
+                Thread remoteBankThread = new Thread(remoteBank);
+                remoteBankThread.start();
+                remoteBankThreads.add(remoteBankThread);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        remoteBankThreads.forEach(remoteBankThread -> {
+            remoteBankThread.interrupt();
+        });
+    }
+
+	public UUID getBankID() {
+		return bankID;
+	}
+
+	public HashMap<String, Account> getLocalAccounts() {
+		return localAccounts;
+	}
+
+	public HashMap<UUID, RemoteBank> getRemoteBanks() {
+		return remoteBanks;
+	}
+
+	public void broadcastFutureTick(long tick) {
+		this.remoteBanks.values().forEach(remoteBank -> {
+			try {
+				remoteBank.sendFutureTick(tick);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+	}
+	
+	public void broadcast() {
+		this.remoteBanks.values().forEach(remoteBank -> {
+			try {
+				remoteBank.sendDummy();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+	}
+	
+	public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
+		UUID initiatorID = MAlg.getInstance().getInitiatorInfo().getInitiatorID();
+		remoteBanks.get(initiatorID).sendSnapshotToInitiator(snapshot);
+	}
+	
+	public void sendWhiteMessageToInitiator(Message whiteMessage) throws IOException {
+		UUID initiatorID = MAlg.getInstance().getInitiatorInfo().getInitiatorID();
+		remoteBanks.get(initiatorID).sendWhiteMessageToInitiator(whiteMessage);
+	}
+	
+	public void sendMessageTo(UUID processID) {
+		messageHistory.sendTo(processID);
+	}
+	
+	public void receiveMessageFrom(UUID processID) {
+		messageHistory.receiveFrom(processID);
+	}
+
+	public WhiteMessageHistory getHistory() {
+		return messageHistory;
 	}
 }
