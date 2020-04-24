@@ -17,7 +17,7 @@ public class RemoteBank implements Runnable {
 	private UUID remoteBankID;
 
 	public RemoteBank(String hostname, int port, Bank bank) throws IOException {
-		synchronized (MAlg.getInstance().lockObject) {
+		synchronized (MAlgorithm.getInstance().lockObject) {
 			this.socket = new Socket(hostname, port);
 			this.out = new BufferedWriter(
 					new OutputStreamWriter(socket.getOutputStream()));
@@ -26,9 +26,9 @@ public class RemoteBank implements Runnable {
 			this.bank = bank;
 
 			Gson gson = new Gson();
-			VectorClock.getInstance().tick(bank.getBankID());
+			VClock.getInstance().tick(bank.getBankID());
 			Message message = new Message(
-					Command.REGISTER, bank.getBankID(), VectorClock.getInstance());
+					Command.REGISTER, bank.getBankID(), VClock.getInstance());
 			message.addAccoundIDs(bank.getAccountIds());
 			out.write(gson.toJson(message));
 			out.newLine();
@@ -54,9 +54,9 @@ public class RemoteBank implements Runnable {
 
 	public void deposit(String accountId, int amount) throws IOException {
 		Gson gson = new Gson();
-		VectorClock.getInstance().tick(bank.getBankID());
+		VClock.getInstance().tick(bank.getBankID());
 		Message message = new Message(
-				Command.DEPOSIT, bank.getBankID(), VectorClock.getInstance());
+				Command.DEPOSIT, bank.getBankID(), VClock.getInstance());
 		message.addAccoundID(accountId);
 		message.setAmount(amount);
 		out.write(gson.toJson(message));
@@ -70,9 +70,9 @@ public class RemoteBank implements Runnable {
 
 	public void withdraw(String accountId, int amount) throws IOException {
 		Gson gson = new Gson();
-		VectorClock.getInstance().tick(bank.getBankID());
+		VClock.getInstance().tick(bank.getBankID());
 		Message message = new Message(
-				Command.WITHDRAW, bank.getBankID(), VectorClock.getInstance());
+				Command.WITHDRAW, bank.getBankID(), VClock.getInstance());
 		message.addAccoundID(accountId);
 		message.setAmount(amount);
 		out.write(gson.toJson(message));
@@ -85,11 +85,11 @@ public class RemoteBank implements Runnable {
 	}
 
 	public void printBalance(String accountId) throws IOException {
-		synchronized (MAlg.getInstance().lockObject) {
+		synchronized (MAlgorithm.getInstance().lockObject) {
 			Gson gson = new Gson();
-			VectorClock.getInstance().tick(bank.getBankID());
+			VClock.getInstance().tick(bank.getBankID());
 			Message message = new Message(
-					Command.GET_BALANCE, bank.getBankID(), VectorClock.getInstance());
+					Command.GET_BALANCE, bank.getBankID(), VClock.getInstance());
 			message.addAccoundID(accountId);
 			out.write(gson.toJson(message));
 			out.newLine();
@@ -102,11 +102,11 @@ public class RemoteBank implements Runnable {
 	}
 
 	public void sendFutureTick(long tick) throws IOException {
-		synchronized (MAlg.getInstance().lockObject) {
+		synchronized (MAlgorithm.getInstance().lockObject) {
 			Gson gson = new Gson();
-			VectorClock.getInstance().tick(bank.getBankID());
+			VClock.getInstance().tick(bank.getBankID());
 			Message message = new Message(
-					Command.TAKE_SNAPSHOT, bank.getBankID(), VectorClock.getInstance());
+					Command.TAKE_SNAPSHOT, bank.getBankID(), VClock.getInstance());
 			message.setFutureTick(tick);
 			out.write(gson.toJson(message));
 			out.newLine();
@@ -119,11 +119,11 @@ public class RemoteBank implements Runnable {
 	}
 
 	public void sendDummy() throws IOException {
-		synchronized (MAlg.getInstance().lockObject) {
+		synchronized (MAlgorithm.getInstance().lockObject) {
 			Gson gson = new Gson();
-			VectorClock.getInstance().tick(bank.getBankID());
+			VClock.getInstance().tick(bank.getBankID());
 			Message message = new Message(
-					Command.DUMMY, bank.getBankID(), VectorClock.getInstance());
+					Command.DUMMY, bank.getBankID(), VClock.getInstance());
 			out.write(gson.toJson(message));
 			out.newLine();
 			out.flush();
@@ -133,9 +133,9 @@ public class RemoteBank implements Runnable {
 
 	public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
 		Gson gson = new Gson();
-		VectorClock.getInstance().tick(bank.getBankID());
+		VClock.getInstance().tick(bank.getBankID());
 		Message message = new Message(
-				Command.SNAPSHOT, bank.getBankID(), VectorClock.getInstance());
+				Command.SNAPSHOT, bank.getBankID(), VClock.getInstance());
 		message.setSnapshot(snapshot);
 		message.setMessageHistory(bank.getHistory());
 		out.write(gson.toJson(message));
@@ -145,9 +145,9 @@ public class RemoteBank implements Runnable {
 
 	public void sendWhiteMessageToInitiator(Message whiteMessage) throws IOException {
 		Gson gson = new Gson();
-		VectorClock.getInstance().tick(bank.getBankID());
+		VClock.getInstance().tick(bank.getBankID());
 		Message message = new Message(
-				Command.WHITE_MESSAGE, bank.getBankID(), VectorClock.getInstance());
+				Command.WHITE_MESSAGE, bank.getBankID(), VClock.getInstance());
 		message.setWhiteMessage(whiteMessage);
 		out.write(gson.toJson(message));
 		out.newLine();
@@ -216,17 +216,17 @@ public class RemoteBank implements Runnable {
 	//process an input
 	public void process(String input) throws IOException, UnknownAccountException {
 		System.out.println(input);
-		synchronized (MAlg.getInstance().lockObject) {
+		synchronized (MAlgorithm.getInstance().lockObject) {
 			Gson gson = new Gson();
 			Message message = gson.fromJson(input, Message.class);
 
-			InitiatorInfo info = MAlg.getInstance().getInitiatorInfo();
+			InitiatorInfo info = MAlgorithm.getInstance().getInitiatorInfo();
 			//exclude REGISTER and REGISTER_RESPONSE messages
 			if (remoteBankID != null) {
 				if (info == null) {
 					bank.receiveMessageFrom(remoteBankID);
 				}
-				else if (message.getVectorClock().findTick(info.getInitiatorID()) <
+				else if (message.getVClock().findTick(info.getInitiatorID()) <
 						info.getFutureTick()) {
 					//then this is a white message
 					bank.receiveMessageFrom(remoteBankID);
@@ -240,8 +240,8 @@ public class RemoteBank implements Runnable {
 			}
 
 			//update local vector clock
-			VectorClock.getInstance().merge(message.getVectorClock());
-			VectorClock.getInstance().tick(bank.getBankID());
+			VClock.getInstance().merge(message.getVClock());
+			VClock.getInstance().tick(bank.getBankID());
 
 			//process messages
 			if (message.getCommand() == Command.REGISTER) {
@@ -251,11 +251,11 @@ public class RemoteBank implements Runnable {
 				for (String accountID :message.getAccountIDs()) {
 					bank.register(accountID, this);
 				}
-				VectorClock.getInstance().tick(bank.getBankID());
+				VClock.getInstance().tick(bank.getBankID());
 				Message respMessage = new Message(
 						Command.REGISTER_RESPONSE, 
 						bank.getBankID(),
-						VectorClock.getInstance());
+						VClock.getInstance());
 
 				respMessage.addAccoundIDs(bank.getAccountIds());
 				out.write(gson.toJson(respMessage));
@@ -279,11 +279,11 @@ public class RemoteBank implements Runnable {
 				}
 			}
 			else if (message.getCommand() == Command.GET_BALANCE) {
-				VectorClock.getInstance().tick(bank.getBankID());
+				VClock.getInstance().tick(bank.getBankID());
 				Message respMessage = new Message(
 						Command.GET_BALANCE_RESPONSE, 
 						bank.getBankID(),
-						VectorClock.getInstance());
+						VClock.getInstance());
 
 				respMessage.setAmount(bank.getBalance(message.getAccountIDs().get(0)));
 				out.write(gson.toJson(respMessage));
@@ -298,13 +298,13 @@ public class RemoteBank implements Runnable {
 				UUID initiatorID = message.getSourceID();
 				long futureTick = message.getFutureTick();
 				InitiatorInfo newInfo = new InitiatorInfo(initiatorID, futureTick);
-				MAlg.getInstance().setInitiatorInfo(newInfo);
+				MAlgorithm.getInstance().setInitiatorInfo(newInfo);
 
-				VectorClock.getInstance().tick(bank.getBankID());
+				VClock.getInstance().tick(bank.getBankID());
 				Message respMessage = new Message(
 						Command.ACKNOWLEDGEMENT, 
 						bank.getBankID(), 
-						VectorClock.getInstance());
+						VClock.getInstance());
 
 				out.write(gson.toJson(respMessage));
 				out.newLine();
@@ -312,21 +312,21 @@ public class RemoteBank implements Runnable {
 				bank.sendMessageTo(remoteBankID);
 			}
 			else if (message.getCommand() == Command.ACKNOWLEDGEMENT) {
-				MAlg.getInstance().receiveAcknowledgement(message.getSourceID());
+				MAlgorithm.getInstance().receiveAcknowledgement(message.getSourceID());
 			}
 			else if (message.getCommand() == Command.SNAPSHOT) {
 				UUID sourceID = message.getSourceID();
 				Snapshot snapshot = message.getSnapshot();
-				WhiteMessageHistory history = message.getMessageHistory();
-				MAlg.getInstance().getGlobalSnapshots().add(snapshot);
-				MAlg.getInstance().getGlobalMessageHistory().put(sourceID, history);
+				WhiteMsgHistory history = message.getMessageHistory();
+				MAlgorithm.getInstance().getGlobalSnapshots().add(snapshot);
+				MAlgorithm.getInstance().getGlobalMessageHistory().put(sourceID, history);
 			}
 			else if (message.getCommand() == Command.WHITE_MESSAGE) {
 				Message whiteMessage = message.getWhiteMessage();
 				UUID sourceID = whiteMessage.getSourceID();
 				UUID destID = message.getSourceID();
-				MAlg.getInstance().getWhiteMessages().add(whiteMessage);
-				MAlg.getInstance().updateMessageHistory(sourceID, destID);
+				MAlgorithm.getInstance().getWhiteMessages().add(whiteMessage);
+				MAlgorithm.getInstance().updateMessageHistory(sourceID, destID);
 			}
 			else if (message.getCommand() == Command.DUMMY) {
 				//do nothing
@@ -339,45 +339,46 @@ public class RemoteBank implements Runnable {
 
 	//take snapshot when a white process receives a red message
 	private void checkTakeSnapshot(Message message) throws IOException {
-		VectorClock clockInMessage = message.getVectorClock();
-		UUID initiatorID = MAlg.getInstance().getInitiatorInfo().getInitiatorID();
+		VClock clockInMessage = message.getVClock();
+		UUID initiatorID = MAlgorithm.getInstance().getInitiatorInfo().getInitiatorID();
 
-		boolean whiteProcess = VectorClock.getInstance().findTick(initiatorID) < 
-				MAlg.getInstance().getInitiatorInfo().getFutureTick();
+		boolean whiteProcess = VClock.getInstance().findTick(initiatorID) < 
+				MAlgorithm.getInstance().getInitiatorInfo().getFutureTick();
 		boolean redMessage = clockInMessage.findTick(initiatorID) >= 
-				MAlg.getInstance().getInitiatorInfo().getFutureTick();
+				MAlgorithm.getInstance().getInitiatorInfo().getFutureTick();
 
 		if (whiteProcess && redMessage) {
-			Snapshot snapshot = MAlg.getInstance().saveState();
+			Snapshot snapshot = MAlgorithm.getInstance().saveState();
 			//update local vector clock before send snapshot
-			VectorClock.getInstance().merge(message.getVectorClock());
-			VectorClock.getInstance().tick(bank.getBankID());
+			VClock.getInstance().merge(message.getVClock());
+			VClock.getInstance().tick(bank.getBankID());
 			bank.sendSnapshotToInitiator(snapshot);
 		}
 	}
 
 	//forward message to initiator when the process is red and message is white
 	private void checkFwdWhiteMessage(Message message) throws IOException {
-		VectorClock clockInMessage = message.getVectorClock();
-		UUID initiatorID = MAlg.getInstance().getInitiatorInfo().getInitiatorID();
+		VClock clockInMessage = message.getVClock();
+		UUID initiatorID = MAlgorithm.getInstance().getInitiatorInfo().getInitiatorID();
 
-		boolean redProcess = VectorClock.getInstance().findTick(initiatorID) >= 
-				MAlg.getInstance().getInitiatorInfo().getFutureTick();
+		boolean redProcess = VClock.getInstance().findTick(initiatorID) >= 
+				MAlgorithm.getInstance().getInitiatorInfo().getFutureTick();
 		boolean whiteMessage = clockInMessage.findTick(initiatorID) < 
-				MAlg.getInstance().getInitiatorInfo().getFutureTick();
+				MAlgorithm.getInstance().getInitiatorInfo().getFutureTick();
 
 		if (redProcess && whiteMessage) {
 			//update local vector clock
-			VectorClock.getInstance().merge(message.getVectorClock());
-			VectorClock.getInstance().tick(bank.getBankID());
+			VClock.getInstance().merge(message.getVClock());
+			VClock.getInstance().tick(bank.getBankID());
 
 			if (bank.getBankID() != initiatorID) {
 				bank.sendWhiteMessageToInitiator(message);
 			}
 			else {
 				//this is the initiator, add white message to message history
-				MAlg.getInstance().getWhiteMessages().add(message);
-				MAlg.getInstance().updateMessageHistory(message.getSourceID(), initiatorID);
+				MAlgorithm.getInstance().getWhiteMessages().add(message);
+				MAlgorithm.getInstance().updateMessageHistory(
+						message.getSourceID(), initiatorID);
 			}
 		}
 	}

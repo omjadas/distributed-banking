@@ -8,7 +8,7 @@ public class Main implements Runnable {
 
     public Main(int port) throws IOException {
         bank = new Bank(UUID.randomUUID(), port);
-        MAlg.getInstance().setBank(bank);
+        MAlgorithm.getInstance().setBank(bank);
     }
 
     public static void main(String[] args) throws IOException {
@@ -147,7 +147,7 @@ public class Main implements Runnable {
             } 
             else if (command.equals("snapshot")) {
                 try {
-					MAlg.getInstance().initSnapshot();
+					MAlgorithm.getInstance().initSnapshot();
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (InterruptedException e) {

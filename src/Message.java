@@ -5,18 +5,18 @@ import java.util.UUID;
 public class Message {
 	private final Command command;
 	private final UUID sourceID;
-	private final VectorClock vectorClock;
+	private final VClock vClock;
 	private long futureTick;
 	private ArrayList<String> accountIDs = new ArrayList<>();
 	private int amount;
 	private Snapshot snapshot;
 	private Message whiteMessage;
-	private WhiteMessageHistory messageHistory;
+	private WhiteMsgHistory messageHistory;
 	
-	public Message(Command command, UUID sourceID, VectorClock vectorClock) {
+	public Message(Command command, UUID sourceID, VClock vectorClock) {
 		this.command = command;
 		this.sourceID = sourceID;
-		this.vectorClock = vectorClock;
+		this.vClock = vectorClock;
 	}
 	
 	public Command getCommand() {
@@ -25,8 +25,8 @@ public class Message {
 	public UUID getSourceID() {
 		return sourceID;
 	}
-	public VectorClock getVectorClock() {
-		return vectorClock;
+	public VClock getVClock() {
+		return vClock;
 	}
 	public ArrayList<String> getAccountIDs() {
 		return accountIDs;
@@ -70,11 +70,11 @@ public class Message {
 		this.whiteMessage = whiteMessage;
 	}
 
-	public WhiteMessageHistory getMessageHistory() {
+	public WhiteMsgHistory getMessageHistory() {
 		return messageHistory;
 	}
 
-	public void setMessageHistory(WhiteMessageHistory messageHistory) {
+	public void setMessageHistory(WhiteMsgHistory messageHistory) {
 		this.messageHistory = messageHistory;
 	}
 	

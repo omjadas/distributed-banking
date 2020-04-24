@@ -3,18 +3,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class VectorClock {
-	private static VectorClock vectorClock = null;
+public class VClock {
+	private static VClock vectorClock = null;
 	private final HashMap<UUID, Long> vc;
 	
-	public VectorClock() {
+	public VClock() {
 		this.vc = new HashMap<>();
 	}
 	
-	public static VectorClock getInstance() 
+	public static VClock getInstance() 
 	{ 
 		if (vectorClock == null) 
-			vectorClock = new VectorClock(); 
+			vectorClock = new VClock(); 
 
 		return vectorClock; 
 	}
@@ -45,7 +45,7 @@ public class VectorClock {
 	}
 
 	//merge local lock with another clock
-	public synchronized void merge(VectorClock other) {
+	public synchronized void merge(VClock other) {
         for (Map.Entry<UUID, Long> clock : other.vc.entrySet()) {
             Long time = this.vc.get(clock.getKey());
             if (time == null) {

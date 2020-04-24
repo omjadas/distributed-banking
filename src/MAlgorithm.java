@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class MAlg {
+public class MAlgorithm {
 	public static final long BROADCAST_INTERVAL = 100;
-	private static MAlg matternsAlgorithm = null; 
+	private static MAlgorithm matternsAlgorithm = null; 
 	public final Object lockObject = new Object();
 	
 	private Bank bank;
@@ -15,15 +15,15 @@ public class MAlg {
 	private final HashMap<UUID, Boolean> acknowledgements = new HashMap<>();
 	private final Set<Snapshot> globalSnapshots = new HashSet<>();
 	private final Set<Message> whiteMessages = new HashSet<>();
-	private final HashMap<UUID, WhiteMessageHistory> globalMessageHistory = new HashMap<>();
+	private final HashMap<UUID, WhiteMsgHistory> globalMessageHistory = new HashMap<>();
 
-	private MAlg() {
+	private MAlgorithm() {
 	}
 
-	public static MAlg getInstance() 
+	public static MAlgorithm getInstance() 
 	{ 
 		if (matternsAlgorithm == null) 
-			matternsAlgorithm = new MAlg(); 
+			matternsAlgorithm = new MAlgorithm(); 
 
 		return matternsAlgorithm; 
 	}
@@ -32,7 +32,7 @@ public class MAlg {
 	public synchronized void initSnapshot() throws IOException, InterruptedException {
 		
 		//define a future tick for global snapshot
-		long futureTick = VectorClock.getInstance().findTick(
+		long futureTick = VClock.getInstance().findTick(
 				this.bank.getBankID()) + BROADCAST_INTERVAL;
 		initiatorInfo = new InitiatorInfo(bank.getBankID(), futureTick);
 
@@ -46,9 +46,9 @@ public class MAlg {
 		//save local state
 		synchronized (lockObject) {
 			globalSnapshots.add(saveState());
-			WhiteMessageHistory newHistory = cloneLocalHistory(bank.getHistory());
+			WhiteMsgHistory newHistory = cloneLocalHistory(bank.getHistory());
 			globalMessageHistory.put(bank.getBankID(), newHistory);
-			VectorClock.getInstance().set(
+			VClock.getInstance().set(
 					bank.getBankID(), futureTick);
 		}
 		//broadcast dummy data
@@ -57,8 +57,8 @@ public class MAlg {
 		System.out.println("snapshot done");
 	}
 	
-	private WhiteMessageHistory cloneLocalHistory(WhiteMessageHistory history) {
-		WhiteMessageHistory newHistory = new WhiteMessageHistory(history.getProcessID());
+	private WhiteMsgHistory cloneLocalHistory(WhiteMsgHistory history) {
+		WhiteMsgHistory newHistory = new WhiteMsgHistory(history.getProcessID());
 		newHistory.setHistory(new HashMap<>(history.getHistory()));
 		return newHistory;
 	}
@@ -98,8 +98,8 @@ public class MAlg {
 			return false;
 		}
 		
-		for (Map.Entry<UUID, WhiteMessageHistory> e1 : globalMessageHistory.entrySet()) {
-			for (Map.Entry<UUID, WhiteMessageHistory> e2 : globalMessageHistory.entrySet()) {
+		for (Map.Entry<UUID, WhiteMsgHistory> e1 : globalMessageHistory.entrySet()) {
+			for (Map.Entry<UUID, WhiteMsgHistory> e2 : globalMessageHistory.entrySet()) {
 				if (e1 != e2) {
 					//if there is communication between e1 and e2
 					boolean e1_has_e2 = e1.getValue().getHistory().containsKey(e2.getKey());
@@ -150,7 +150,7 @@ public class MAlg {
 		return whiteMessages;
 	}
 
-	public HashMap<UUID, WhiteMessageHistory> getGlobalMessageHistory() {
+	public HashMap<UUID, WhiteMsgHistory> getGlobalMessageHistory() {
 		return globalMessageHistory;
 	}
 }

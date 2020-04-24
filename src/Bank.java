@@ -14,12 +14,12 @@ public class Bank implements Runnable {
 	private final HashMap<String, Account> localAccounts = new HashMap<>();
 	private final HashMap<UUID, RemoteBank> remoteBanks = new HashMap<>();
 	private final Set<Thread> remoteBankThreads = new HashSet<>();
-	private final WhiteMessageHistory messageHistory;
+	private final WhiteMsgHistory messageHistory;
 
 	public Bank(UUID bankID, int port) throws IOException {
 		this.bankID = bankID;
 		serverSocket = new ServerSocket(port);
-		messageHistory = new WhiteMessageHistory(bankID);
+		messageHistory = new WhiteMsgHistory(bankID);
 	}
 
 	public void connect(String hostname, int port) throws IOException {
@@ -39,7 +39,7 @@ public class Bank implements Runnable {
 
 	public void deposit(String accountId, int amount) throws IOException,
 	UnknownAccountException {
-		synchronized (MAlg.getInstance().lockObject) {
+		synchronized (MAlgorithm.getInstance().lockObject) {
 			if (localAccounts.containsKey(accountId)) {
 				localAccounts.get(accountId).deposit(amount);
 			} else if (remoteAccounts.containsKey(accountId)) {
@@ -53,7 +53,7 @@ public class Bank implements Runnable {
 
 	public void withdraw(String accountId, int amount) throws IOException,
 	UnknownAccountException {
-		synchronized (MAlg.getInstance().lockObject) {
+		synchronized (MAlgorithm.getInstance().lockObject) {
 			if (localAccounts.containsKey(accountId)) {
 				localAccounts.get(accountId).withdraw(amount);
 			} else if (remoteAccounts.containsKey(accountId)) {
@@ -68,7 +68,7 @@ public class Bank implements Runnable {
 	public void transfer(String sourceId, String destId, int amount)
 			throws IOException,
 			UnknownAccountException {
-		synchronized (MAlg.getInstance().lockObject) {
+		synchronized (MAlgorithm.getInstance().lockObject) {
 			withdraw(sourceId, amount);
 			deposit(destId, amount);
 		}
@@ -146,12 +146,12 @@ public class Bank implements Runnable {
 	}
 
 	public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
-		UUID initiatorID = MAlg.getInstance().getInitiatorInfo().getInitiatorID();
+		UUID initiatorID = MAlgorithm.getInstance().getInitiatorInfo().getInitiatorID();
 		remoteBanks.get(initiatorID).sendSnapshotToInitiator(snapshot);
 	}
 
 	public void sendWhiteMessageToInitiator(Message whiteMessage) throws IOException {
-		UUID initiatorID = MAlg.getInstance().getInitiatorInfo().getInitiatorID();
+		UUID initiatorID = MAlgorithm.getInstance().getInitiatorInfo().getInitiatorID();
 		remoteBanks.get(initiatorID).sendWhiteMessageToInitiator(whiteMessage);
 	}
 
@@ -163,7 +163,7 @@ public class Bank implements Runnable {
 		messageHistory.receiveFrom(processID);
 	}
 
-	public WhiteMessageHistory getHistory() {
+	public WhiteMsgHistory getHistory() {
 		return messageHistory;
 	}
 }

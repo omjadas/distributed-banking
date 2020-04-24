@@ -1,11 +1,11 @@
 import java.util.HashMap;
 import java.util.UUID;
 
-public class WhiteMessageHistory {
+public class WhiteMsgHistory {
 	private final UUID processID;
 	private HashMap<UUID, Integer> history = new HashMap<>();
 
-	public WhiteMessageHistory(UUID processID) {
+	public WhiteMsgHistory(UUID processID) {
 		this.processID = processID;
 	}
 	public HashMap<UUID, Integer> getHistory() {
