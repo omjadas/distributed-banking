@@ -42,7 +42,6 @@ public class MAlgorithm {
 		}
 		//wait for all acknowledgments
 		while (acknowledgements.values().contains(false)) {
-			System.out.println(acknowledgements.values().toString());
 			wait();
 		}
 		
@@ -56,8 +55,8 @@ public class MAlgorithm {
 		}
 		//broadcast dummy data
 		this.bank.broadcastDummy();
-		checkAlgorithmTermination();
-		System.out.println("snapshot done");
+		TerminationDetector terminationDetector = new TerminationDetector();
+		terminationDetector.start();
 	}
 	
 	private WhiteMsgHistory cloneLocalHistory(WhiteMsgHistory history) {
@@ -89,46 +88,6 @@ public class MAlgorithm {
 	public synchronized void updateMessageHistory(UUID sourceID, UUID destID) {
 		globalMessageHistory.get(destID).receiveFrom(sourceID);
 	}
-	
-	public void checkAlgorithmTermination() throws InterruptedException {
-		while (!checkSum()) {
-		}
-	}
-	
-	//check consistency between message histories
-	private boolean checkSum() {
-		int totalRemoteBanks = globalMessageHistory.get(bank.getBankID()).getHistory().size();
-		if (globalMessageHistory.size() < totalRemoteBanks + 1) {
-			return false;
-		}
-		
-		for (Map.Entry<UUID, WhiteMsgHistory> e1 : globalMessageHistory.entrySet()) {
-			for (Map.Entry<UUID, WhiteMsgHistory> e2 : globalMessageHistory.entrySet()) {
-				if (e1 != e2) {
-					//if there is communication between e1 and e2
-					boolean e1_has_e2 = e1.getValue().getHistory().containsKey(e2.getKey());
-					boolean e2_has_e1 = e2.getValue().getHistory().containsKey(e1.getKey());
-					
-					//one-way indicates the message is not received
-					if (e1_has_e2 && !e2_has_e1) {
-						return false;
-					}
-					else if (!e1_has_e2 && e2_has_e1) {
-						return false;
-					}
-					else if (e1_has_e2 && e2_has_e1) {
-						int result = e1.getValue().getHistory().get(e2.getKey()) +
-								e2.getValue().getHistory().get(e1.getKey());
-						if (result != 0) {
-							return false;
-						}
-					}
-				}
-			}
-		}
-		
-		return true;
-	}
 
 	public Bank getBank() {
 		return bank;
@@ -156,5 +115,65 @@ public class MAlgorithm {
 
 	public HashMap<UUID, WhiteMsgHistory> getGlobalMessageHistory() {
 		return globalMessageHistory;
+	}
+	
+	
+	private class TerminationDetector extends Thread {
+		
+		public TerminationDetector() {
+		}
+		
+		@Override
+        public void run() {
+			try {
+				checkAlgorithmTermination();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			System.out.println("snapshot done");
+		}
+		
+		public void checkAlgorithmTermination() throws InterruptedException {
+			while (!checkSum()) {
+				//check termination every second
+				Thread.sleep(1000);
+			}
+		}
+		
+		//check consistency between message histories
+		private boolean checkSum() {
+			int totalRemoteBanks = globalMessageHistory.get(bank.getBankID()).getHistory().size();
+			if (globalMessageHistory.size() < totalRemoteBanks + 1) {
+				return false;
+			}
+			
+			for (Map.Entry<UUID, WhiteMsgHistory> e1 : globalMessageHistory.entrySet()) {
+				for (Map.Entry<UUID, WhiteMsgHistory> e2 : globalMessageHistory.entrySet()) {
+					if (e1 != e2) {
+						//if there is communication between e1 and e2
+						boolean e1_has_e2 = e1.getValue().getHistory().containsKey(e2.getKey());
+						boolean e2_has_e1 = e2.getValue().getHistory().containsKey(e1.getKey());
+						
+						//one-way indicates the message is not received
+						if (e1_has_e2 && !e2_has_e1) {
+							return false;
+						}
+						else if (!e1_has_e2 && e2_has_e1) {
+							return false;
+						}
+						else if (e1_has_e2 && e2_has_e1) {
+							int result = e1.getValue().getHistory().get(e2.getKey()) +
+									e2.getValue().getHistory().get(e1.getKey());
+							if (result != 0) {
+								return false;
+							}
+						}
+					}
+				}
+			}
+			
+			return true;
+		}
 	}
 }
