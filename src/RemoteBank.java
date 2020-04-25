@@ -28,7 +28,9 @@ public class RemoteBank implements Runnable {
 			Gson gson = new Gson();
 			VClock.getInstance().tick(bank.getBankID());
 			Message message = new Message(
-					Command.REGISTER, bank.getBankID(), VClock.getInstance());
+					Command.REGISTER, bank.getBankID(), 
+					VClock.getInstance());
+			
 			message.addAccoundIDs(bank.getAccountIds());
 			out.write(gson.toJson(message));
 			out.newLine();
@@ -56,7 +58,9 @@ public class RemoteBank implements Runnable {
 		Gson gson = new Gson();
 		VClock.getInstance().tick(bank.getBankID());
 		Message message = new Message(
-				Command.DEPOSIT, bank.getBankID(), VClock.getInstance());
+				Command.DEPOSIT, bank.getBankID(), 
+				VClock.getInstance());
+		
 		message.addAccoundID(accountId);
 		message.setAmount(amount);
 		out.write(gson.toJson(message));
@@ -72,7 +76,9 @@ public class RemoteBank implements Runnable {
 		Gson gson = new Gson();
 		VClock.getInstance().tick(bank.getBankID());
 		Message message = new Message(
-				Command.WITHDRAW, bank.getBankID(), VClock.getInstance());
+				Command.WITHDRAW, bank.getBankID(), 
+				VClock.getInstance());
+		
 		message.addAccoundID(accountId);
 		message.setAmount(amount);
 		out.write(gson.toJson(message));
@@ -89,7 +95,9 @@ public class RemoteBank implements Runnable {
 			Gson gson = new Gson();
 			VClock.getInstance().tick(bank.getBankID());
 			Message message = new Message(
-					Command.GET_BALANCE, bank.getBankID(), VClock.getInstance());
+					Command.GET_BALANCE, bank.getBankID(), 
+					VClock.getInstance());
+			
 			message.addAccoundID(accountId);
 			out.write(gson.toJson(message));
 			out.newLine();
@@ -105,7 +113,9 @@ public class RemoteBank implements Runnable {
 		Gson gson = new Gson();
 		VClock.getInstance().tick(bank.getBankID());
 		Message message = new Message(
-				Command.TAKE_SNAPSHOT, bank.getBankID(), VClock.getInstance());
+				Command.TAKE_SNAPSHOT, bank.getBankID(), 
+				VClock.getInstance());
+		
 		message.setFutureTick(tick);
 		out.write(gson.toJson(message));
 		out.newLine();
@@ -116,12 +126,14 @@ public class RemoteBank implements Runnable {
 		//        out.flush();
 	}
 
-	public void sendDummy() throws IOException {
+	public void sendDummyMsg() throws IOException {
 		synchronized (MAlgorithm.getInstance().lockObject) {
 			Gson gson = new Gson();
 			VClock.getInstance().tick(bank.getBankID());
 			Message message = new Message(
-					Command.DUMMY, bank.getBankID(), VClock.getInstance());
+					Command.DUMMY, bank.getBankID(), 
+					VClock.getInstance());
+			
 			out.write(gson.toJson(message));
 			out.newLine();
 			out.flush();
@@ -133,23 +145,29 @@ public class RemoteBank implements Runnable {
 		Gson gson = new Gson();
 		VClock.getInstance().tick(bank.getBankID());
 		Message message = new Message(
-				Command.SNAPSHOT, bank.getBankID(), VClock.getInstance());
+				Command.SNAPSHOT, bank.getBankID(), 
+				VClock.getInstance());
+		
 		message.setSnapshot(snapshot);
 		message.setMessageHistory(bank.getHistory());
 		out.write(gson.toJson(message));
 		out.newLine();
 		out.flush();
+		bank.sendMessageTo(remoteBankID);
 	}
 
 	public void sendWhiteMessageToInitiator(Message whiteMessage) throws IOException {
 		Gson gson = new Gson();
 		VClock.getInstance().tick(bank.getBankID());
 		Message message = new Message(
-				Command.WHITE_MESSAGE, bank.getBankID(), VClock.getInstance());
+				Command.WHITE_MESSAGE, bank.getBankID(), 
+				VClock.getInstance());
+		
 		message.setWhiteMessage(whiteMessage);
 		out.write(gson.toJson(message));
 		out.newLine();
 		out.flush();
+		bank.sendMessageTo(remoteBankID);
 	}
 
 	@Override
@@ -353,6 +371,9 @@ public class RemoteBank implements Runnable {
 				MAlgorithm.getInstance().getInitiatorInfo().getFutureTick();
 
 		if (whiteProcess && redMessage) {
+			//test use
+//			bank.broadcastDummyMsg();
+			
 			Snapshot snapshot = MAlgorithm.getInstance().saveState();
 			//update local vector clock before send snapshot
 			VClock.getInstance().merge(message.getVClock());

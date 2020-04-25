@@ -141,7 +141,7 @@ public class Bank implements Runnable {
 		synchronized (MAlgorithm.getInstance().lockObject) {
 			this.remoteBanks.values().forEach(remoteBank -> {
 				try {
-					remoteBank.sendDummy();
+					remoteBank.sendDummyMsg();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
