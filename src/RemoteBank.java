@@ -102,17 +102,15 @@ public class RemoteBank implements Runnable {
 	}
 
 	public void sendFutureTick(long tick) throws IOException {
-		synchronized (MAlgorithm.getInstance().lockObject) {
-			Gson gson = new Gson();
-			VClock.getInstance().tick(bank.getBankID());
-			Message message = new Message(
-					Command.TAKE_SNAPSHOT, bank.getBankID(), VClock.getInstance());
-			message.setFutureTick(tick);
-			out.write(gson.toJson(message));
-			out.newLine();
-			out.flush();
-			bank.sendMessageTo(remoteBankID);
-		}
+		Gson gson = new Gson();
+		VClock.getInstance().tick(bank.getBankID());
+		Message message = new Message(
+				Command.TAKE_SNAPSHOT, bank.getBankID(), VClock.getInstance());
+		message.setFutureTick(tick);
+		out.write(gson.toJson(message));
+		out.newLine();
+		out.flush();
+		bank.sendMessageTo(remoteBankID);
 		//    	out.write(String.format("snapshot %s %d", processID, tick));
 		//        out.newLine();
 		//        out.flush();
@@ -217,6 +215,7 @@ public class RemoteBank implements Runnable {
 	public void process(String input) throws IOException, UnknownAccountException {
 		System.out.println(input);
 		synchronized (MAlgorithm.getInstance().lockObject) {
+			
 			Gson gson = new Gson();
 			Message message = gson.fromJson(input, Message.class);
 

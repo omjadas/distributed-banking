@@ -37,9 +37,12 @@ public class MAlgorithm {
 		initiatorInfo = new InitiatorInfo(bank.getBankID(), futureTick);
 
 		initAcknowledgementMap();
-		this.bank.broadcastFutureTick(futureTick);
+		synchronized (lockObject) {
+			this.bank.broadcastFutureTick(futureTick);
+		}
 		//wait for all acknowledgments
 		while (acknowledgements.values().contains(false)) {
+			System.out.println(acknowledgements.values().toString());
 			wait();
 		}
 		
@@ -94,7 +97,8 @@ public class MAlgorithm {
 	
 	//check consistency between message histories
 	private boolean checkSum() {
-		if (globalMessageHistory.size() < 2) {
+		int totalRemoteBanks = globalMessageHistory.get(bank.getBankID()).getHistory().size();
+		if (globalMessageHistory.size() < totalRemoteBanks + 1) {
 			return false;
 		}
 		
