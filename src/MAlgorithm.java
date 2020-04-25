@@ -37,6 +37,7 @@ public class MAlgorithm {
 		initiatorInfo = new InitiatorInfo(bank.getBankID(), futureTick);
 
 		initAcknowledgementMap();
+		
 		synchronized (lockObject) {
 			this.bank.broadcastFutureTick(futureTick);
 		}
@@ -66,7 +67,11 @@ public class MAlgorithm {
 	}
 
 	//init acknowledgement map
-	private void initAcknowledgementMap() {
+	private void initAcknowledgementMap() throws InterruptedException {
+		while (bank.getRemoteBanks().size() < bank.getRemoteBankThreads().size()) {
+			wait();
+		}
+		
 		for (Map.Entry<UUID, RemoteBank> rb : bank.getRemoteBanks().entrySet()) {
 			acknowledgements.put(rb.getKey(), false);
 		}
@@ -74,6 +79,10 @@ public class MAlgorithm {
 
 	public synchronized void receiveAcknowledgement(UUID processID) {
 		this.acknowledgements.put(processID, true);
+		notify();
+	}
+	
+	public synchronized void notifyInitAck() {
 		notify();
 	}
 

@@ -166,4 +166,9 @@ public class Bank implements Runnable {
 	public WhiteMsgHistory getHistory() {
 		return messageHistory;
 	}
+
+	public Set<Thread> getRemoteBankThreads() {
+		return remoteBankThreads;
+	}
+	
 }

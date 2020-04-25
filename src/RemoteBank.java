@@ -216,6 +216,13 @@ public class RemoteBank implements Runnable {
 		System.out.println(input);
 		synchronized (MAlgorithm.getInstance().lockObject) {
 			
+			try {
+				Thread.sleep(4000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			Gson gson = new Gson();
 			Message message = gson.fromJson(input, Message.class);
 
@@ -245,6 +252,7 @@ public class RemoteBank implements Runnable {
 			//process messages
 			if (message.getCommand() == Command.REGISTER) {
 				bank.getRemoteBanks().put(message.getSourceID(), this);
+				MAlgorithm.getInstance().notifyInitAck();
 				remoteBankID = message.getSourceID();
 				bank.receiveMessageFrom(remoteBankID);
 				for (String accountID :message.getAccountIDs()) {
@@ -270,6 +278,7 @@ public class RemoteBank implements Runnable {
 			}
 			else if (message.getCommand() == Command.REGISTER_RESPONSE) {
 				bank.getRemoteBanks().put(message.getSourceID(), this);
+				MAlgorithm.getInstance().notifyInitAck();
 				remoteBankID = message.getSourceID();
 				bank.receiveMessageFrom(remoteBankID);
 				bank.sendMessageTo(remoteBankID);
