@@ -215,14 +215,6 @@ public class RemoteBank implements Runnable {
 	public void process(String input) throws IOException, UnknownAccountException {
 		System.out.println(input);
 		synchronized (MAlgorithm.getInstance().lockObject) {
-			
-			try {
-				Thread.sleep(4000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
 			Gson gson = new Gson();
 			Message message = gson.fromJson(input, Message.class);
 
@@ -230,6 +222,7 @@ public class RemoteBank implements Runnable {
 			//exclude REGISTER and REGISTER_RESPONSE messages
 			if (remoteBankID != null) {
 				if (info == null) {
+					//this is a white message
 					bank.receiveMessageFrom(remoteBankID);
 				}
 				else if (message.getVClock().findTick(info.getInitiatorID()) <
@@ -249,12 +242,15 @@ public class RemoteBank implements Runnable {
 			VClock.getInstance().merge(message.getVClock());
 			VClock.getInstance().tick(bank.getBankID());
 
-			//process messages
 			if (message.getCommand() == Command.REGISTER) {
+				
+				//config this remoteBank
 				bank.getRemoteBanks().put(message.getSourceID(), this);
 				MAlgorithm.getInstance().notifyInitAck();
 				remoteBankID = message.getSourceID();
 				bank.receiveMessageFrom(remoteBankID);
+				bank.sendMessageTo(remoteBankID); 
+				//process register message
 				for (String accountID :message.getAccountIDs()) {
 					bank.register(accountID, this);
 				}
@@ -263,12 +259,11 @@ public class RemoteBank implements Runnable {
 						Command.REGISTER_RESPONSE, 
 						bank.getBankID(),
 						VClock.getInstance());
-
+				
 				respMessage.addAccoundIDs(bank.getAccountIds());
 				out.write(gson.toJson(respMessage));
 				out.newLine();
 				out.flush();
-				bank.sendMessageTo(remoteBankID);
 			}
 			else if (message.getCommand() == Command.DEPOSIT) {
 				bank.deposit(message.getAccountIDs().get(0), message.getAmount());
@@ -277,11 +272,13 @@ public class RemoteBank implements Runnable {
 				bank.withdraw(message.getAccountIDs().get(0), message.getAmount());
 			}
 			else if (message.getCommand() == Command.REGISTER_RESPONSE) {
+				//config this remoteBank
 				bank.getRemoteBanks().put(message.getSourceID(), this);
 				MAlgorithm.getInstance().notifyInitAck();
 				remoteBankID = message.getSourceID();
 				bank.receiveMessageFrom(remoteBankID);
 				bank.sendMessageTo(remoteBankID);
+				//process this register_response message
 				for (String accountID :message.getAccountIDs()) {
 					bank.register(accountID, this);
 				}

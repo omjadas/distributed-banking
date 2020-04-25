@@ -94,7 +94,7 @@ public class MAlgorithm {
 		}
 	}
 	
-	public synchronized void updateMessageHistory(UUID sourceID, UUID destID) {
+	public void updateMessageHistory(UUID sourceID, UUID destID) {
 		globalMessageHistory.get(destID).receiveFrom(sourceID);
 	}
 
