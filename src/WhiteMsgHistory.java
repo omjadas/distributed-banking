@@ -1,17 +1,18 @@
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class WhiteMsgHistory {
 	private final UUID processID;
-	private HashMap<UUID, Integer> history = new HashMap<>();
+	private HashMap<UUID, Long> history = new HashMap<>();
 
 	public WhiteMsgHistory(UUID processID) {
 		this.processID = processID;
 	}
-	public HashMap<UUID, Integer> getHistory() {
+	public HashMap<UUID, Long> getHistory() {
 		return history;
 	}
-	public void setHistory(HashMap<UUID, Integer> history) {
+	public void setHistory(HashMap<UUID, Long> history) {
 		this.history = history;
 	}
 	public UUID getProcessID() {
@@ -23,7 +24,7 @@ public class WhiteMsgHistory {
 			history.put(destID, history.get(destID) + 1);
 		}
 		else {
-			history.put(destID, 1);
+			history.put(destID, (long)1);
 		}
 	}
 
@@ -32,11 +33,21 @@ public class WhiteMsgHistory {
 			history.put(sourceID, history.get(sourceID) - 1);
 		}
 		else {
-			history.put(sourceID, -1);
+			history.put(sourceID, (long)-1);
 		}
 	}
 
-	public Object clone()throws CloneNotSupportedException{  
-		return super.clone();  
-	}  
+	//accumulate a history with another
+	public void accumulate(WhiteMsgHistory other) {
+		for (Map.Entry<UUID, Long> otherHistory : other.history.entrySet()) {
+			Long num = this.history.get(otherHistory.getKey());
+			if (num == null) {
+				this.history.put(otherHistory.getKey(), otherHistory.getValue());
+			} 
+			else {
+				num += otherHistory.getValue();
+				this.history.put(otherHistory.getKey(), num);
+			}
+		}
+	}
 }

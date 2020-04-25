@@ -90,9 +90,24 @@ public class MAlgorithm {
 			return snapshot;
 		}
 	}
+
+	//the initiator received a copied white message
+	public void accumulateHistories(UUID sourceID, UUID destID) {
+		WhiteMsgHistory newHistory = new WhiteMsgHistory(destID);
+		newHistory.receiveFrom(sourceID);
+		accumulateHistories(destID, newHistory);
+	}
 	
-	public void updateMessageHistory(UUID sourceID, UUID destID) {
-		globalMessageHistory.get(destID).receiveFrom(sourceID);
+	//accumulate two histories together
+	public void accumulateHistories(UUID id, WhiteMsgHistory newHistory) {
+		if (!globalMessageHistory.containsKey(id)) {
+			globalMessageHistory.put(id, newHistory);
+		}
+		else {
+			WhiteMsgHistory existingHistory = globalMessageHistory.get(id);
+			existingHistory.accumulate(newHistory);
+			globalMessageHistory.put(id, existingHistory);
+		}
 	}
 
 	public Bank getBank() {
@@ -170,7 +185,7 @@ public class MAlgorithm {
 							return false;
 						}
 						else if (e1_has_e2 && e2_has_e1) {
-							int result = e1.getValue().getHistory().get(e2.getKey()) +
+							long result = e1.getValue().getHistory().get(e2.getKey()) +
 									e2.getValue().getHistory().get(e1.getKey());
 							if (result != 0) {
 								return false;

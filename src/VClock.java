@@ -50,7 +50,8 @@ public class VClock {
             Long time = this.vc.get(clock.getKey());
             if (time == null) {
                 this.vc.put(clock.getKey(), clock.getValue());
-            } else {
+            } 
+            else {
                 if (time < clock.getValue())
                     this.vc.put(clock.getKey(), clock.getValue());
             }

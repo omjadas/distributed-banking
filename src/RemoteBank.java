@@ -342,14 +342,14 @@ public class RemoteBank implements Runnable {
 				Snapshot snapshot = message.getSnapshot();
 				WhiteMsgHistory history = message.getMessageHistory();
 				MAlgorithm.getInstance().getGlobalSnapshots().add(snapshot);
-				MAlgorithm.getInstance().getGlobalMessageHistory().put(sourceID, history);
+				MAlgorithm.getInstance().accumulateHistories(sourceID, history);
 			}
 			else if (message.getCommand() == Command.WHITE_MESSAGE) {
 				Message whiteMessage = message.getWhiteMessage();
 				UUID sourceID = whiteMessage.getSourceID();
 				UUID destID = message.getSourceID();
 				MAlgorithm.getInstance().getWhiteMessages().add(whiteMessage);
-				MAlgorithm.getInstance().updateMessageHistory(sourceID, destID);
+				MAlgorithm.getInstance().accumulateHistories(sourceID, destID);
 			}
 			else if (message.getCommand() == Command.DUMMY) {
 				//do nothing
@@ -372,6 +372,7 @@ public class RemoteBank implements Runnable {
 
 		if (whiteProcess && redMessage) {
 			//test use
+			//simulate a white message in transit
 //			bank.broadcastDummyMsg();
 			
 			Snapshot snapshot = MAlgorithm.getInstance().saveState();
@@ -403,8 +404,7 @@ public class RemoteBank implements Runnable {
 			else {
 				//this is the initiator, add white message to message history
 				MAlgorithm.getInstance().getWhiteMessages().add(message);
-				MAlgorithm.getInstance().updateMessageHistory(
-						message.getSourceID(), initiatorID);
+				MAlgorithm.getInstance().accumulateHistories(message.getSourceID(), initiatorID);
 			}
 		}
 	}
