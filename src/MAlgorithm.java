@@ -37,10 +37,7 @@ public class MAlgorithm {
 		initiatorInfo = new InitiatorInfo(bank.getBankID(), futureTick);
 
 		initAcknowledgementMap();
-		
-		synchronized (lockObject) {
-			this.bank.broadcastFutureTick(futureTick);
-		}
+		this.bank.broadcastFutureTick(futureTick);
 		//wait for all acknowledgments
 		while (acknowledgements.values().contains(false)) {
 			wait();
@@ -55,7 +52,7 @@ public class MAlgorithm {
 					bank.getBankID(), futureTick);
 		}
 		//broadcast dummy data
-		this.bank.broadcastDummy();
+		this.bank.broadcastDummyMsg();
 		TerminationDetector terminationDetector = new TerminationDetector();
 		terminationDetector.start();
 	}
@@ -145,8 +142,8 @@ public class MAlgorithm {
 		
 		public void checkAlgorithmTermination() throws InterruptedException {
 			while (!checkSum()) {
-				//check termination every second
-				Thread.sleep(1000);
+				//check termination half a second
+				Thread.sleep(500);
 			}
 		}
 		
@@ -154,6 +151,7 @@ public class MAlgorithm {
 		private boolean checkSum() {
 			int totalRemoteBanks = globalMessageHistory.get(bank.getBankID()).getHistory().size();
 			if (globalMessageHistory.size() < totalRemoteBanks + 1) {
+				//indicates only part of the global system snapshots are collected
 				return false;
 			}
 			

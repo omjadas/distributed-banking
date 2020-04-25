@@ -126,23 +126,27 @@ public class Bank implements Runnable {
 	}
 
 	public void broadcastFutureTick(long tick) {
-		this.remoteBanks.values().forEach(remoteBank -> {
-			try {
-				remoteBank.sendFutureTick(tick);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
+		synchronized (MAlgorithm.getInstance().lockObject) {
+			this.remoteBanks.values().forEach(remoteBank -> {
+				try {
+					remoteBank.sendFutureTick(tick);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		}
 	}
 
-	public void broadcastDummy() {
-		this.remoteBanks.values().forEach(remoteBank -> {
-			try {
-				remoteBank.sendDummy();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
+	public void broadcastDummyMsg() {
+		synchronized (MAlgorithm.getInstance().lockObject) {
+			this.remoteBanks.values().forEach(remoteBank -> {
+				try {
+					remoteBank.sendDummy();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		}
 	}
 
 	public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
@@ -170,5 +174,5 @@ public class Bank implements Runnable {
 	public Set<Thread> getRemoteBankThreads() {
 		return remoteBankThreads;
 	}
-	
+
 }
