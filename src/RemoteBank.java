@@ -382,7 +382,6 @@ public class RemoteBank implements Runnable {
 			bank.sendSnapshotToInitiator(snapshot);
 		}
 	}
-
 	//forward message to initiator when the process is red and message is white
 	private void checkFwdWhiteMessage(Message message) throws IOException {
 		VClock clockInMessage = message.getVClock();

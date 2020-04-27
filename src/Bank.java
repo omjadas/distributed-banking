@@ -174,5 +174,4 @@ public class Bank implements Runnable {
 	public Set<Thread> getRemoteBankThreads() {
 		return remoteBankThreads;
 	}
-
 }
