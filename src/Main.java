@@ -147,7 +147,7 @@ public class Main implements Runnable {
             } else if (command.equals("exit")) {
                 break;
             } 
-            else if (command.equals("Msnapshot")) {
+            else if (command.equals("mattern")) {
                 try {
 					bank.getmAlgorithm().initSnapshot();
 				} catch (IOException e) {
