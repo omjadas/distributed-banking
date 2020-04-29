@@ -143,7 +143,7 @@ public class RemoteBank implements Runnable {
 			out.write(gson.toJson(message));
 			out.newLine();
 			out.flush();
-//			bank.sendMessageTo(remoteBankID);
+			bank.sendMessageTo(remoteBankID);
 		}
 	}
 	
@@ -175,7 +175,7 @@ public class RemoteBank implements Runnable {
 			out.write(gson.toJson(message));
 			out.newLine();
 			out.flush();
-//			bank.sendMessageTo(remoteBankID);
+			bank.sendMessageTo(remoteBankID);
 		}
 	}
 
@@ -187,12 +187,12 @@ public class RemoteBank implements Runnable {
 				bank.getBankID(), 
 				VClock.getInstance());
 		
+		bank.sendMessageTo(remoteBankID);
 		message.setSnapshot(snapshot);
 		message.setMessageHistory(bank.getHistory());
 		out.write(gson.toJson(message));
 		out.newLine();
 		out.flush();
-//		bank.sendMessageTo(remoteBankID);
 	}
 
 	public void sendWhiteMessageToInitiator(Message whiteMessage) throws IOException {
@@ -207,7 +207,7 @@ public class RemoteBank implements Runnable {
 		out.write(gson.toJson(message));
 		out.newLine();
 		out.flush();
-//		bank.sendMessageTo(remoteBankID);
+		bank.sendMessageTo(remoteBankID);
 	}
 
 	@Override
@@ -279,15 +279,7 @@ public class RemoteBank implements Runnable {
 			InitiatorInfo info = bank.getmAlgorithm().getInitiatorInfo();
 			//exclude REGISTER and REGISTER_RESPONSE messages
 			if (remoteBankID != null) {
-				if (info == null) {
-					//this is a white message
-					bank.receiveMessageFrom(remoteBankID);
-				}
-				else if (message.getVClock().findTick(info.getInitiatorID()) <
-						info.getFutureTick()) {
-					//then this is a white message
-					bank.receiveMessageFrom(remoteBankID);
-				}
+				bank.receiveMessageFrom(remoteBankID);
 			}
 
 			//check only when there is an initiator
@@ -416,7 +408,7 @@ public class RemoteBank implements Runnable {
 		if (whiteProcess && redMessage) {
 			//test use
 			//simulate a white message in transit
-//			bank.broadcastTestMsg();
+			bank.broadcastTestMsg();
 			
 			Snapshot snapshot = bank.getmAlgorithm().saveState();
 			//update local vector clock before send snapshot

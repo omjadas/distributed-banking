@@ -43,8 +43,7 @@ public class MAlgorithm {
 			globalSnapshots.add(saveState());
 			WhiteMsgHistory newHistory = cloneLocalHistory(bank.getHistory());
 			globalMessageHistory.put(bank.getBankID(), newHistory);
-			VClock.getInstance().set(
-					bank.getBankID(), futureTick);
+			VClock.getInstance().set(bank.getBankID(), futureTick);
 		}
 		//broadcast dummy data
 		this.bank.broadcastDummyMsg();
