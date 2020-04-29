@@ -7,8 +7,6 @@ import java.util.UUID;
 
 public class MAlgorithm {
 	public static final long BROADCAST_INTERVAL = 100;
-	private static MAlgorithm matternsAlgorithm = null; 
-	public final Object lockObject = new Object();
 	
 	private Bank bank;
 	private InitiatorInfo initiatorInfo;
@@ -17,19 +15,16 @@ public class MAlgorithm {
 	private final Set<Message> whiteMessages = new HashSet<>();
 	private final HashMap<UUID, WhiteMsgHistory> globalMessageHistory = new HashMap<>();
 
-	private MAlgorithm() {
-	}
-
-	public static MAlgorithm getInstance() 
-	{ 
-		if (matternsAlgorithm == null) 
-			matternsAlgorithm = new MAlgorithm(); 
-
-		return matternsAlgorithm; 
+	public MAlgorithm() {
 	}
 
 	//init Mattern's algorithm
 	public synchronized void initSnapshot() throws IOException, InterruptedException {
+		
+		acknowledgements.clear();
+		globalSnapshots.clear();
+		whiteMessages.clear();
+		globalMessageHistory.clear();
 		
 		//define a future tick for global snapshot
 		long futureTick = VClock.getInstance().findTick(
@@ -44,7 +39,7 @@ public class MAlgorithm {
 		}
 		
 		//save local state
-		synchronized (lockObject) {
+		synchronized (bank.LOCK_OBJECT) {
 			globalSnapshots.add(saveState());
 			WhiteMsgHistory newHistory = cloneLocalHistory(bank.getHistory());
 			globalMessageHistory.put(bank.getBankID(), newHistory);
@@ -84,7 +79,7 @@ public class MAlgorithm {
 	}
 
 	public Snapshot saveState() {
-		synchronized (lockObject) {
+		synchronized (bank.LOCK_OBJECT) {
 			Snapshot snapshot = new Snapshot(bank.getBankID(), 
 					bank.getLocalAccounts().values());
 			return snapshot;
@@ -153,12 +148,16 @@ public class MAlgorithm {
 			}
 			
 			System.out.println("snapshot done");
+			//reset
+			initiatorInfo = null;
+			bank.broadcastSnapshotDoneMsg();
+			System.out.println(whiteMessages.size());
 		}
 		
 		public void checkAlgorithmTermination() throws InterruptedException {
 			while (!checkSum()) {
 				//check termination half a second
-				Thread.sleep(500);
+				Thread.sleep(100);
 			}
 		}
 		
@@ -187,6 +186,8 @@ public class MAlgorithm {
 						else if (e1_has_e2 && e2_has_e1) {
 							long result = e1.getValue().getHistory().get(e2.getKey()) +
 									e2.getValue().getHistory().get(e1.getKey());
+//							System.out.println(e1.getValue().getHistory().get(e2.getKey()));
+//							System.out.println(e2.getValue().getHistory().get(e1.getKey()));
 							if (result != 0) {
 								return false;
 							}

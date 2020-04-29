@@ -10,4 +10,5 @@ public enum Command {
 	DUMMY,
 	SNAPSHOT,
 	WHITE_MESSAGE,
+	SNAPSHOT_DONE
 }

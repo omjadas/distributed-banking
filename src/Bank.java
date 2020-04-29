@@ -15,6 +15,9 @@ public class Bank implements Runnable {
 	private final HashMap<UUID, RemoteBank> remoteBanks = new HashMap<>();
 	private final Set<Thread> remoteBankThreads = new HashSet<>();
 	private final WhiteMsgHistory messageHistory;
+	public final Object LOCK_OBJECT = new Object();
+
+	private MAlgorithm mAlgorithm;
 
 	public Bank(UUID bankID, int port) throws IOException {
 		this.bankID = bankID;
@@ -39,7 +42,7 @@ public class Bank implements Runnable {
 
 	public void deposit(String accountId, int amount) throws IOException,
 	UnknownAccountException {
-		synchronized (MAlgorithm.getInstance().lockObject) {
+		synchronized (LOCK_OBJECT) {
 			if (localAccounts.containsKey(accountId)) {
 				localAccounts.get(accountId).deposit(amount);
 			} else if (remoteAccounts.containsKey(accountId)) {
@@ -53,7 +56,7 @@ public class Bank implements Runnable {
 
 	public void withdraw(String accountId, int amount) throws IOException,
 	UnknownAccountException {
-		synchronized (MAlgorithm.getInstance().lockObject) {
+		synchronized (LOCK_OBJECT) {
 			if (localAccounts.containsKey(accountId)) {
 				localAccounts.get(accountId).withdraw(amount);
 			} else if (remoteAccounts.containsKey(accountId)) {
@@ -68,7 +71,7 @@ public class Bank implements Runnable {
 	public void transfer(String sourceId, String destId, int amount)
 			throws IOException,
 			UnknownAccountException {
-		synchronized (MAlgorithm.getInstance().lockObject) {
+		synchronized (LOCK_OBJECT) {
 			withdraw(sourceId, amount);
 			deposit(destId, amount);
 		}
@@ -126,7 +129,7 @@ public class Bank implements Runnable {
 	}
 
 	public void broadcastFutureTick(long tick) {
-		synchronized (MAlgorithm.getInstance().lockObject) {
+		synchronized (LOCK_OBJECT) {
 			this.remoteBanks.values().forEach(remoteBank -> {
 				try {
 					remoteBank.sendFutureTick(tick);
@@ -138,7 +141,7 @@ public class Bank implements Runnable {
 	}
 
 	public void broadcastDummyMsg() {
-		synchronized (MAlgorithm.getInstance().lockObject) {
+		synchronized (LOCK_OBJECT) {
 			this.remoteBanks.values().forEach(remoteBank -> {
 				try {
 					remoteBank.sendDummyMsg();
@@ -148,14 +151,38 @@ public class Bank implements Runnable {
 			});
 		}
 	}
+	
+	public void broadcastSnapshotDoneMsg() {
+		synchronized (LOCK_OBJECT) {
+			this.remoteBanks.values().forEach(remoteBank -> {
+				try {
+					remoteBank.sendSnapshotDoneMsg();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		}
+	}
+	
+	public void broadcastTestMsg() {
+		synchronized (LOCK_OBJECT) {
+			this.remoteBanks.values().forEach(remoteBank -> {
+				try {
+					remoteBank.sendTestMsg();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		}
+	}
 
 	public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
-		UUID initiatorID = MAlgorithm.getInstance().getInitiatorInfo().getInitiatorID();
+		UUID initiatorID = mAlgorithm.getInitiatorInfo().getInitiatorID();
 		remoteBanks.get(initiatorID).sendSnapshotToInitiator(snapshot);
 	}
 
 	public void sendWhiteMessageToInitiator(Message whiteMessage) throws IOException {
-		UUID initiatorID = MAlgorithm.getInstance().getInitiatorInfo().getInitiatorID();
+		UUID initiatorID = mAlgorithm.getInitiatorInfo().getInitiatorID();
 		remoteBanks.get(initiatorID).sendWhiteMessageToInitiator(whiteMessage);
 	}
 
@@ -173,5 +200,13 @@ public class Bank implements Runnable {
 
 	public Set<Thread> getRemoteBankThreads() {
 		return remoteBankThreads;
+	}
+	
+	public MAlgorithm getmAlgorithm() {
+		return mAlgorithm;
+	}
+
+	public void setmAlgorithm(MAlgorithm mAlgorithm) {
+		this.mAlgorithm = mAlgorithm;
 	}
 }
