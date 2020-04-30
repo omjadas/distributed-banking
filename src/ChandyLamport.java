@@ -4,42 +4,51 @@ import java.net.*;
 import java.util.Map.Entry;
 
 // Chandy-Lamport Algorithm and related methods.
+// States with "-" imply non-recorded state.
 
-public class ChandyLamport implements Runnable {
+public class ChandyLamport {
     
     private String bankId;
     private HashMap<String, String> states;
     private boolean stateRecorded;
-    private ServerSocket serverSocket;
     
-    ChandyLamport(String myBankId, List<String> allBankIds, int portNumber) throws IOException {
-        bankId = myBankId;
-        stateRecorded = false;
-        serverSocket = new ServerSocket(portNumber);
+    ChandyLamport(String bankId) {
+        this.bankId = bankId;
+        this.stateRecorded = false;
+        this.states = new HashMap<>();
+    }
+    
+    ChandyLamport(String bankId, Set<String> allBankIds) {
+        this.bankId = bankId;
+        this.stateRecorded = false;
+        this.states = new HashMap<>();
         for (String currentBankId : allBankIds) {
-            states.put(currentBankId, '');
+            states.put(currentBankId, "-");
         }
     }
     
+    public void addBank(String newBank) {
+        states.put(newBank, "-");
+    }
     
-    public void recordState(String state) {
-        states.put(bankId, state);
+    public void recordState(String currentState) {
+        states.put(bankId, currentState);
         stateRecorded = true;
     }
     
     
     public void broadCastMarker() throws IOException {
-        
+        // broadcast to every other bank saying something like "chandyLamportMarker potato".
     }
     
-    public void startAlgorithm() {
-        recordState();
+    public void startAlgorithm(String currentState) throws IOException {
+        recordState(currentState);
         broadCastMarker();
     }
     
     public void resetAlgorithm() {
         for (Map.Entry<String, String> state : states.entrySet()) {
-            states.put(state.getKey(), '');
+            states.put(state.getKey(), "-");
         }
         stateRecorded = false;
     }
@@ -48,13 +57,13 @@ public class ChandyLamport implements Runnable {
         return states;
     }
     
-    public boolean handleReceivedMarker(String remoteBankId, String marker) throws IOException {
+    public boolean handleReceivedMarker(String remoteBankId, String receivedMarker, String currentState) throws IOException {
         
         if (stateRecorded) {
-            states.put(remoteBankId, marker);
+            states.put(remoteBankId, receivedMarker);
         }
         else {
-            recordState();
+            recordState(currentState);
             broadCastMarker();
         }
         
@@ -70,23 +79,6 @@ public class ChandyLamport implements Runnable {
         }
         
         return finished;
-    }
-    
-    @Override
-    public void run() {
-        try {
-            Socket socket;
-            boolean algorithmFinished = true;
-            while (true) {
-                socket = serverSocket.accept();
-                DataInputStream input = new DataInputStream(socket.getInputStream());
-                String msg = input.readUTF();
-                String info[] = msg.split("\\|", 0);
-                handleReceivedMarker(info[0], info[1]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
     
 }

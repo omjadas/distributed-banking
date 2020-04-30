@@ -11,16 +11,38 @@ public class Bank implements Runnable {
     private final HashMap<String, Account> localAccounts = new HashMap<>();
 
     private final Set<Thread> remoteBankThreads = new HashSet<>();
+    
+    private ChandyLamport chandyLamportAlgorithm;
 
     public Bank(int port) throws IOException {
         serverSocket = new ServerSocket(port);
+        chandyLamportAlgorithm = new ChandyLamport("localhost" + "/" + port); // localhost should be changed to something else.
     }
+    
+    //-------------- Chandy-Lamport marker code --------------
+    
+    public String getCurrentState() {
+        String currentState = "A-okay."; // this should somehow represent the current state of the bank.
+        return currentState;
+    }
+    
+    public void startChandyLamport() throws IOException {
+        String currentState = getCurrentState();
+        chandyLamportAlgorithm.startAlgorithm(currentState);
+    }
+    
+    public void handleChandyLamportMarker(String remoteBankId, String markerMessage, String currentState) throws IOException {
+        chandyLamportAlgorithm.handleReceivedMarker(remoteBankId, markerMessage, currentState);
+    }
+    
+    //--------------------------------------------------------
 
     public void connect(String hostname, int port) throws IOException {
         RemoteBank remoteBank = new RemoteBank(hostname, port, this);
         Thread remoteBankThread = new Thread(remoteBank);
         remoteBankThread.start();
         remoteBankThreads.add(remoteBankThread);
+        chandyLamportAlgorithm.addBank(hostname + port);
     }
 
     public void open(String accountId) {

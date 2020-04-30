@@ -88,6 +88,8 @@ public class RemoteBank implements Runnable {
                             bank.getBalance(accountId)));
                 } else if (command.equals("getBalanceResponse")) {
                     System.out.println(String.format("$%d", tokens[1]));
+                } else if (command.equals("chandyLamportMarker")) {
+                    bank.handleChandyLamportMarker(tokens[1], tokens[2], bank.getCurrentState());
                 } else {
                     // Unknown command
                 }
