@@ -91,6 +91,8 @@ public class ChandyLamport {
         }
         
         if (finished) {
+            // INSERT CODE TO DO SOMETHING WITH THE STATES HERE.
+            
             resetAlgorithm();
         }
         

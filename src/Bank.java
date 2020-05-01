@@ -26,10 +26,14 @@ public class Bank implements Runnable {
         return currentState;
     }
     
+    // Call this method like any other system method e.g. deposit, transfer, etc. (rey: i still haven't included the command to do so in Main)
+    
     public void startChandyLamport() throws IOException {
         String currentState = getCurrentState();
         chandyLamportAlgorithm.startAlgorithm(currentState);
     }
+    
+    // Method to handle all chandy lamport messages - usage can be found in run() method of RemoteBank.
     
     public void handleChandyLamportMarker(String remoteBankId, String markerMessage, String currentState) throws IOException {
         chandyLamportAlgorithm.handleReceivedMarker(remoteBankId, markerMessage, currentState);
@@ -42,7 +46,7 @@ public class Bank implements Runnable {
         Thread remoteBankThread = new Thread(remoteBank);
         remoteBankThread.start();
         remoteBankThreads.add(remoteBankThread);
-        chandyLamportAlgorithm.addBank(hostname + "/" + port);
+        chandyLamportAlgorithm.addBank(hostname + "/" + port); // Successful connection should add that branch to the list of branches.
     }
 
     public void open(String accountId) {
