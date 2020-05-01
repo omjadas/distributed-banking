@@ -9,36 +9,49 @@ import java.util.Map.Entry;
 public class ChandyLamport {
     
     private String bankId;
-    private HashMap<String, String> states;
+    private String bankState;
+    private HashMap<String, String> otherStates;
     private boolean stateRecorded;
     
     ChandyLamport(String bankId) {
         this.bankId = bankId;
+        this.bankState = "-";
         this.stateRecorded = false;
-        this.states = new HashMap<>();
+        this.otherStates = new HashMap<>();
     }
     
     ChandyLamport(String bankId, Set<String> allBankIds) {
         this.bankId = bankId;
         this.stateRecorded = false;
-        this.states = new HashMap<>();
+        this.otherStates = new HashMap<>();
         for (String currentBankId : allBankIds) {
-            states.put(currentBankId, "-");
+            otherStates.put(currentBankId, "-");
         }
     }
     
     public void addBank(String newBank) {
-        states.put(newBank, "-");
+        otherStates.put(newBank, "-");
     }
     
     public void recordState(String currentState) {
-        states.put(bankId, currentState);
+        bankState = currentState;
         stateRecorded = true;
     }
     
     
-    public void broadCastMarker() throws IOException {
-        // broadcast to every other bank saying something like "chandyLamportMarker potato".
+    public void broadCastMarker() {
+        try {
+            for (Map.Entry<String, String> entry: otherStates.entrySet()) {
+                String[] tokens = entry.getKey().split("/");
+                Socket socket = new Socket(tokens[0], Integer.parseInt(tokens[1]));
+                
+                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                
+                out.writeUTF("chandyLamportMarker " + bankId + " " + bankState);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     public void startAlgorithm(String currentState) throws IOException {
@@ -47,20 +60,23 @@ public class ChandyLamport {
     }
     
     public void resetAlgorithm() {
-        for (Map.Entry<String, String> state : states.entrySet()) {
-            states.put(state.getKey(), "-");
+        for (Map.Entry<String, String> state : otherStates.entrySet()) {
+            otherStates.put(state.getKey(), "-");
         }
+        bankState = "-";
         stateRecorded = false;
     }
     
     public HashMap<String, String> getStates() {
-        return states;
+        HashMap<String, String> allStates = new HashMap<String, String>(otherStates);
+        allStates.put(bankId, bankState);
+        return allStates;
     }
     
     public boolean handleReceivedMarker(String remoteBankId, String receivedMarker, String currentState) throws IOException {
         
         if (stateRecorded) {
-            states.put(remoteBankId, receivedMarker);
+            otherStates.put(remoteBankId, receivedMarker);
         }
         else {
             recordState(currentState);
@@ -68,8 +84,8 @@ public class ChandyLamport {
         }
         
         boolean finished = true;
-        for (Map.Entry<String, String> state : states.entrySet()) {
-            if (state.getValue().isEmpty()) {
+        for (Map.Entry<String, String> state : otherStates.entrySet()) {
+            if (state.getValue().equals("-")) {
                 finished = false;
             }
         }

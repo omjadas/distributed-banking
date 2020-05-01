@@ -42,7 +42,7 @@ public class Bank implements Runnable {
         Thread remoteBankThread = new Thread(remoteBank);
         remoteBankThread.start();
         remoteBankThreads.add(remoteBankThread);
-        chandyLamportAlgorithm.addBank(hostname + port);
+        chandyLamportAlgorithm.addBank(hostname + "/" + port);
     }
 
     public void open(String accountId) {
