@@ -59,7 +59,6 @@ public class RemoteBank implements Runnable {
 	public void deposit(String accountId, int amount) throws IOException {
 		Gson gson = new Gson();
 		VClock.getInstance().tick(bank.getBankID());
-		
 		bank.getmAlgorithm().setMsgCounter(bank.getmAlgorithm().getMsgCounter() + 1);
 		Message message = new Message(
 				Command.DEPOSIT, 
@@ -277,7 +276,6 @@ public class RemoteBank implements Runnable {
 		synchronized (bank.LOCK_OBJECT) {
 			Gson gson = new Gson();
 			Message message = gson.fromJson(input, Message.class);
-
 			InitiatorInfo info = bank.getmAlgorithm().getInitiatorInfo();
 			bank.getmAlgorithm().setMsgCounter(bank.getmAlgorithm().getMsgCounter() - 1);
 

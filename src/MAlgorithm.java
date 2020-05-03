@@ -13,9 +13,9 @@ public class MAlgorithm {
 	private final HashMap<UUID, Boolean> acknowledgements = new HashMap<>();
 	private final Set<Snapshot> globalSnapshots = new HashSet<>();
 	private final Set<Message> whiteMessages = new HashSet<>();
-	private int msgCounter = 0;
-	private int globalCounte = 0;
-	private int numSnapshot = 0;
+	private int msgCounter = 0;//out minus in
+	private int globalCounter = 0;
+	private int numSnapshot = 0;//num of snapshots collected
 
 	public MAlgorithm() {
 	}
@@ -26,7 +26,7 @@ public class MAlgorithm {
 		acknowledgements.clear();
 		globalSnapshots.clear();
 		whiteMessages.clear();
-		globalCounte = 0;
+		globalCounter = 0;
 		numSnapshot = 0;
 		
 		//define a future tick for global snapshot
@@ -44,7 +44,8 @@ public class MAlgorithm {
 		//save local state
 		synchronized (bank.LOCK_OBJECT) {
 			globalSnapshots.add(saveState());
-			globalCounte += msgCounter;
+			globalCounter += msgCounter;
+			numSnapshot += 1;
 			VClock.getInstance().set(bank.getBankID(), futureTick);
 		}
 		//broadcast dummy data
@@ -83,7 +84,7 @@ public class MAlgorithm {
 
 	//update global counter
 	public void updateCounter(int newCounter) {
-		globalCounte += newCounter;
+		globalCounter += newCounter;
 	}
 
 	public Bank getBank() {
@@ -120,11 +121,11 @@ public class MAlgorithm {
 
 
 	public int getGlobalCounte() {
-		return globalCounte;
+		return globalCounter;
 	}
 
 	public void setGlobalCounte(int globalCounte) {
-		this.globalCounte = globalCounte;
+		this.globalCounter = globalCounte;
 	}
 
 
@@ -157,9 +158,12 @@ public class MAlgorithm {
 		}
 		
 		public void checkAlgorithmTermination() throws InterruptedException {
-			while (globalCounte != 0 || numSnapshot != bank.getRemoteBanks().size()) {
-				//check termination half a second
+			while (true) {
+				//check termination every half a second
 				Thread.sleep(500);
+				if (globalCounter == 0 && numSnapshot == bank.getRemoteBanks().size() + 1) {
+					break;
+				}
 			}
 		}
 	}
