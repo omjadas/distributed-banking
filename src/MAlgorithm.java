@@ -7,13 +7,15 @@ import java.util.UUID;
 
 public class MAlgorithm {
 	public static final long BROADCAST_INTERVAL = 100;
+	public static final int SEND = 1;
+	public static final int RECEIVE = -1;
 	
 	private Bank bank;
 	private InitiatorInfo initiatorInfo;
 	private final HashMap<UUID, Boolean> acknowledgements = new HashMap<>();
 	private final Set<Snapshot> globalSnapshots = new HashSet<>();
 	private final Set<Message> whiteMessages = new HashSet<>();
-	private int msgCounter = 0;//out minus in
+	public int msgCounter = 0;//out minus in
 	private int globalCounter = 0;
 	private int numSnapshot = 0;//num of snapshots collected
 
@@ -110,15 +112,6 @@ public class MAlgorithm {
 	public Set<Message> getWhiteMessages() {
 		return whiteMessages;
 	}
-	
-	public int getMsgCounter() {
-		return msgCounter;
-	}
-
-	public void setMsgCounter(int msgCounter) {
-		this.msgCounter = msgCounter;
-	}
-
 
 	public int getGlobalCounte() {
 		return globalCounter;
