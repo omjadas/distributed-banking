@@ -11,7 +11,7 @@ public class Message {
 	private int amount;
 	private Snapshot snapshot;
 	private Message whiteMessage;
-	private WhiteMsgHistory messageHistory;
+	private int msgCounter;
 	
 	public Message(Command command, UUID sourceID, VClock vectorClock) {
 		this.command = command;
@@ -70,12 +70,12 @@ public class Message {
 		this.whiteMessage = whiteMessage;
 	}
 
-	public WhiteMsgHistory getMessageHistory() {
-		return messageHistory;
+	public int getMsgCounter() {
+		return msgCounter;
 	}
 
-	public void setMessageHistory(WhiteMsgHistory messageHistory) {
-		this.messageHistory = messageHistory;
+	public void setMsgCounter(int msgCounter) {
+		this.msgCounter = msgCounter;
 	}
 	
 }

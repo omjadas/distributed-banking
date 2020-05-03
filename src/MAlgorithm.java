@@ -13,7 +13,9 @@ public class MAlgorithm {
 	private final HashMap<UUID, Boolean> acknowledgements = new HashMap<>();
 	private final Set<Snapshot> globalSnapshots = new HashSet<>();
 	private final Set<Message> whiteMessages = new HashSet<>();
-	private final HashMap<UUID, WhiteMsgHistory> globalMessageHistory = new HashMap<>();
+	private int msgCounter = 0;
+	private int globalCounte = 0;
+	private int numSnapshot = 0;
 
 	public MAlgorithm() {
 	}
@@ -24,7 +26,8 @@ public class MAlgorithm {
 		acknowledgements.clear();
 		globalSnapshots.clear();
 		whiteMessages.clear();
-		globalMessageHistory.clear();
+		globalCounte = 0;
+		numSnapshot = 0;
 		
 		//define a future tick for global snapshot
 		long futureTick = VClock.getInstance().findTick(
@@ -41,20 +44,13 @@ public class MAlgorithm {
 		//save local state
 		synchronized (bank.LOCK_OBJECT) {
 			globalSnapshots.add(saveState());
-			WhiteMsgHistory newHistory = cloneLocalHistory(bank.getHistory());
-			globalMessageHistory.put(bank.getBankID(), newHistory);
+			globalCounte += msgCounter;
 			VClock.getInstance().set(bank.getBankID(), futureTick);
 		}
 		//broadcast dummy data
 		this.bank.broadcastDummyMsg();
 		TerminationDetector terminationDetector = new TerminationDetector();
 		terminationDetector.start();
-	}
-	
-	private WhiteMsgHistory cloneLocalHistory(WhiteMsgHistory history) {
-		WhiteMsgHistory newHistory = new WhiteMsgHistory(history.getProcessID());
-		newHistory.setHistory(new HashMap<>(history.getHistory()));
-		return newHistory;
 	}
 
 	//init acknowledgement map
@@ -85,23 +81,9 @@ public class MAlgorithm {
 		}
 	}
 
-	//the initiator received a copied white message
-	public void accumulateHistories(UUID sourceID, UUID destID) {
-		WhiteMsgHistory newHistory = new WhiteMsgHistory(destID);
-		newHistory.receiveFrom(sourceID);
-		accumulateHistories(destID, newHistory);
-	}
-	
-	//accumulate two histories together
-	public void accumulateHistories(UUID id, WhiteMsgHistory newHistory) {
-		if (!globalMessageHistory.containsKey(id)) {
-			globalMessageHistory.put(id, newHistory);
-		}
-		else {
-			WhiteMsgHistory existingHistory = globalMessageHistory.get(id);
-			existingHistory.accumulate(newHistory);
-			globalMessageHistory.put(id, existingHistory);
-		}
+	//update global counter
+	public void updateCounter(int newCounter) {
+		globalCounte += newCounter;
 	}
 
 	public Bank getBank() {
@@ -127,12 +109,34 @@ public class MAlgorithm {
 	public Set<Message> getWhiteMessages() {
 		return whiteMessages;
 	}
-
-	public HashMap<UUID, WhiteMsgHistory> getGlobalMessageHistory() {
-		return globalMessageHistory;
+	
+	public int getMsgCounter() {
+		return msgCounter;
 	}
-	
-	
+
+	public void setMsgCounter(int msgCounter) {
+		this.msgCounter = msgCounter;
+	}
+
+
+	public int getGlobalCounte() {
+		return globalCounte;
+	}
+
+	public void setGlobalCounte(int globalCounte) {
+		this.globalCounte = globalCounte;
+	}
+
+
+	public int getNumSnapshot() {
+		return numSnapshot;
+	}
+
+	public void setNumSnapshot(int numSnapshot) {
+		this.numSnapshot = numSnapshot;
+	}
+
+
 	private class TerminationDetector extends Thread {
 		
 		public TerminationDetector() {
@@ -150,52 +154,13 @@ public class MAlgorithm {
 			//reset
 			initiatorInfo = null;
 			bank.broadcastSnapshotDoneMsg();
-			System.out.println(whiteMessages.size());
 		}
 		
 		public void checkAlgorithmTermination() throws InterruptedException {
-			while (!checkSum()) {
+			while (globalCounte != 0 || numSnapshot != bank.getRemoteBanks().size()) {
 				//check termination half a second
-				Thread.sleep(100);
+				Thread.sleep(500);
 			}
-		}
-		
-		//check consistency between message histories
-		private boolean checkSum() {
-			int totalRemoteBanks = globalMessageHistory.get(bank.getBankID()).getHistory().size();
-			if (globalMessageHistory.size() < totalRemoteBanks + 1) {
-				//indicates only part of the global system snapshots are collected
-				return false;
-			}
-			
-			for (Map.Entry<UUID, WhiteMsgHistory> e1 : globalMessageHistory.entrySet()) {
-				for (Map.Entry<UUID, WhiteMsgHistory> e2 : globalMessageHistory.entrySet()) {
-					if (e1 != e2) {
-						//if there is communication between e1 and e2
-						boolean e1_has_e2 = e1.getValue().getHistory().containsKey(e2.getKey());
-						boolean e2_has_e1 = e2.getValue().getHistory().containsKey(e1.getKey());
-						
-						//one-way indicates the message is not received
-						if (e1_has_e2 && !e2_has_e1) {
-							return false;
-						}
-						else if (!e1_has_e2 && e2_has_e1) {
-							return false;
-						}
-						else if (e1_has_e2 && e2_has_e1) {
-							long result = e1.getValue().getHistory().get(e2.getKey()) +
-									e2.getValue().getHistory().get(e1.getKey());
-//							System.out.println(e1.getValue().getHistory().get(e2.getKey()));
-//							System.out.println(e2.getValue().getHistory().get(e1.getKey()));
-							if (result != 0) {
-								return false;
-							}
-						}
-					}
-				}
-			}
-			
-			return true;
 		}
 	}
 }

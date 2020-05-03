@@ -14,7 +14,6 @@ public class Bank implements Runnable {
 	private final HashMap<String, Account> localAccounts = new HashMap<>();
 	private final HashMap<UUID, RemoteBank> remoteBanks = new HashMap<>();
 	private final Set<Thread> remoteBankThreads = new HashSet<>();
-	private final WhiteMsgHistory messageHistory;
 	public final Object LOCK_OBJECT = new Object();
 
 	private MAlgorithm mAlgorithm;
@@ -22,7 +21,6 @@ public class Bank implements Runnable {
 	public Bank(UUID bankID, int port) throws IOException {
 		this.bankID = bankID;
 		serverSocket = new ServerSocket(port);
-		messageHistory = new WhiteMsgHistory(bankID);
 	}
 
 	public void connect(String hostname, int port) throws IOException {
@@ -184,18 +182,6 @@ public class Bank implements Runnable {
 	public void sendWhiteMessageToInitiator(Message whiteMessage) throws IOException {
 		UUID initiatorID = mAlgorithm.getInitiatorInfo().getInitiatorID();
 		remoteBanks.get(initiatorID).sendWhiteMessageToInitiator(whiteMessage);
-	}
-
-	public void sendMessageTo(UUID processID) {
-		messageHistory.sendTo(processID);
-	}
-
-	public void receiveMessageFrom(UUID processID) {
-		messageHistory.receiveFrom(processID);
-	}
-
-	public WhiteMsgHistory getHistory() {
-		return messageHistory;
 	}
 
 	public Set<Thread> getRemoteBankThreads() {
