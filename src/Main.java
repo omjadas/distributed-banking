@@ -133,6 +133,13 @@ public class Main implements Runnable {
                 }
             } else if (command.equals("exit")) {
                 break;
+            } else if (command.equals("chandylamport")) {
+                System.out.println("Attempting to take Chandy-Lamport Snapshot.");
+                try {
+                    bank.startChandyLamport();
+                } catch (IOException e) {
+                    System.out.println("Unable to complete the snapshot process.");
+                }
             } else {
                 System.out.println("Unknown command");
             }

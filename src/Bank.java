@@ -26,11 +26,16 @@ public class Bank implements Runnable {
         return currentState;
     }
     
-    // Call this method like any other system method e.g. deposit, transfer, etc. (rey: i still haven't included the command to do so in Main)
+    // Call this method like any other system method e.g. deposit, transfer, etc.
     
     public void startChandyLamport() throws IOException {
         String currentState = getCurrentState();
-        chandyLamportAlgorithm.startAlgorithm(currentState);
+        if (chandyLamportAlgorithm.startAlgorithm(currentState)) {
+            System.out.println("Completed snapshot process.");
+        }
+        else {
+            System.out.println("Not connected to other banks.");
+        }
     }
     
     // Method to handle all chandy lamport messages - usage can be found in run() method of RemoteBank.

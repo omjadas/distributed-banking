@@ -13,6 +13,8 @@ public class ChandyLamport {
     private HashMap<String, String> otherStates;
     private boolean stateRecorded;
     
+    // Constructors.
+    
     ChandyLamport(String bankId) {
         this.bankId = bankId;
         this.bankState = "-";
@@ -29,15 +31,20 @@ public class ChandyLamport {
         }
     }
     
+    // Add a bank to the list of connected banks.
+    
     public void addBank(String newBank) {
         otherStates.put(newBank, "-");
     }
+    
+    // Take a string to store the current state of bank.
     
     public void recordState(String currentState) {
         bankState = currentState;
         stateRecorded = true;
     }
     
+    // Attempts to send the current state to the other banks.
     
     public void broadCastMarker() {
         try {
@@ -48,16 +55,26 @@ public class ChandyLamport {
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                 
                 out.writeUTF("chandyLamportMarker " + bankId + " " + bankState);
+                
+                socket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     
-    public void startAlgorithm(String currentState) throws IOException {
+    // Start of algorithm.
+    
+    public boolean startAlgorithm(String currentState) throws IOException {
+        if (otherStates.isEmpty()) {
+            return false;
+        }
         recordState(currentState);
         broadCastMarker();
+        return true;
     }
+    
+    // End of algorithm - call this to erase snapshot.
     
     public void resetAlgorithm() {
         for (Map.Entry<String, String> state : otherStates.entrySet()) {
@@ -67,11 +84,15 @@ public class ChandyLamport {
         stateRecorded = false;
     }
     
+    // Getter for the snapshot.
+    
     public HashMap<String, String> getStates() {
         HashMap<String, String> allStates = new HashMap<String, String>(otherStates);
         allStates.put(bankId, bankState);
         return allStates;
     }
+    
+    // Method for what to do if a bank receives a chandylamport marker.
     
     public boolean handleReceivedMarker(String remoteBankId, String receivedMarker, String currentState) throws IOException {
         
@@ -91,7 +112,12 @@ public class ChandyLamport {
         }
         
         if (finished) {
-            // INSERT CODE TO DO SOMETHING WITH THE STATES HERE.
+            HashMap<String, String> snapshot = getStates();
+            for (Map.Entry<String, String> entry: otherStates.entrySet()){
+                String branch = entry.getKey();
+                String branchState = snapshot.get(branch);
+                System.out.println("Branch: " + branch + ", " + "State: " + branchState);
+            }
             
             resetAlgorithm();
         }
