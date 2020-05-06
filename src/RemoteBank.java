@@ -163,22 +163,6 @@ public class RemoteBank implements Runnable {
 			out.flush();
 		}
 	}
-	
-	public void sendSnapshotDoneMsg() throws IOException {
-		synchronized (bank.LOCK_OBJECT) {
-			Gson gson = new Gson();
-			VClock.getInstance().tick(bank.getBankID());
-			bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
-			Message message = new Message(
-					Command.SNAPSHOT_DONE, 
-					bank.getBankID(), 
-					VClock.getInstance());
-			
-			out.write(gson.toJson(message));
-			out.newLine();
-			out.flush();
-		}
-	}
 
 	public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
 		Gson gson = new Gson();
@@ -374,9 +358,6 @@ public class RemoteBank implements Runnable {
 				Message whiteMessage = message.getWhiteMessage();
 				bank.getmAlgorithm().getWhiteMessages().add(whiteMessage);
 				bank.getmAlgorithm().updateCounter(MAlgorithm.RECEIVE);
-			}
-			else if (message.getCommand() == Command.SNAPSHOT_DONE) {
-				bank.getmAlgorithm().setInitiatorInfo(null);
 			}
 			else if (message.getCommand() == Command.DUMMY) {
 				//do nothing

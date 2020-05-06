@@ -150,18 +150,6 @@ public class Bank implements Runnable {
 		}
 	}
 	
-	public void broadcastSnapshotDoneMsg() {
-		synchronized (LOCK_OBJECT) {
-			this.remoteBanks.values().forEach(remoteBank -> {
-				try {
-					remoteBank.sendSnapshotDoneMsg();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			});
-		}
-	}
-	
 	public void broadcastTestMsg() {
 		synchronized (LOCK_OBJECT) {
 			this.remoteBanks.values().forEach(remoteBank -> {

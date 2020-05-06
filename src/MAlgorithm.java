@@ -18,6 +18,7 @@ public class MAlgorithm {
 	public int msgCounter = 0;//out minus in
 	private int globalCounter = 0;
 	private int numSnapshot = 0;//num of snapshots collected
+	private TerminationDetector terminationDetector;
 
 	public MAlgorithm() {
 	}
@@ -52,7 +53,7 @@ public class MAlgorithm {
 		}
 		//broadcast dummy data
 		this.bank.broadcastDummyMsg();
-		TerminationDetector terminationDetector = new TerminationDetector();
+		terminationDetector = new TerminationDetector();
 		terminationDetector.start();
 	}
 
@@ -87,6 +88,7 @@ public class MAlgorithm {
 	//update global counter
 	public void updateCounter(int newCounter) {
 		globalCounter += newCounter;
+		terminationDetector.notifyNewMsg();;
 	}
 
 	public Bank getBank() {
@@ -147,17 +149,20 @@ public class MAlgorithm {
 			System.out.println("snapshot done");
 			//reset
 			initiatorInfo = null;
-			bank.broadcastSnapshotDoneMsg();
 		}
 		
-		public void checkAlgorithmTermination() throws InterruptedException {
+		public synchronized void checkAlgorithmTermination() throws InterruptedException {
 			while (true) {
 				//check termination every half a second
-				Thread.sleep(500);
+				wait();
 				if (globalCounter == 0 && numSnapshot == bank.getRemoteBanks().size() + 1) {
 					break;
 				}
 			}
+		}
+		
+		public synchronized void notifyNewMsg() {
+			notify();
 		}
 	}
 }
