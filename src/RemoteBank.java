@@ -352,7 +352,7 @@ public class RemoteBank implements Runnable {
 				int msgCounter = message.getMsgCounter();
 				bank.getmAlgorithm().getGlobalSnapshots().add(snapshot);
 				bank.getmAlgorithm().updateCounter(msgCounter);
-				bank.getmAlgorithm().setNumSnapshot(bank.getmAlgorithm().getNumSnapshot() + 1);;
+				bank.getmAlgorithm().updateNumSnapshot();
 			}
 			else if (message.getCommand() == Command.WHITE_MESSAGE) {
 				Message whiteMessage = message.getWhiteMessage();

@@ -90,6 +90,11 @@ public class MAlgorithm {
 		globalCounter += newCounter;
 		terminationDetector.notifyNewMsg();;
 	}
+	
+	public void updateNumSnapshot() {
+		numSnapshot += 1;
+		terminationDetector.notifyNewMsg();;
+	}
 
 	public Bank getBank() {
 		return bank;
@@ -122,17 +127,7 @@ public class MAlgorithm {
 	public void setGlobalCounte(int globalCounte) {
 		this.globalCounter = globalCounte;
 	}
-
-
-	public int getNumSnapshot() {
-		return numSnapshot;
-	}
-
-	public void setNumSnapshot(int numSnapshot) {
-		this.numSnapshot = numSnapshot;
-	}
-
-
+	
 	private class TerminationDetector extends Thread {
 		
 		public TerminationDetector() {
