@@ -4,11 +4,12 @@ import java.util.UUID;
 
 public class VectorClock {
     private static VectorClock vectorClock = null;
-    private final HashMap<UUID, Long> vc = new HashMap<>();;
+    private final HashMap<UUID, Long> vc = new HashMap<>();
 
     public static VectorClock getInstance() {
-        if (vectorClock == null)
+        if (vectorClock == null) {
             vectorClock = new VectorClock();
+        }
 
         return vectorClock;
     }
@@ -43,9 +44,8 @@ public class VectorClock {
             Long time = this.vc.get(clock.getKey());
             if (time == null) {
                 this.vc.put(clock.getKey(), clock.getValue());
-            } else {
-                if (time < clock.getValue())
-                    this.vc.put(clock.getKey(), clock.getValue());
+            } else if (time < clock.getValue()) {
+                this.vc.put(clock.getKey(), clock.getValue());
             }
         }
     }

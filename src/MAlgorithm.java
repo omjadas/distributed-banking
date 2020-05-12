@@ -82,7 +82,6 @@ public class MAlgorithm {
     public void updateCounter(int newCounter) {
         globalCounter += newCounter;
         terminationDetector.notifyNewMsg();
-        ;
     }
 
     public void updateNumSnapshot() {
