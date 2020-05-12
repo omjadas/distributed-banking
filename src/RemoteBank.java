@@ -314,7 +314,7 @@ public class RemoteBank implements Runnable {
                 .getmAlgorithm().getInitiatorInfo().getFutureTick();
 
         if (whiteProcess && redMessage) {
-            Snapshot snapshot = bank.getmAlgorithm().saveState();
+            Snapshot snapshot = bank.takeSnapshot();
             // update local vector clock before send snapshot
             VectorClock.getInstance().merge(message.getVClock());
             VectorClock.getInstance().tick(bank.getBankID());

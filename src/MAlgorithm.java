@@ -45,7 +45,7 @@ public class MAlgorithm {
 
         // save local state
         synchronized (bank.LOCK_OBJECT) {
-            globalSnapshots.add(saveState());
+            globalSnapshots.add(bank.takeSnapshot());
             globalCounter += msgCounter;
             numSnapshot += 1;
             VectorClock.getInstance().set(bank.getBankID(), futureTick);
@@ -76,15 +76,6 @@ public class MAlgorithm {
 
     public synchronized void notifyInitAck() {
         notify();
-    }
-
-    public Snapshot saveState() {
-        synchronized (bank.LOCK_OBJECT) {
-            Snapshot snapshot = new Snapshot(
-                bank.getBankID(),
-                bank.getLocalAccounts().values());
-            return snapshot;
-        }
     }
 
     // update global counter

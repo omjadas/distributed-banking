@@ -125,6 +125,15 @@ public class Bank implements Runnable {
         return remoteBanks;
     }
 
+    public Snapshot takeSnapshot() {
+        synchronized (LOCK_OBJECT) {
+            Snapshot snapshot = new Snapshot(
+                getBankID(),
+                getLocalAccounts().values());
+            return snapshot;
+        }
+    }
+
     public void broadcastFutureTick(long tick) {
         synchronized (LOCK_OBJECT) {
             this.remoteBanks.values().forEach(remoteBank -> {
