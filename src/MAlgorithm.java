@@ -6,158 +6,163 @@ import java.util.Set;
 import java.util.UUID;
 
 public class MAlgorithm {
-	public static final long BROADCAST_INTERVAL = 100;
-	public static final int SEND = 1;
-	public static final int RECEIVE = -1;
-	
-	private Bank bank;
-	private InitiatorInfo initiatorInfo;
-	private final HashMap<UUID, Boolean> acknowledgements = new HashMap<>();
-	private final Set<Snapshot> globalSnapshots = new HashSet<>();
-	private final Set<Message> whiteMessages = new HashSet<>();
-	public int msgCounter = 0;//out minus in
-	private int globalCounter = 0;
-	private int numSnapshot = 0;//num of snapshots collected
-	private TerminationDetector terminationDetector;
+    public static final long BROADCAST_INTERVAL = 100;
+    public static final int SEND = 1;
+    public static final int RECEIVE = -1;
 
-	public MAlgorithm() {
-	}
+    private Bank bank;
+    private InitiatorInfo initiatorInfo;
+    private final HashMap<UUID, Boolean> acknowledgements = new HashMap<>();
+    private final Set<Snapshot> globalSnapshots = new HashSet<>();
+    private final Set<Message> whiteMessages = new HashSet<>();
+    public int msgCounter = 0; // out minus in
+    private int globalCounter = 0;
+    private int numSnapshot = 0; // num of snapshots collected
+    private TerminationDetector terminationDetector;
 
-	//init Mattern's algorithm
-	public synchronized void initSnapshot() throws IOException, InterruptedException {
-		
-		acknowledgements.clear();
-		globalSnapshots.clear();
-		whiteMessages.clear();
-		globalCounter = 0;
-		numSnapshot = 0;
-		
-		//define a future tick for global snapshot
-		long futureTick = VClock.getInstance().findTick(
-				this.bank.getBankID()) + BROADCAST_INTERVAL;
-		initiatorInfo = new InitiatorInfo(bank.getBankID(), futureTick);
+    // init Mattern's algorithm
+    public synchronized void initSnapshot() throws IOException,
+            InterruptedException {
+        acknowledgements.clear();
+        globalSnapshots.clear();
+        whiteMessages.clear();
+        globalCounter = 0;
+        numSnapshot = 0;
 
-		initAcknowledgementMap();
-		this.bank.broadcastFutureTick(futureTick);
-		//wait for all acknowledgments
-		while (acknowledgements.values().contains(false)) {
-			wait();
-		}
-		
-		//save local state
-		synchronized (bank.LOCK_OBJECT) {
-			globalSnapshots.add(saveState());
-			globalCounter += msgCounter;
-			numSnapshot += 1;
-			VClock.getInstance().set(bank.getBankID(), futureTick);
-		}
-		//broadcast dummy data
-		this.bank.broadcastDummyMsg();
-		terminationDetector = new TerminationDetector();
-		terminationDetector.start();
-	}
+        // define a future tick for global snapshot
+        long futureTick = VClock.getInstance().findTick(this.bank.getBankID()) +
+            BROADCAST_INTERVAL;
+        initiatorInfo = new InitiatorInfo(bank.getBankID(), futureTick);
 
-	//init acknowledgement map
-	private void initAcknowledgementMap() throws InterruptedException {
-		while (bank.getRemoteBanks().size() < bank.getRemoteBankThreads().size()) {
-			wait();
-		}
-		
-		for (Map.Entry<UUID, RemoteBank> rb : bank.getRemoteBanks().entrySet()) {
-			acknowledgements.put(rb.getKey(), false);
-		}
-	}
+        initAcknowledgementMap();
+        this.bank.broadcastFutureTick(futureTick);
 
-	public synchronized void receiveAcknowledgement(UUID processID) {
-		this.acknowledgements.put(processID, true);
-		notify();
-	}
-	
-	public synchronized void notifyInitAck() {
-		notify();
-	}
+        // wait for all acknowledgments
+        while (acknowledgements.values().contains(false)) {
+            wait();
+        }
 
-	public Snapshot saveState() {
-		synchronized (bank.LOCK_OBJECT) {
-			Snapshot snapshot = new Snapshot(bank.getBankID(), 
-					bank.getLocalAccounts().values());
-			return snapshot;
-		}
-	}
+        // save local state
+        synchronized (bank.LOCK_OBJECT) {
+            globalSnapshots.add(saveState());
+            globalCounter += msgCounter;
+            numSnapshot += 1;
+            VClock.getInstance().set(bank.getBankID(), futureTick);
+        }
+        // broadcast dummy data
+        this.bank.broadcastDummyMsg();
+        terminationDetector = new TerminationDetector();
+        terminationDetector.start();
+    }
 
-	//update global counter
-	public void updateCounter(int newCounter) {
-		globalCounter += newCounter;
-		terminationDetector.notifyNewMsg();;
-	}
-	
-	public void updateNumSnapshot() {
-		numSnapshot += 1;
-		terminationDetector.notifyNewMsg();;
-	}
+    // init acknowledgement map
+    private void initAcknowledgementMap() throws InterruptedException {
+        while (bank.getRemoteBanks().size() < bank.getRemoteBankThreads()
+                .size()) {
+            wait();
+        }
 
-	public Bank getBank() {
-		return bank;
-	}
+        for (Map.Entry<UUID, RemoteBank> rb : bank.getRemoteBanks()
+                .entrySet()) {
+            acknowledgements.put(rb.getKey(), false);
+        }
+    }
 
-	public void setBank(Bank bank) {
-		this.bank = bank;
-	}
+    public synchronized void receiveAcknowledgement(UUID processID) {
+        this.acknowledgements.put(processID, true);
+        notify();
+    }
 
-	public InitiatorInfo getInitiatorInfo() {
-		return initiatorInfo;
-	}
+    public synchronized void notifyInitAck() {
+        notify();
+    }
 
-	public void setInitiatorInfo(InitiatorInfo initiatorInfo) {
-		this.initiatorInfo = initiatorInfo;
-	}
+    public Snapshot saveState() {
+        synchronized (bank.LOCK_OBJECT) {
+            Snapshot snapshot = new Snapshot(
+                bank.getBankID(),
+                bank.getLocalAccounts().values());
+            return snapshot;
+        }
+    }
 
-	public Set<Snapshot> getGlobalSnapshots() {
-		return globalSnapshots;
-	}
+    // update global counter
+    public void updateCounter(int newCounter) {
+        globalCounter += newCounter;
+        terminationDetector.notifyNewMsg();
+        ;
+    }
 
-	public Set<Message> getWhiteMessages() {
-		return whiteMessages;
-	}
+    public void updateNumSnapshot() {
+        numSnapshot += 1;
+        terminationDetector.notifyNewMsg();
+        ;
+    }
 
-	public int getGlobalCounte() {
-		return globalCounter;
-	}
+    public Bank getBank() {
+        return bank;
+    }
 
-	public void setGlobalCounte(int globalCounte) {
-		this.globalCounter = globalCounte;
-	}
-	
-	private class TerminationDetector extends Thread {
-		
-		public TerminationDetector() {
-		}
-		
-		@Override
+    public void setBank(Bank bank) {
+        this.bank = bank;
+    }
+
+    public InitiatorInfo getInitiatorInfo() {
+        return initiatorInfo;
+    }
+
+    public void setInitiatorInfo(InitiatorInfo initiatorInfo) {
+        this.initiatorInfo = initiatorInfo;
+    }
+
+    public Set<Snapshot> getGlobalSnapshots() {
+        return globalSnapshots;
+    }
+
+    public Set<Message> getWhiteMessages() {
+        return whiteMessages;
+    }
+
+    public int getGlobalCounter() {
+        return globalCounter;
+    }
+
+    public void setGlobalCounter(int globalCounter) {
+        this.globalCounter = globalCounter;
+    }
+
+    private class TerminationDetector extends Thread {
+
+        public TerminationDetector() {
+        }
+
+        @Override
         public void run() {
-			try {
-				checkAlgorithmTermination();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
-			System.out.println("snapshot done");
-			//reset
-			initiatorInfo = null;
-		}
-		
-		public synchronized void checkAlgorithmTermination() throws InterruptedException {
-			while (true) {
-				//check termination every half a second
-				wait();
-				if (globalCounter == 0 && numSnapshot == bank.getRemoteBanks().size() + 1) {
-					break;
-				}
-			}
-		}
-		
-		public synchronized void notifyNewMsg() {
-			notify();
-		}
-	}
+            try {
+                checkAlgorithmTermination();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("snapshot done");
+            // reset
+            initiatorInfo = null;
+        }
+
+        public synchronized void checkAlgorithmTermination()
+                throws InterruptedException {
+            while (true) {
+                // check termination every half a second
+                wait();
+                if (globalCounter == 0 &&
+                    numSnapshot == bank.getRemoteBanks().size() + 1) {
+                    break;
+                }
+            }
+        }
+
+        public synchronized void notifyNewMsg() {
+            notify();
+        }
+    }
 }

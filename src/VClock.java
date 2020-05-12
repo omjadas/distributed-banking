@@ -1,82 +1,72 @@
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class VClock {
-	private static VClock vectorClock = null;
-	private final HashMap<UUID, Long> vc;
-	
-	public VClock() {
-		this.vc = new HashMap<>();
-	}
-	
-	public static VClock getInstance() 
-	{ 
-		if (vectorClock == null) 
-			vectorClock = new VClock(); 
+    private static VClock vectorClock = null;
+    private final HashMap<UUID, Long> vc = new HashMap<>();;
 
-		return vectorClock; 
-	}
-	
-	//this method is called when send or receive a message
-	public synchronized void tick(UUID pid) {
-		if (this.vc.containsKey(pid)) {
-			this.vc.put(pid, this.vc.get(pid) + 1);
-		}
-		else {
-			this.vc.put(pid, (long)1);
-		}
-	}
+    public static VClock getInstance() {
+        if (vectorClock == null)
+            vectorClock = new VClock();
 
-	public synchronized void set(UUID pid, Long ticks) {
-		this.vc.put(pid, ticks);
-	}
+        return vectorClock;
+    }
 
-	public synchronized long findTick(UUID pid) {
-		if (!this.vc.containsKey(pid)) {
-			return -1;
-		}
-		return this.vc.get(pid);
-	}
+    // this method is called when send or receive a message
+    public synchronized void tick(UUID pid) {
+        if (this.vc.containsKey(pid)) {
+            this.vc.put(pid, this.vc.get(pid) + 1);
+        } else {
+            this.vc.put(pid, (long) 1);
+        }
+    }
 
-	public HashMap<UUID, Long> getVc() {
-		return vc;
-	}
+    public synchronized void set(UUID pid, Long ticks) {
+        this.vc.put(pid, ticks);
+    }
 
-	//merge local lock with another clock
-	public synchronized void merge(VClock other) {
+    public synchronized long findTick(UUID pid) {
+        if (!this.vc.containsKey(pid)) {
+            return -1;
+        }
+        return this.vc.get(pid);
+    }
+
+    public HashMap<UUID, Long> getVc() {
+        return vc;
+    }
+
+    // merge local lock with another clock
+    public synchronized void merge(VClock other) {
         for (Map.Entry<UUID, Long> clock : other.vc.entrySet()) {
             Long time = this.vc.get(clock.getKey());
             if (time == null) {
                 this.vc.put(clock.getKey(), clock.getValue());
-            } 
-            else {
+            } else {
                 if (time < clock.getValue())
                     this.vc.put(clock.getKey(), clock.getValue());
             }
         }
     }
 
-
-
-	public String returnVCString() {
-		int mapSize = this.vc.size();
-		int i = 0;
-		StringBuilder vcString = new StringBuilder();
-		vcString.append("{");
-		for (Map.Entry<UUID, Long> clock : this.vc.entrySet()) {
-			vcString.append("\"");
-			vcString.append(clock.getKey());
-			vcString.append("\":");
-			vcString.append(clock.getValue());
-			if (i < mapSize - 1) {
-				vcString.append(", ");
-			}
-			i++;
-		}
-		vcString.append("}");
-		return vcString.toString();
-	}
+    public String returnVCString() {
+        int mapSize = this.vc.size();
+        int i = 0;
+        StringBuilder vcString = new StringBuilder();
+        vcString.append("{");
+        for (Map.Entry<UUID, Long> clock : this.vc.entrySet()) {
+            vcString.append("\"");
+            vcString.append(clock.getKey());
+            vcString.append("\":");
+            vcString.append(clock.getValue());
+            if (i < mapSize - 1) {
+                vcString.append(", ");
+            }
+            i++;
+        }
+        vcString.append("}");
+        return vcString.toString();
+    }
 
 }

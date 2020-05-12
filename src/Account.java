@@ -1,7 +1,7 @@
 
 public class Account {
     private final String accountId;
-    private int balance;
+    private volatile int balance;
 
     public Account(String accountId) {
         this.accountId = accountId;

@@ -14,20 +14,11 @@ public class Main implements Runnable {
     }
 
     public static void main(String[] args) throws IOException {
-//        if (args.length < 1) {
-//            System.out.println("Port number must be provided");
-//            System.exit(1);
-//        }
-    	System.out.println("provide a port number");
-        @SuppressWarnings("resource")
-		Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        if (input.length() == 0) System.exit(1);
-        String[] tokens = input.split(" ");
-        int port = Integer.parseInt(tokens[0]);
-
-        Main main = new Main(port);
-//        Main main = new Main(Integer.parseInt(args[0]));
+        if (args.length < 1) {
+            System.out.println("Port number must be provided");
+            System.exit(1);
+        }
+        Main main = new Main(Integer.parseInt(args[0]));
         new Thread(main).start();
     }
 
@@ -146,15 +137,14 @@ public class Main implements Runnable {
                 }
             } else if (command.equals("exit")) {
                 break;
-            } 
-            else if (command.equals("mattern")) {
+            } else if (command.equals("mattern")) {
                 try {
-					bank.getmAlgorithm().initSnapshot();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+                    bank.getmAlgorithm().initSnapshot();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
             } else {
                 System.out.println("Unknown command");
