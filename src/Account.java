@@ -1,4 +1,3 @@
-
 public class Account {
     private final String accountId;
     private volatile int balance;
