@@ -5,7 +5,7 @@ import java.util.UUID;
 public class Message {
     private final Command command;
     private final UUID sourceID;
-    private final VClock vClock;
+    private final VectorClock vectorClock;
     private long futureTick;
     private ArrayList<String> accountIDs = new ArrayList<>();
     private int amount;
@@ -13,10 +13,10 @@ public class Message {
     private Message whiteMessage;
     private int msgCounter;
 
-    public Message(Command command, UUID sourceID, VClock vectorClock) {
+    public Message(Command command, UUID sourceID, VectorClock vectorClock) {
         this.command = command;
         this.sourceID = sourceID;
-        this.vClock = vectorClock;
+        this.vectorClock = vectorClock;
     }
 
     public Command getCommand() {
@@ -27,8 +27,8 @@ public class Message {
         return sourceID;
     }
 
-    public VClock getVClock() {
-        return vClock;
+    public VectorClock getVClock() {
+        return vectorClock;
     }
 
     public ArrayList<String> getAccountIDs() {

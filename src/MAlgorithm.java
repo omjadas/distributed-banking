@@ -30,7 +30,8 @@ public class MAlgorithm {
         numSnapshot = 0;
 
         // define a future tick for global snapshot
-        long futureTick = VClock.getInstance().findTick(this.bank.getBankID()) +
+        long futureTick = VectorClock.getInstance()
+                .findTick(this.bank.getBankID()) +
             BROADCAST_INTERVAL;
         initiatorInfo = new InitiatorInfo(bank.getBankID(), futureTick);
 
@@ -47,7 +48,7 @@ public class MAlgorithm {
             globalSnapshots.add(saveState());
             globalCounter += msgCounter;
             numSnapshot += 1;
-            VClock.getInstance().set(bank.getBankID(), futureTick);
+            VectorClock.getInstance().set(bank.getBankID(), futureTick);
         }
         // broadcast dummy data
         this.bank.broadcastDummyMsg();
@@ -96,7 +97,6 @@ public class MAlgorithm {
     public void updateNumSnapshot() {
         numSnapshot += 1;
         terminationDetector.notifyNewMsg();
-        ;
     }
 
     public Bank getBank() {
@@ -132,10 +132,6 @@ public class MAlgorithm {
     }
 
     private class TerminationDetector extends Thread {
-
-        public TerminationDetector() {
-        }
-
         @Override
         public void run() {
             try {
