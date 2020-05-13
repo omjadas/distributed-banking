@@ -13,7 +13,7 @@ public class RemoteBank implements Runnable {
     private final BufferedWriter out;
     private final BufferedReader in;
     private final Bank bank;
-    private UUID remoteBankID;
+    private UUID bankID;
 
     public RemoteBank(String hostname, int port, Bank bank) throws IOException {
         synchronized (bank.LOCK_OBJECT) {
@@ -211,7 +211,7 @@ public class RemoteBank implements Runnable {
                 // config this remoteBank
                 bank.getRemoteBanks().put(message.getSourceID(), this);
                 bank.getmAlgorithm().notifyInitAck();
-                remoteBankID = message.getSourceID();
+                bankID = message.getSourceID();
 
                 // process register message
                 for (String accountID : message.getAccountIDs()) {
@@ -241,7 +241,7 @@ public class RemoteBank implements Runnable {
                 // config this remoteBank
                 bank.getRemoteBanks().put(message.getSourceID(), this);
                 bank.getmAlgorithm().notifyInitAck();
-                remoteBankID = message.getSourceID();
+                bankID = message.getSourceID();
                 // process this register_response message
                 for (String accountID : message.getAccountIDs()) {
                     bank.register(accountID, this);
@@ -350,10 +350,10 @@ public class RemoteBank implements Runnable {
     }
 
     public UUID getBankID() {
-        return remoteBankID;
+        return bankID;
     }
 
     public void setBankID(UUID bankID) {
-        this.remoteBankID = bankID;
+        this.bankID = bankID;
     }
 }
