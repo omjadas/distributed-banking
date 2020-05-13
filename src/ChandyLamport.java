@@ -2,12 +2,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
-// Chandy-Lamport Algorithm and related methods.
-// States with "-" imply non-recorded state.
-
+/**
+ * Chandy-Lamport algorithm.
+ */
 public class ChandyLamport {
     private UUID bankId;
     private Bank bank;
@@ -15,8 +14,11 @@ public class ChandyLamport {
     private HashMap<UUID, Snapshot> otherStates;
     private boolean stateRecorded;
 
-    // Constructors.
-
+    /**
+     * Constructor.
+     *
+     * @param bank
+     */
     ChandyLamport(Bank bank) {
         this.bankId = bank.getBankId();
         this.bank = bank;
@@ -24,30 +26,30 @@ public class ChandyLamport {
         this.otherStates = new HashMap<>();
     }
 
-    ChandyLamport(UUID bankId, Set<UUID> allBankIds) {
-        this.bankId = bankId;
-        this.stateRecorded = false;
-        this.otherStates = new HashMap<>();
-        for (UUID currentBankId : allBankIds) {
-            otherStates.put(currentBankId, null);
-        }
-    }
-
-    // Add a bank to the list of connected banks.
-
+    /**
+     * Add a bank to the list of connected banks.
+     *
+     * @param bankId ID of the bank to add
+     */
     public void addBank(UUID bankId) {
         otherStates.put(bankId, null);
     }
 
-    // Take a string to store the current state of bank.
-
+    /**
+     * Store the current state of the bank.
+     *
+     * @param currentState state to store
+     */
     public void recordState(Snapshot currentState) {
         bankState = currentState;
         stateRecorded = true;
     }
 
-    // Attempts to send the current state to the other banks.
-
+    /**
+     * Attempts to send the current state to the other banks.
+     *
+     * @param remoteBanks
+     */
     public void broadCastMarker(Collection<RemoteBank> remoteBanks) {
         for (RemoteBank remoteBank : remoteBanks) {
             try {
@@ -58,8 +60,14 @@ public class ChandyLamport {
         }
     }
 
-    // Start of algorithm.
-
+    /**
+     * Start the algorithm.
+     *
+     * @param currentState current state of the local bank
+     * @param remoteBanks  all of the connected remote banks
+     * @return false if no remote banks are connected
+     * @throws IOException
+     */
     public boolean startAlgorithm(
             Snapshot currentState,
             Collection<RemoteBank> remoteBanks) throws IOException {
@@ -71,8 +79,9 @@ public class ChandyLamport {
         return true;
     }
 
-    // End of algorithm - call this to erase snapshot.
-
+    /**
+     * End of algorithm, call this to erase snapshot.
+     */
     public void resetAlgorithm() {
         for (Map.Entry<UUID, Snapshot> state : otherStates.entrySet()) {
             otherStates.put(state.getKey(), null);
@@ -81,8 +90,11 @@ public class ChandyLamport {
         stateRecorded = false;
     }
 
-    // Getter for the snapshot.
-
+    /**
+     * Get the snapshots.
+     *
+     * @return the snapshots for all connected banks.
+     */
     public HashMap<UUID, Snapshot> getStates() {
         HashMap<UUID, Snapshot> allStates = new HashMap<UUID, Snapshot>(
             otherStates);
@@ -92,6 +104,15 @@ public class ChandyLamport {
 
     // Method for what to do if a bank receives a chandy-lamport marker.
 
+    /**
+     * Handle a received marker.
+     *
+     * @param remoteBankId ID of the remote bank
+     * @param receivedMarker state of the remote bank
+     * @param currentState current local state
+     * @return true if the algorithm
+     * @throws IOException
+     */
     public boolean handleReceivedMarker(
             UUID remoteBankId,
             Snapshot receivedMarker,
