@@ -31,23 +31,30 @@ public class Snapshot {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Snapshot other = (Snapshot) obj;
         if (accounts == null) {
-            if (other.accounts != null)
+            if (other.accounts != null) {
                 return false;
-        } else if (!accounts.equals(other.accounts))
+            }
+        } else if (!accounts.equals(other.accounts)) {
             return false;
+        }
         if (processId == null) {
-            if (other.processId != null)
+            if (other.processId != null) {
                 return false;
-        } else if (!processId.equals(other.processId))
+            }
+        } else if (!processId.equals(other.processId)) {
             return false;
+        }
         return true;
     }
 }
