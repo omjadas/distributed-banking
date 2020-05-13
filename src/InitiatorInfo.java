@@ -1,16 +1,16 @@
 import java.util.UUID;
 
 public class InitiatorInfo {
-    private final UUID initiatorID;
+    private final UUID initiatorId;
     private final long futureTick;
 
-    public InitiatorInfo(UUID initiatorID, long futureTick) {
-        this.initiatorID = initiatorID;
+    public InitiatorInfo(UUID initiatorId, long futureTick) {
+        this.initiatorId = initiatorId;
         this.futureTick = futureTick;
     }
 
-    public UUID getInitiatorID() {
-        return initiatorID;
+    public UUID getInitiatorId() {
+        return initiatorId;
     }
 
     public long getFutureTick() {

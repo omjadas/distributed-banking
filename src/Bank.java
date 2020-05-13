@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class Bank implements Runnable {
     private final ServerSocket serverSocket;
-    private final UUID bankID;
+    private final UUID bankId;
     private final HashMap<String, RemoteBank> remoteAccounts = new HashMap<>();
     private final HashMap<String, Account> localAccounts = new HashMap<>();
     private final HashMap<UUID, RemoteBank> remoteBanks = new HashMap<>();
@@ -17,8 +17,8 @@ public class Bank implements Runnable {
 
     private MAlgorithm mAlgorithm;
 
-    public Bank(UUID bankID, int port) throws IOException {
-        this.bankID = bankID;
+    public Bank(UUID bankId, int port) throws IOException {
+        this.bankId = bankId;
         serverSocket = new ServerSocket(port);
     }
 
@@ -113,8 +113,8 @@ public class Bank implements Runnable {
         });
     }
 
-    public UUID getBankID() {
-        return bankID;
+    public UUID getBankId() {
+        return bankId;
     }
 
     public HashMap<String, Account> getLocalAccounts() {
@@ -128,7 +128,7 @@ public class Bank implements Runnable {
     public Snapshot takeSnapshot() {
         synchronized (LOCK_OBJECT) {
             Snapshot snapshot = new Snapshot(
-                getBankID(),
+                getBankId(),
                 getLocalAccounts().values());
             return snapshot;
         }
@@ -171,14 +171,14 @@ public class Bank implements Runnable {
     }
 
     public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
-        UUID initiatorID = mAlgorithm.getInitiatorInfo().getInitiatorID();
-        remoteBanks.get(initiatorID).sendSnapshotToInitiator(snapshot);
+        UUID initiatorId = mAlgorithm.getInitiatorInfo().getInitiatorId();
+        remoteBanks.get(initiatorId).sendSnapshotToInitiator(snapshot);
     }
 
     public void sendWhiteMessageToInitiator(Message whiteMessage)
             throws IOException {
-        UUID initiatorID = mAlgorithm.getInitiatorInfo().getInitiatorID();
-        remoteBanks.get(initiatorID).sendWhiteMessageToInitiator(whiteMessage);
+        UUID initiatorId = mAlgorithm.getInitiatorInfo().getInitiatorId();
+        remoteBanks.get(initiatorId).sendWhiteMessageToInitiator(whiteMessage);
     }
 
     public Set<Thread> getRemoteBankThreads() {

@@ -4,18 +4,18 @@ import java.util.UUID;
 
 public class Message {
     private final Command command;
-    private final UUID sourceID;
+    private final UUID sourceId;
     private final VectorClock vectorClock;
     private long futureTick;
-    private ArrayList<String> accountIDs = new ArrayList<>();
+    private ArrayList<String> accountIds = new ArrayList<>();
     private int amount;
     private Snapshot snapshot;
     private Message whiteMessage;
     private int msgCounter;
 
-    public Message(Command command, UUID sourceID, VectorClock vectorClock) {
+    public Message(Command command, UUID sourceId, VectorClock vectorClock) {
         this.command = command;
-        this.sourceID = sourceID;
+        this.sourceId = sourceId;
         this.vectorClock = vectorClock;
     }
 
@@ -23,16 +23,16 @@ public class Message {
         return command;
     }
 
-    public UUID getSourceID() {
-        return sourceID;
+    public UUID getSourceId() {
+        return sourceId;
     }
 
-    public VectorClock getVClock() {
+    public VectorClock getVectorClock() {
         return vectorClock;
     }
 
-    public ArrayList<String> getAccountIDs() {
-        return accountIDs;
+    public ArrayList<String> getAccountIds() {
+        return accountIds;
     }
 
     public int getAmount() {
@@ -43,12 +43,12 @@ public class Message {
         this.amount = amount;
     }
 
-    public void addAccoundID(String id) {
-        this.accountIDs.add(id);
+    public void addAccountId(String id) {
+        this.accountIds.add(id);
     }
 
-    public void addAccoundIDs(Set<String> ids) {
-        this.accountIDs.addAll(ids);
+    public void addAccountIds(Set<String> ids) {
+        this.accountIds.addAll(ids);
     }
 
     public long getFutureTick() {
@@ -88,7 +88,7 @@ public class Message {
         final int prime = 31;
         int result = 1;
         result = prime * result +
-            ((accountIDs == null) ? 0 : accountIDs.hashCode());
+            ((accountIds == null) ? 0 : accountIds.hashCode());
         result = prime * result + amount;
         result = prime * result + ((command == null) ? 0 : command.hashCode());
         result = prime * result + (int) (futureTick ^ (futureTick >>> 32));
@@ -96,7 +96,7 @@ public class Message {
         result = prime * result +
             ((snapshot == null) ? 0 : snapshot.hashCode());
         result = prime * result +
-            ((sourceID == null) ? 0 : sourceID.hashCode());
+            ((sourceId == null) ? 0 : sourceId.hashCode());
         result = prime * result +
             ((vectorClock == null) ? 0 : vectorClock.hashCode());
         result = prime * result +
@@ -113,10 +113,10 @@ public class Message {
         if (getClass() != obj.getClass())
             return false;
         Message other = (Message) obj;
-        if (accountIDs == null) {
-            if (other.accountIDs != null)
+        if (accountIds == null) {
+            if (other.accountIds != null)
                 return false;
-        } else if (!accountIDs.equals(other.accountIDs))
+        } else if (!accountIds.equals(other.accountIds))
             return false;
         if (amount != other.amount)
             return false;
@@ -131,10 +131,10 @@ public class Message {
                 return false;
         } else if (!snapshot.equals(other.snapshot))
             return false;
-        if (sourceID == null) {
-            if (other.sourceID != null)
+        if (sourceId == null) {
+            if (other.sourceId != null)
                 return false;
-        } else if (!sourceID.equals(other.sourceID))
+        } else if (!sourceId.equals(other.sourceId))
             return false;
         if (vectorClock == null) {
             if (other.vectorClock != null)

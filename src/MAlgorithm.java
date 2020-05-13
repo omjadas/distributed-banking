@@ -31,9 +31,9 @@ public class MAlgorithm {
 
         // define a future tick for global snapshot
         long futureTick = VectorClock.getInstance()
-                .findTick(this.bank.getBankID()) +
+                .findTick(this.bank.getBankId()) +
             BROADCAST_INTERVAL;
-        initiatorInfo = new InitiatorInfo(bank.getBankID(), futureTick);
+        initiatorInfo = new InitiatorInfo(bank.getBankId(), futureTick);
 
         initAcknowledgementMap();
         this.bank.broadcastFutureTick(futureTick);
@@ -48,7 +48,7 @@ public class MAlgorithm {
             globalSnapshots.add(bank.takeSnapshot());
             globalCounter += msgCounter;
             numSnapshot += 1;
-            VectorClock.getInstance().set(bank.getBankID(), futureTick);
+            VectorClock.getInstance().set(bank.getBankId(), futureTick);
         }
         // broadcast dummy data
         this.bank.broadcastDummyMsg();
@@ -69,8 +69,8 @@ public class MAlgorithm {
         }
     }
 
-    public synchronized void receiveAcknowledgement(UUID processID) {
-        this.acknowledgements.put(processID, true);
+    public synchronized void receiveAcknowledgement(UUID processId) {
+        this.acknowledgements.put(processId, true);
         notify();
     }
 

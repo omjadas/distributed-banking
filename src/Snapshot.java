@@ -2,16 +2,16 @@ import java.util.Collection;
 import java.util.UUID;
 
 public class Snapshot {
-    private final UUID processID;
+    private final UUID processId;
     private final Collection<Account> accounts;
 
-    public Snapshot(UUID processID, Collection<Account> accounts) {
-        this.processID = processID;
+    public Snapshot(UUID processId, Collection<Account> accounts) {
+        this.processId = processId;
         this.accounts = accounts;
     }
 
-    public UUID getProcessID() {
-        return processID;
+    public UUID getProcessId() {
+        return processId;
     }
 
     public Collection<Account> getAccounts() {
@@ -25,7 +25,7 @@ public class Snapshot {
         result = prime * result +
             ((accounts == null) ? 0 : accounts.hashCode());
         result = prime * result +
-            ((processID == null) ? 0 : processID.hashCode());
+            ((processId == null) ? 0 : processId.hashCode());
         return result;
     }
 
@@ -43,10 +43,10 @@ public class Snapshot {
                 return false;
         } else if (!accounts.equals(other.accounts))
             return false;
-        if (processID == null) {
-            if (other.processID != null)
+        if (processId == null) {
+            if (other.processId != null)
                 return false;
-        } else if (!processID.equals(other.processID))
+        } else if (!processId.equals(other.processId))
             return false;
         return true;
     }
