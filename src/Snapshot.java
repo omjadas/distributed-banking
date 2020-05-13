@@ -1,6 +1,9 @@
 import java.util.Collection;
 import java.util.UUID;
 
+/**
+ * Snapshot of a bank.
+ */
 public class Snapshot {
     private final UUID processId;
     private final Collection<Account> accounts;

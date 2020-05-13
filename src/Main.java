@@ -2,12 +2,15 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.UUID;
 
+/**
+ * Main class.
+ */
 public class Main implements Runnable {
     private final Bank bank;
 
     /**
      * Create a bank, and initialise algorithms.
-     * 
+     *
      * @param port port to start listening socket on
      * @throws IOException
      */
@@ -20,7 +23,7 @@ public class Main implements Runnable {
 
     /**
      * Entry point.
-     * 
+     *
      * @param args command line arguments
      * @throws IOException
      */
