@@ -105,7 +105,7 @@ public class ChandyLamport {
 
         boolean finished = true;
         for (Map.Entry<UUID, Snapshot> state : otherStates.entrySet()) {
-            if (state.getValue().equals("-")) {
+            if (state.getValue() == null) {
                 finished = false;
             }
         }
