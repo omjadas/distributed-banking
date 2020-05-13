@@ -5,6 +5,12 @@ import java.util.UUID;
 public class Main implements Runnable {
     private final Bank bank;
 
+    /**
+     * Create a bank, and initialise algorithms.
+     * 
+     * @param port port to start listening socket on
+     * @throws IOException
+     */
     public Main(int port) throws IOException {
         bank = new Bank(UUID.randomUUID(), port);
         MAlgorithm mAlgorithm = new MAlgorithm();
@@ -12,6 +18,12 @@ public class Main implements Runnable {
         bank.setmAlgorithm(mAlgorithm);
     }
 
+    /**
+     * Entry point.
+     * 
+     * @param args command line arguments
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
         if (args.length < 1) {
             System.out.println("Port number must be provided");
@@ -21,6 +33,9 @@ public class Main implements Runnable {
         new Thread(main).start();
     }
 
+    /**
+     * Run the banking system.
+     */
     @Override
     public void run() {
         Thread bankThread = new Thread(bank);
@@ -145,11 +160,13 @@ public class Main implements Runnable {
                     e.printStackTrace();
                 }
             } else if (command.equals("chandy-lamport")) {
-                System.out.println("Attempting to take Chandy-Lamport Snapshot.");
+                System.out
+                        .println("Attempting to take Chandy-Lamport Snapshot.");
                 try {
                     bank.startChandyLamport();
                 } catch (IOException e) {
-                    System.out.println("Unable to complete the snapshot process.");
+                    System.out.println(
+                        "Unable to complete the snapshot process.");
                 }
             } else {
                 System.out.println("Unknown command");
