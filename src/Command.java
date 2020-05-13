@@ -9,5 +9,6 @@ public enum Command {
     ACKNOWLEDGEMENT,
     DUMMY,
     SNAPSHOT,
-    WHITE_MESSAGE
+    WHITE_MESSAGE,
+    CHANDY_LAMPORT_MARKER
 }

@@ -14,12 +14,46 @@ public class Bank implements Runnable {
     private final HashMap<UUID, RemoteBank> remoteBanks = new HashMap<>();
     private final Set<Thread> remoteBankThreads = new HashSet<>();
 
+    private ChandyLamport chandyLamportAlgorithm;
+
     private MAlgorithm mAlgorithm;
 
     public Bank(UUID bankId, int port) throws IOException {
         this.bankId = bankId;
         serverSocket = new ServerSocket(port);
+        // localhost should be changed to something else.
+        chandyLamportAlgorithm = new ChandyLamport(this);
     }
+
+    // -------------- Chandy-Lamport marker code --------------
+
+    // Call this method like any other system method e.g. deposit, transfer,
+    // etc.
+
+    public void startChandyLamport() throws IOException {
+        Snapshot snapshot = takeSnapshot();
+        if (chandyLamportAlgorithm
+                .startAlgorithm(snapshot, remoteBanks.values())) {
+            System.out.println("Completed snapshot process.");
+        } else {
+            System.out.println("Not connected to other banks.");
+        }
+    }
+
+    // Method to handle all chandy lamport messages - usage can be found in
+    // run() method of RemoteBank.
+
+    public void handleChandyLamportMarker(
+            UUID remoteBankId,
+            Snapshot markerMessage,
+            Snapshot currentState) throws IOException {
+        chandyLamportAlgorithm.handleReceivedMarker(
+            remoteBankId,
+            markerMessage,
+            currentState);
+    }
+
+    // --------------------------------------------------------
 
     public void connect(String hostname, int port) throws IOException {
         RemoteBank remoteBank = new RemoteBank(hostname, port, this);
@@ -32,7 +66,11 @@ public class Bank implements Runnable {
         localAccounts.put(accountId, new Account(accountId));
     }
 
-    public void register(String accountId, RemoteBank bank) {
+    public void registerBank(UUID bankId, RemoteBank bank) {
+        remoteBanks.put(bankId, bank);
+    }
+
+    public void registerAccount(String accountId, RemoteBank bank) {
         remoteAccounts.put(accountId, bank);
     }
 

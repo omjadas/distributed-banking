@@ -176,6 +176,19 @@ public class RemoteBank implements Runnable {
         out.flush();
     }
 
+    public void sendChandyLamportMarker(Snapshot snapshot) throws IOException {
+        Gson gson = new Gson();
+        Message message = new Message(
+            Command.CHANDY_LAMPORT_MARKER,
+            bank.getBankId(),
+            VectorClock.getInstance());
+
+        message.setSnapshot(snapshot);
+        out.write(gson.toJson(message));
+        out.newLine();
+        out.flush();
+    }
+
     @Override
     public void run() {
         String input;
@@ -213,9 +226,11 @@ public class RemoteBank implements Runnable {
                 bank.getmAlgorithm().notifyInitAck();
                 bankId = message.getSourceId();
 
+                bank.registerBank(bankId, this);
+
                 // process register message
                 for (String accountId : message.getAccountIds()) {
-                    bank.register(accountId, this);
+                    bank.registerAccount(accountId, this);
                 }
 
                 VectorClock.getInstance().tick(bank.getBankId());
@@ -244,7 +259,7 @@ public class RemoteBank implements Runnable {
                 bankId = message.getSourceId();
                 // process this register_response message
                 for (String accountId : message.getAccountIds()) {
-                    bank.register(accountId, this);
+                    bank.registerAccount(accountId, this);
                 }
             } else if (message.getCommand() == Command.GET_BALANCE) {
                 VectorClock.getInstance().tick(bank.getBankId());
@@ -294,6 +309,11 @@ public class RemoteBank implements Runnable {
                 bank.getmAlgorithm().updateCounter(MAlgorithm.RECEIVE);
             } else if (message.getCommand() == Command.DUMMY) {
                 // do nothing
+            } else if (message.getCommand() == Command.CHANDY_LAMPORT_MARKER) {
+                bank.handleChandyLamportMarker(
+                    message.getSourceId(),
+                    message.getSnapshot(),
+                    bank.takeSnapshot());
             } else {
                 System.out.println(
                     "unknown command from " + message.getSourceId());
