@@ -124,5 +124,4 @@ public class ChandyLamport {
 
         return finished;
     }
-
 }
