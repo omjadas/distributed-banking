@@ -82,4 +82,70 @@ public class Message {
     public void setMsgCounter(int msgCounter) {
         this.msgCounter = msgCounter;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result +
+            ((accountIDs == null) ? 0 : accountIDs.hashCode());
+        result = prime * result + amount;
+        result = prime * result + ((command == null) ? 0 : command.hashCode());
+        result = prime * result + (int) (futureTick ^ (futureTick >>> 32));
+        result = prime * result + msgCounter;
+        result = prime * result +
+            ((snapshot == null) ? 0 : snapshot.hashCode());
+        result = prime * result +
+            ((sourceID == null) ? 0 : sourceID.hashCode());
+        result = prime * result +
+            ((vectorClock == null) ? 0 : vectorClock.hashCode());
+        result = prime * result +
+            ((whiteMessage == null) ? 0 : whiteMessage.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Message other = (Message) obj;
+        if (accountIDs == null) {
+            if (other.accountIDs != null)
+                return false;
+        } else if (!accountIDs.equals(other.accountIDs))
+            return false;
+        if (amount != other.amount)
+            return false;
+        if (command != other.command)
+            return false;
+        if (futureTick != other.futureTick)
+            return false;
+        if (msgCounter != other.msgCounter)
+            return false;
+        if (snapshot == null) {
+            if (other.snapshot != null)
+                return false;
+        } else if (!snapshot.equals(other.snapshot))
+            return false;
+        if (sourceID == null) {
+            if (other.sourceID != null)
+                return false;
+        } else if (!sourceID.equals(other.sourceID))
+            return false;
+        if (vectorClock == null) {
+            if (other.vectorClock != null)
+                return false;
+        } else if (!vectorClock.equals(other.vectorClock))
+            return false;
+        if (whiteMessage == null) {
+            if (other.whiteMessage != null)
+                return false;
+        } else if (!whiteMessage.equals(other.whiteMessage))
+            return false;
+        return true;
+    }
 }
