@@ -44,12 +44,13 @@ public class MAlgorithm {
         }
 
         // save local state
-        synchronized (bank.LOCK_OBJECT) {
+        synchronized (bank) {
             globalSnapshots.add(bank.takeSnapshot());
             globalCounter += msgCounter;
             numSnapshot += 1;
             VectorClock.getInstance().set(bank.getBankId(), futureTick);
         }
+
         // broadcast dummy data
         this.bank.broadcastDummyMsg();
         terminationDetector = new TerminationDetector();

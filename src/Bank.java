@@ -13,7 +13,6 @@ public class Bank implements Runnable {
     private final HashMap<String, Account> localAccounts = new HashMap<>();
     private final HashMap<UUID, RemoteBank> remoteBanks = new HashMap<>();
     private final Set<Thread> remoteBankThreads = new HashSet<>();
-    public final Object LOCK_OBJECT = new Object();
 
     private MAlgorithm mAlgorithm;
 
@@ -37,41 +36,39 @@ public class Bank implements Runnable {
         remoteAccounts.put(accountId, bank);
     }
 
-    public void deposit(String accountId, int amount) throws IOException,
-            UnknownAccountException {
-        synchronized (LOCK_OBJECT) {
-            if (localAccounts.containsKey(accountId)) {
-                localAccounts.get(accountId).deposit(amount);
-            } else if (remoteAccounts.containsKey(accountId)) {
-                remoteAccounts.get(accountId).deposit(accountId, amount);
-            } else {
-                throw new UnknownAccountException(
-                    String.format("Unknown account %s", accountId));
-            }
-        }
-    }
-
-    public void withdraw(String accountId, int amount) throws IOException,
-            UnknownAccountException {
-        synchronized (LOCK_OBJECT) {
-            if (localAccounts.containsKey(accountId)) {
-                localAccounts.get(accountId).withdraw(amount);
-            } else if (remoteAccounts.containsKey(accountId)) {
-                remoteAccounts.get(accountId).withdraw(accountId, amount);
-            } else {
-                throw new UnknownAccountException(
-                    String.format("Unknown account %s", accountId));
-            }
-        }
-    }
-
-    public void transfer(String sourceId, String destId, int amount)
+    public synchronized void deposit(String accountId, int amount)
             throws IOException,
             UnknownAccountException {
-        synchronized (LOCK_OBJECT) {
-            withdraw(sourceId, amount);
-            deposit(destId, amount);
+        if (localAccounts.containsKey(accountId)) {
+            localAccounts.get(accountId).deposit(amount);
+        } else if (remoteAccounts.containsKey(accountId)) {
+            remoteAccounts.get(accountId).deposit(accountId, amount);
+        } else {
+            throw new UnknownAccountException(
+                String.format("Unknown account %s", accountId));
         }
+    }
+
+    public synchronized void withdraw(String accountId, int amount)
+            throws IOException,
+            UnknownAccountException {
+        if (localAccounts.containsKey(accountId)) {
+            localAccounts.get(accountId).withdraw(amount);
+        } else if (remoteAccounts.containsKey(accountId)) {
+            remoteAccounts.get(accountId).withdraw(accountId, amount);
+        } else {
+            throw new UnknownAccountException(
+                String.format("Unknown account %s", accountId));
+        }
+    }
+
+    public synchronized void transfer(
+            String sourceId,
+            String destId,
+            int amount) throws IOException,
+            UnknownAccountException {
+        withdraw(sourceId, amount);
+        deposit(destId, amount);
     }
 
     public void printBalance(String accountId) throws IOException {
@@ -125,49 +122,41 @@ public class Bank implements Runnable {
         return remoteBanks;
     }
 
-    public Snapshot takeSnapshot() {
-        synchronized (LOCK_OBJECT) {
-            Snapshot snapshot = new Snapshot(
-                getBankId(),
-                getLocalAccounts().values());
-            return snapshot;
-        }
+    public synchronized Snapshot takeSnapshot() {
+        Snapshot snapshot = new Snapshot(
+            getBankId(),
+            getLocalAccounts().values());
+        return snapshot;
     }
 
-    public void broadcastFutureTick(long tick) {
-        synchronized (LOCK_OBJECT) {
-            this.remoteBanks.values().forEach(remoteBank -> {
-                try {
-                    remoteBank.sendFutureTick(tick);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+    public synchronized void broadcastFutureTick(long tick) {
+        this.remoteBanks.values().forEach(remoteBank -> {
+            try {
+                remoteBank.sendFutureTick(tick);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-    public void broadcastDummyMsg() {
-        synchronized (LOCK_OBJECT) {
-            this.remoteBanks.values().forEach(remoteBank -> {
-                try {
-                    remoteBank.sendDummyMsg();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+    public synchronized void broadcastDummyMsg() {
+        this.remoteBanks.values().forEach(remoteBank -> {
+            try {
+                remoteBank.sendDummyMsg();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-    public void broadcastTestMsg() {
-        synchronized (LOCK_OBJECT) {
-            this.remoteBanks.values().forEach(remoteBank -> {
-                try {
-                    remoteBank.sendTestMsg();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+    public synchronized void broadcastTestMsg() {
+        this.remoteBanks.values().forEach(remoteBank -> {
+            try {
+                remoteBank.sendTestMsg();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {

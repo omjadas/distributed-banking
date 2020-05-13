@@ -16,7 +16,7 @@ public class RemoteBank implements Runnable {
     private UUID bankId;
 
     public RemoteBank(String hostname, int port, Bank bank) throws IOException {
-        synchronized (bank.LOCK_OBJECT) {
+        synchronized (bank) {
             this.socket = new Socket(hostname, port);
             this.out = new BufferedWriter(
                 new OutputStreamWriter(socket.getOutputStream()));
@@ -81,7 +81,7 @@ public class RemoteBank implements Runnable {
     }
 
     public void printBalance(String accountId) throws IOException {
-        synchronized (bank.LOCK_OBJECT) {
+        synchronized (bank) {
             Gson gson = new Gson();
             VectorClock.getInstance().tick(bank.getBankId());
             bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
@@ -113,7 +113,7 @@ public class RemoteBank implements Runnable {
     }
 
     public void sendDummyMsg() throws IOException {
-        synchronized (bank.LOCK_OBJECT) {
+        synchronized (bank) {
             Gson gson = new Gson();
             VectorClock.getInstance().tick(bank.getBankId());
             bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
@@ -129,7 +129,7 @@ public class RemoteBank implements Runnable {
     }
 
     public void sendTestMsg() throws IOException {
-        synchronized (bank.LOCK_OBJECT) {
+        synchronized (bank) {
             Gson gson = new Gson();
             VectorClock.getInstance().tick(bank.getBankId());
             bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
@@ -191,7 +191,7 @@ public class RemoteBank implements Runnable {
     // process an input
     public void process(String input) throws IOException,
             UnknownAccountException {
-        synchronized (bank.LOCK_OBJECT) {
+        synchronized (bank) {
             Gson gson = new Gson();
             Message message = gson.fromJson(input, Message.class);
             InitiatorInfo info = bank.getmAlgorithm().getInitiatorInfo();
