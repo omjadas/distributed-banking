@@ -1,3 +1,6 @@
+/**
+ * Commands that are sent between banks.
+ */
 public enum Command {
     REGISTER,
     REGISTER_RESPONSE,

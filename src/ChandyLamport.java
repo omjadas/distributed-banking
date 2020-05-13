@@ -17,7 +17,7 @@ public class ChandyLamport {
     /**
      * Constructor.
      *
-     * @param bank
+     * @param bank local bank
      */
     ChandyLamport(Bank bank) {
         this.bankId = bank.getBankId();
@@ -48,7 +48,7 @@ public class ChandyLamport {
     /**
      * Attempts to send the current state to the other banks.
      *
-     * @param remoteBanks
+     * @param remoteBanks connected remote banks
      */
     public void broadCastMarker(Collection<RemoteBank> remoteBanks) {
         for (RemoteBank remoteBank : remoteBanks) {
@@ -107,9 +107,9 @@ public class ChandyLamport {
     /**
      * Handle a received marker.
      *
-     * @param remoteBankId ID of the remote bank
+     * @param remoteBankId   ID of the remote bank
      * @param receivedMarker state of the remote bank
-     * @param currentState current local state
+     * @param currentState   current local state
      * @return true if the algorithm
      * @throws IOException
      */

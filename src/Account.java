@@ -1,10 +1,13 @@
+/**
+ * Bank account.
+ */
 public class Account {
     private final String accountId;
     private volatile int balance;
 
     /**
      * Create an account with an initial balance of 500.
-     * 
+     *
      * @param accountId ID of the account to create
      */
     public Account(String accountId) {
@@ -14,7 +17,7 @@ public class Account {
 
     /**
      * Deposit money into the account.
-     * 
+     *
      * @param amount amount to deposit
      */
     public synchronized void deposit(int amount) {
@@ -23,7 +26,7 @@ public class Account {
 
     /**
      * Withdraw money from the account.
-     * 
+     *
      * @param amount amount to withdraw
      */
     public synchronized void withdraw(int amount) {
@@ -32,7 +35,7 @@ public class Account {
 
     /**
      * Retrieve the ID of the account.
-     * 
+     *
      * @return the ID of the account
      */
     public String getAccountId() {
@@ -41,7 +44,7 @@ public class Account {
 
     /**
      * Retrieve the balance for the account.
-     * 
+     *
      * @return the balance of the account
      */
     public synchronized int getBalance() {

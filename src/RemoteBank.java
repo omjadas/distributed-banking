@@ -8,6 +8,9 @@ import java.util.UUID;
 
 import com.google.gson.Gson;
 
+/**
+ * Class to interact with remote banks.
+ */
 public class RemoteBank implements Runnable {
     private final Socket socket;
     private final BufferedWriter out;
@@ -24,7 +27,6 @@ public class RemoteBank implements Runnable {
                 new InputStreamReader(socket.getInputStream()));
             this.bank = bank;
 
-            Gson gson = new Gson();
             VectorClock.getInstance().tick(bank.getBankId());
             bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
             Message message = new Message(
@@ -33,7 +35,7 @@ public class RemoteBank implements Runnable {
                 VectorClock.getInstance());
 
             message.addAccountIds(bank.getAccountIds());
-            out.write(gson.toJson(message));
+            out.write(new Gson().toJson(message));
             out.newLine();
             out.flush();
         }
@@ -49,7 +51,6 @@ public class RemoteBank implements Runnable {
     }
 
     public void deposit(String accountId, int amount) throws IOException {
-        Gson gson = new Gson();
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
         Message message = new Message(
@@ -59,13 +60,12 @@ public class RemoteBank implements Runnable {
 
         message.addAccountId(accountId);
         message.setAmount(amount);
-        out.write(gson.toJson(message));
+        out.write(new Gson().toJson(message));
         out.newLine();
         out.flush();
     }
 
     public void withdraw(String accountId, int amount) throws IOException {
-        Gson gson = new Gson();
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
         Message message = new Message(
@@ -75,14 +75,13 @@ public class RemoteBank implements Runnable {
 
         message.addAccountId(accountId);
         message.setAmount(amount);
-        out.write(gson.toJson(message));
+        out.write(new Gson().toJson(message));
         out.newLine();
         out.flush();
     }
 
     public void printBalance(String accountId) throws IOException {
         synchronized (bank) {
-            Gson gson = new Gson();
             VectorClock.getInstance().tick(bank.getBankId());
             bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
             Message message = new Message(
@@ -91,14 +90,13 @@ public class RemoteBank implements Runnable {
                 VectorClock.getInstance());
 
             message.addAccountId(accountId);
-            out.write(gson.toJson(message));
+            out.write(new Gson().toJson(message));
             out.newLine();
             out.flush();
         }
     }
 
     public void sendFutureTick(long tick) throws IOException {
-        Gson gson = new Gson();
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
         Message message = new Message(
@@ -107,14 +105,13 @@ public class RemoteBank implements Runnable {
             VectorClock.getInstance());
 
         message.setFutureTick(tick);
-        out.write(gson.toJson(message));
+        out.write(new Gson().toJson(message));
         out.newLine();
         out.flush();
     }
 
     public void sendDummyMsg() throws IOException {
         synchronized (bank) {
-            Gson gson = new Gson();
             VectorClock.getInstance().tick(bank.getBankId());
             bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
             Message message = new Message(
@@ -122,7 +119,7 @@ public class RemoteBank implements Runnable {
                 bank.getBankId(),
                 VectorClock.getInstance());
 
-            out.write(gson.toJson(message));
+            out.write(new Gson().toJson(message));
             out.newLine();
             out.flush();
         }
@@ -130,7 +127,6 @@ public class RemoteBank implements Runnable {
 
     public void sendTestMsg() throws IOException {
         synchronized (bank) {
-            Gson gson = new Gson();
             VectorClock.getInstance().tick(bank.getBankId());
             bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
             Message message = new Message(
@@ -138,14 +134,13 @@ public class RemoteBank implements Runnable {
                 bank.getBankId(),
                 VectorClock.getInstance());
 
-            out.write(gson.toJson(message));
+            out.write(new Gson().toJson(message));
             out.newLine();
             out.flush();
         }
     }
 
     public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
-        Gson gson = new Gson();
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
         Message message = new Message(
@@ -155,14 +150,13 @@ public class RemoteBank implements Runnable {
 
         message.setSnapshot(snapshot);
         message.setMsgCounter(bank.getmAlgorithm().msgCounter);
-        out.write(gson.toJson(message));
+        out.write(new Gson().toJson(message));
         out.newLine();
         out.flush();
     }
 
     public void sendWhiteMessageToInitiator(Message whiteMessage)
             throws IOException {
-        Gson gson = new Gson();
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
         Message message = new Message(
@@ -171,20 +165,19 @@ public class RemoteBank implements Runnable {
             VectorClock.getInstance());
 
         message.setWhiteMessage(whiteMessage);
-        out.write(gson.toJson(message));
+        out.write(new Gson().toJson(message));
         out.newLine();
         out.flush();
     }
 
     public void sendChandyLamportMarker(Snapshot snapshot) throws IOException {
-        Gson gson = new Gson();
         Message message = new Message(
             Command.CHANDY_LAMPORT_MARKER,
             bank.getBankId(),
             VectorClock.getInstance());
 
         message.setSnapshot(snapshot);
-        out.write(gson.toJson(message));
+        out.write(new Gson().toJson(message));
         out.newLine();
         out.flush();
     }
@@ -369,10 +362,20 @@ public class RemoteBank implements Runnable {
         }
     }
 
+    /**
+     * Retrieve the ID of the remote bank.
+     *
+     * @return the ID of the remote bank
+     */
     public UUID getBankId() {
         return bankId;
     }
 
+    /**
+     * Set the ID of the remote bank.
+     *
+     * @param bankId the new ID of the remote bank
+     */
     public void setBankId(UUID bankId) {
         this.bankId = bankId;
     }

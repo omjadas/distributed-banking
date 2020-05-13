@@ -2,6 +2,9 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Message that is sent between banks.
+ */
 public class Message {
     private final Command command;
     private final UUID sourceId;
@@ -19,34 +22,74 @@ public class Message {
         this.vectorClock = vectorClock;
     }
 
+    /**
+     * Retrieve the command of the message.
+     *
+     * @return the command of the message
+     */
     public Command getCommand() {
         return command;
     }
 
+    /**
+     * Retrieve the ID of the message source.
+     *
+     * @return the ID of the message source
+     */
     public UUID getSourceId() {
         return sourceId;
     }
 
+    /**
+     * Retrieve the vector clock contained in the message.
+     *
+     * @return the vector clock contained in the message.
+     */
     public VectorClock getVectorClock() {
         return vectorClock;
     }
 
+    /**
+     * Retrieve the account IDs contained in the message.
+     *
+     * @return the account IDs contained in the message
+     */
     public ArrayList<String> getAccountIds() {
         return accountIds;
     }
 
+    /**
+     * Retrieve the amount contained in the message.
+     *
+     * @return the amount contained in the message
+     */
     public int getAmount() {
         return amount;
     }
 
+    /**
+     * Set the amount of the message.
+     *
+     * @param amount the amount to set
+     */
     public void setAmount(int amount) {
         this.amount = amount;
     }
 
+    /**
+     * Add an account ID to the message.
+     *
+     * @param id the account ID to add
+     */
     public void addAccountId(String id) {
         this.accountIds.add(id);
     }
 
+    /**
+     * Add multiple account IDs to the message.
+     *
+     * @param ids the account IDs to add
+     */
     public void addAccountIds(Set<String> ids) {
         this.accountIds.addAll(ids);
     }
@@ -59,10 +102,20 @@ public class Message {
         this.futureTick = futureTick;
     }
 
+    /**
+     * Retrieve the snapshot contained in the message.
+     *
+     * @return the snapshot contained in the message
+     */
     public Snapshot getSnapshot() {
         return snapshot;
     }
 
+    /**
+     * Set the snapshot of the message.
+     *
+     * @param snapshot the snapshot to set.
+     */
     public void setSnapshot(Snapshot snapshot) {
         this.snapshot = snapshot;
     }
