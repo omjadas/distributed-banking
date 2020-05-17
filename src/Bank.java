@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Class of bank system 
+ */
 public class Bank implements Runnable {
     private final ServerSocket serverSocket;
     private final UUID bankId;
@@ -33,9 +36,12 @@ public class Bank implements Runnable {
 
     // -------------- Chandy-Lamport marker code --------------
 
-    // Call this method like any other system method e.g. deposit, transfer,
-    // etc.
-
+    /**
+     * Call this method like any other system method e.g. deposit, transfer,
+     * etc.
+     * start of chandy-lamport algorithm
+     * @throws IOException
+     */
     public void startChandyLamport() throws IOException {
         Snapshot snapshot = takeSnapshot();
         if (chandyLamportAlgorithm
@@ -46,9 +52,13 @@ public class Bank implements Runnable {
         }
     }
 
-    // Method to handle all chandy lamport messages - usage can be found in
-    // run() method of RemoteBank.
-
+    /**
+     * Method to handle all chandy lamport messages - usage can be found in
+     * @param remoteBankId   ID of the remote bank
+     * @param receivedMarker state of the remote bank
+     * @param currentState   current local state
+     * @throws IOException
+     */
     public void handleChandyLamportMarker(
             UUID remoteBankId,
             Snapshot markerMessage,
@@ -60,26 +70,52 @@ public class Bank implements Runnable {
     }
 
     // --------------------------------------------------------
-
+    /**
+     * make a connect request to another process
+     * @param hostname host name of the other process
+     * @param port port of the other process
+     * @throws IOException
+     */
     public void connect(String hostname, int port) throws IOException {
         RemoteBank remoteBank = new RemoteBank(hostname, port, this);
         Thread remoteBankThread = new Thread(remoteBank);
         remoteBankThread.start();
         remoteBankThreads.add(remoteBankThread);
     }
-
+    
+    /**
+     * open a local account
+     * @param accountId id of the account
+     */
     public void open(String accountId) {
         localAccounts.put(accountId, new Account(accountId));
     }
-
+    
+    /**
+     * register a bank of another process
+     * @param bankId id of the remote bank
+     * @param bank remote bank instance
+     */
     public void registerBank(UUID bankId, RemoteBank bank) {
         remoteBanks.put(bankId, bank);
     }
-
+    
+    /**
+     * record the id of another account and the bank which owns it
+     * @param accountId id of the account
+     * @param bank remote bank instance which owns the account
+     */
     public void registerAccount(String accountId, RemoteBank bank) {
         remoteAccounts.put(accountId, bank);
     }
-
+    
+    /**
+     * deposit to an account
+     * @param accountId id of the account to be deposited to
+     * @param amount amount to be deposited
+     * @throws IOException
+     * @throws UnknownAccountException
+     */
     public synchronized void deposit(String accountId, int amount)
             throws IOException,
             UnknownAccountException {
@@ -92,7 +128,14 @@ public class Bank implements Runnable {
                 String.format("Unknown account %s", accountId));
         }
     }
-
+    
+    /**
+     * withdraw from an account
+     * @param accountId id of the account to be withdrawn from
+     * @param amount amount to be withdrawn
+     * @throws IOException
+     * @throws UnknownAccountException
+     */
     public synchronized void withdraw(String accountId, int amount)
             throws IOException,
             UnknownAccountException {
@@ -105,7 +148,15 @@ public class Bank implements Runnable {
                 String.format("Unknown account %s", accountId));
         }
     }
-
+    
+    /**
+     * transfer from one account to another
+     * @param sourceId id of the source account
+     * @param destId id of the destination account
+     * @param amount amount to be transfered
+     * @throws IOException
+     * @throws UnknownAccountException
+     */
     public synchronized void transfer(
             String sourceId,
             String destId,
@@ -114,7 +165,12 @@ public class Bank implements Runnable {
         withdraw(sourceId, amount);
         deposit(destId, amount);
     }
-
+    
+    /**
+     * print the balance of an account
+     * @param accountId id of the account to be printed
+     * @throws IOException
+     */
     public void printBalance(String accountId) throws IOException {
         if (localAccounts.containsKey(accountId)) {
             System.out.println(
@@ -165,16 +221,25 @@ public class Bank implements Runnable {
     public HashMap<UUID, RemoteBank> getRemoteBanks() {
         return remoteBanks;
     }
-
+    
+    /**
+     * make a clone of the local accounts and form a snapshot
+     * @return a snapshot contains info of local accounts
+     */
     public synchronized Snapshot takeSnapshot() {
     	ArrayList<Account> clone = new ArrayList<>();
     	for (Account account : localAccounts.values()) {
-    		clone.add(new Account(account.getAccountId(), account.getBalance()));
+    		clone.add(new Account(account.getAccountId(), 
+    				account.getBalance()));
     	}
-        Snapshot snapshot = new Snapshot(getBankId(),clone);
+        Snapshot snapshot = new Snapshot(getBankId(), clone);
         return snapshot;
     }
-
+    
+    /**
+     * broad future tick of a vector clock to all other processes
+     * @param tick the tick of a vector clock
+     */
     public synchronized void broadcastFutureTick(long tick) {
         this.remoteBanks.values().forEach(remoteBank -> {
             try {
@@ -185,6 +250,9 @@ public class Bank implements Runnable {
         });
     }
 
+    /**
+     * broadcast a dummy message
+     */
     public synchronized void broadcastDummyMsg() {
         this.remoteBanks.values().forEach(remoteBank -> {
             try {
@@ -195,21 +263,21 @@ public class Bank implements Runnable {
         });
     }
 
-    public synchronized void broadcastTestMsg() {
-        this.remoteBanks.values().forEach(remoteBank -> {
-            try {
-                remoteBank.sendTestMsg();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
+    /**
+     * send a snapshot to the initiator
+     * @param snapshot the snapshot instance to be sent
+     * @throws IOException
+     */
     public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
         UUID initiatorId = mAlgorithm.getInitiatorInfo().getInitiatorId();
         remoteBanks.get(initiatorId).sendSnapshotToInitiator(snapshot);
     }
-
+    
+    /**
+     * forward a white message to the initiator
+     * @param whiteMessage the white message instance
+     * @throws IOException
+     */
     public void sendWhiteMessageToInitiator(Message whiteMessage)
             throws IOException {
         UUID initiatorId = mAlgorithm.getInitiatorInfo().getInitiatorId();

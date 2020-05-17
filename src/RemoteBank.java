@@ -17,8 +17,17 @@ public class RemoteBank implements Runnable {
     private final BufferedReader in;
     private final Bank bank;
     private UUID bankId;
-
-    public RemoteBank(String hostname, int port, Bank bank) throws IOException {
+    
+    /**
+     * initialize a remote bank instance
+     * be called when making a connect request to other processes
+     * @param hostname host name of the other process
+     * @param port port of the other process
+     * @param bank local bank reference
+     * @throws IOException
+     */
+    public RemoteBank(String hostname, int port, Bank bank) 
+    		throws IOException {
         synchronized (bank) {
             this.socket = new Socket(hostname, port);
             this.out = new BufferedWriter(
@@ -40,7 +49,13 @@ public class RemoteBank implements Runnable {
             out.flush();
         }
     }
-
+    /**
+     * initialize a remote bank instance
+     * be called when there is a connect request from other processes
+     * @param socket socket this remote bank will listen to
+     * @param bank local bank reference 
+     * @throws IOException
+     */
     public RemoteBank(Socket socket, Bank bank) throws IOException {
         this.socket = socket;
         this.out = new BufferedWriter(
@@ -50,6 +65,14 @@ public class RemoteBank implements Runnable {
         this.bank = bank;
     }
 
+    /**
+     * deposit to an account
+     * this method will be called when the account is not at the local branch
+     * this method will only be called in a synchronized block
+     * @param accountId id of the account to be deposited to
+     * @param amount amount to be deposited
+     * @throws IOException
+     */
     public void deposit(String accountId, int amount) throws IOException {
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
@@ -65,6 +88,14 @@ public class RemoteBank implements Runnable {
         out.flush();
     }
 
+    /**
+     * withdraw from an account
+     * this will be called when the account is not at the local branch
+     * this method will only be called in a synchronized block
+     * @param accountId id of the account to be withdrawn from
+     * @param amount amount to be withdrawn
+     * @throws IOException
+     */
     public void withdraw(String accountId, int amount) throws IOException {
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
@@ -79,7 +110,12 @@ public class RemoteBank implements Runnable {
         out.newLine();
         out.flush();
     }
-
+    
+    /**
+     * this will be called when the account is not at the local branch
+     * @param accountId account id to be printed
+     * @throws IOException
+     */
     public void printBalance(String accountId) throws IOException {
         synchronized (bank) {
             VectorClock.getInstance().tick(bank.getBankId());
@@ -95,7 +131,12 @@ public class RemoteBank implements Runnable {
             out.flush();
         }
     }
-
+    
+    /**
+     * send a tick to another process
+     * @param tick the vector clock time of snapshot
+     * @throws IOException
+     */
     public void sendFutureTick(long tick) throws IOException {
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
@@ -110,6 +151,10 @@ public class RemoteBank implements Runnable {
         out.flush();
     }
 
+    /**
+     * send a dummy message to another process
+     * @throws IOException
+     */
     public void sendDummyMsg() throws IOException {
         synchronized (bank) {
             VectorClock.getInstance().tick(bank.getBankId());
@@ -124,22 +169,13 @@ public class RemoteBank implements Runnable {
             out.flush();
         }
     }
-
-    public void sendTestMsg() throws IOException {
-        synchronized (bank) {
-            VectorClock.getInstance().tick(bank.getBankId());
-            bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
-            Message message = new Message(
-                Command.DUMMY,
-                bank.getBankId(),
-                VectorClock.getInstance());
-
-            out.write(new Gson().toJson(message));
-            out.newLine();
-            out.flush();
-        }
-    }
-
+    
+    /**
+     * send the local snapshot to initiator after record the local states
+     * this method will only be called in a synchronized block
+     * @param snapshot the snapshot to be sent
+     * @throws IOException
+     */
     public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
@@ -154,8 +190,15 @@ public class RemoteBank implements Runnable {
         out.newLine();
         out.flush();
     }
-
-    public void sendWhiteMessageToInitiator(Message whiteMessage) throws IOException {
+    
+    /**
+     * send a white message to initiator
+     * this method will only be called in a synchronized block
+     * @param whiteMessage the white messge to be sent
+     * @throws IOException
+     */
+    public void sendWhiteMessageToInitiator(Message whiteMessage) 
+    		throws IOException {
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
         Message message = new Message(
@@ -168,7 +211,12 @@ public class RemoteBank implements Runnable {
         out.newLine();
         out.flush();
     }
-
+    
+    /**
+     * send a marker (snapshot) to another process
+     * @param snapshot the snapshot to be sent
+     * @throws IOException
+     */
     public void sendChandyLamportMarker(Snapshot snapshot) throws IOException {
         Message message = new Message(
             Command.CHANDY_LAMPORT_MARKER,
@@ -193,8 +241,14 @@ public class RemoteBank implements Runnable {
         }
     }
 
-    // process an input
-    public void process(String input) throws IOException, UnknownAccountException {
+    /**
+     * receive and process messages from other processes
+     * @param input Json string from other processes
+     * @throws IOException
+     * @throws UnknownAccountException
+     */
+    public void process(String input) throws IOException, 
+    	UnknownAccountException {
         synchronized (bank) {
             Gson gson = new Gson();
             Message message = gson.fromJson(input, Message.class);
@@ -268,6 +322,7 @@ public class RemoteBank implements Runnable {
             } else if (message.getCommand() == Command.GET_BALANCE_RESPONSE) {
                 System.out.println("$" + message.getAmount());
             } else if (message.getCommand() == Command.TAKE_SNAPSHOT) {
+            	//remember the information of initiator
                 UUID initiatorId = message.getSourceId();
                 long futureTick = message.getFutureTick();
                 InitiatorInfo newInfo = new InitiatorInfo(
@@ -277,6 +332,7 @@ public class RemoteBank implements Runnable {
 
                 VectorClock.getInstance().tick(bank.getBankId());
                 bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
+                //return an acknowledgement
                 Message respMessage = new Message(
                     Command.ACKNOWLEDGEMENT,
                     bank.getBankId(),
@@ -292,11 +348,13 @@ public class RemoteBank implements Runnable {
                 Snapshot snapshot = message.getSnapshot();
                 int msgCounter = message.getMsgCounter();
                 bank.getmAlgorithm().getGlobalSnapshots().add(snapshot);
+                //update num of snapshots and counter to detect termination
                 bank.getmAlgorithm().updateCounter(msgCounter);
                 bank.getmAlgorithm().updateNumSnapshot();
             } else if (message.getCommand() == Command.WHITE_MESSAGE) {
                 Message whiteMessage = message.getWhiteMessage();
                 bank.getmAlgorithm().getWhiteMessages().add(whiteMessage);
+                //update counter to detect termination
                 bank.getmAlgorithm().updateCounter(MAlgorithm.RECEIVE);
             } else if (message.getCommand() == Command.DUMMY) {
                 // do nothing
@@ -311,8 +369,12 @@ public class RemoteBank implements Runnable {
             }
         }
     }
-
-    // take snapshot when a white process receives a red message
+    
+    /**
+     * take snapshot when a white process receives a red message
+     * @param message incoming message from other process
+     * @throws IOException
+     */
     private void checkTakeSnapshot(Message message) throws IOException {
         VectorClock clockInMessage = message.getVectorClock();
         UUID initiatorId = bank.getmAlgorithm().getInitiatorInfo()
@@ -332,8 +394,12 @@ public class RemoteBank implements Runnable {
             bank.sendSnapshotToInitiator(snapshot);
         }
     }
-
-    // forward message to initiator when the process is red and message is white
+    
+    /**
+     * forward message to initiator when process is red and message is white
+     * @param message incoming message from other processses
+     * @throws IOException
+     */
     private void checkFwdWhiteMessage(Message message) throws IOException {
         VectorClock clockInMessage = message.getVectorClock();
         UUID initiatorId = bank.getmAlgorithm().getInitiatorInfo()

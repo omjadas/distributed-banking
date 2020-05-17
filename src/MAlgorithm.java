@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Mattern's algorithm
+ */
 public class MAlgorithm {
     public static final long BROADCAST_INTERVAL = 100;
     public static final int SEND = 1;
@@ -24,7 +27,11 @@ public class MAlgorithm {
         this.bank = bank;
     }
 
-    // init Mattern's algorithm
+    /**
+     * initialize mattern's algorithm
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public synchronized void initSnapshot() throws IOException,
             InterruptedException {
         acknowledgements.clear();
@@ -61,8 +68,11 @@ public class MAlgorithm {
         // broadcast dummy data
         this.bank.broadcastDummyMsg();
     }
-
-    // init acknowledgement map
+    
+    /**
+     * initialize an acknowledgement map
+     * @throws InterruptedException
+     */
     private void initAcknowledgementMap() throws InterruptedException {
         while (bank.getRemoteBanks().size() < bank.getRemoteBankThreads()
                 .size()) {
@@ -74,22 +84,36 @@ public class MAlgorithm {
             acknowledgements.put(rb.getKey(), false);
         }
     }
-
+    
+    /**
+     * handle receive an acknowledgement from other processed
+     * @param processId the source process of the acknowledgement
+     */
     public synchronized void receiveAcknowledgement(UUID processId) {
         this.acknowledgements.put(processId, true);
         notify();
     }
-
+    
+    /**
+     * be called when the initiator receives the register response
+     * message from another process
+     */
     public synchronized void notifyInitAck() {
         notify();
     }
 
-    // update global counter
-    public void updateCounter(int newCounter) {
-        globalCounter += newCounter;
+    /**
+     * update global counter
+     * @param count value of the counter
+     */
+    public void updateCounter(int count) {
+        globalCounter += count;
         terminationDetector.notifyNewMsg();
     }
-
+    
+    /**
+     * update the number of received snapshots
+     */
     public void updateNumSnapshot() {
         numSnapshot += 1;
         terminationDetector.notifyNewMsg();
@@ -136,7 +160,11 @@ public class MAlgorithm {
             // reset
             initiatorInfo = null;
         }
-
+        
+        /**
+         * check the termination of mattern's algorithm
+         * @throws InterruptedException
+         */
         public synchronized void checkAlgorithmTermination()
                 throws InterruptedException {
             while (true) {
@@ -148,7 +176,10 @@ public class MAlgorithm {
                 }
             }
         }
-
+        
+        /**
+         * notify whenever receive a snapshot or forwarded white message
+         */
         public synchronized void notifyNewMsg() {
             notify();
         }
