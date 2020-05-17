@@ -55,10 +55,11 @@ public class MAlgorithm {
             VectorClock.getInstance().set(bank.getBankId(), futureTick);
         }
 
-        // broadcast dummy data
-        this.bank.broadcastDummyMsg();
         terminationDetector = new TerminationDetector();
         terminationDetector.start();
+        
+        // broadcast dummy data
+        this.bank.broadcastDummyMsg();
     }
 
     // init acknowledgement map
