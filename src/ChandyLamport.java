@@ -96,8 +96,6 @@ public class ChandyLamport {
         return allStates;
     }
 
-    // Method for what to do if a bank receives a chandy-lamport marker.
-
     /**
      * Handle a received marker.
      *

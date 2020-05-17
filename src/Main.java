@@ -42,6 +42,7 @@ public class Main implements Runnable {
         bankThread.start();
         Scanner scanner = new Scanner(System.in);
         while (!Thread.interrupted()) {
+            System.out.print("> ");
             String input = scanner.nextLine();
             String[] tokens = input.split(" ");
             String command = tokens[0];
