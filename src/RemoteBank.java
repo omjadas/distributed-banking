@@ -266,7 +266,7 @@ public class RemoteBank implements Runnable {
                 out.newLine();
                 out.flush();
             } else if (message.getCommand() == Command.GET_BALANCE_RESPONSE) {
-                System.out.println("balance is " + message.getAmount());
+                System.out.println("$" + message.getAmount());
             } else if (message.getCommand() == Command.TAKE_SNAPSHOT) {
                 UUID initiatorId = message.getSourceId();
                 long futureTick = message.getFutureTick();
