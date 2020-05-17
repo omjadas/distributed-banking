@@ -13,16 +13,21 @@ public class Bank implements Runnable {
     private final HashMap<String, Account> localAccounts = new HashMap<>();
     private final HashMap<UUID, RemoteBank> remoteBanks = new HashMap<>();
     private final Set<Thread> remoteBankThreads = new HashSet<>();
+    private final ChandyLamport chandyLamportAlgorithm;
+    private final MAlgorithm mAlgorithm;
 
-    private ChandyLamport chandyLamportAlgorithm;
-
-    private MAlgorithm mAlgorithm;
-
+    /**
+     * Initialise a bank.
+     *
+     * @param bankId ID of the bank
+     * @param port port to listen on
+     * @throws IOException if unable to open socket
+     */
     public Bank(UUID bankId, int port) throws IOException {
         this.bankId = bankId;
         serverSocket = new ServerSocket(port);
-        // localhost should be changed to something else.
         chandyLamportAlgorithm = new ChandyLamport(this);
+        mAlgorithm = new MAlgorithm(this);
     }
 
     // -------------- Chandy-Lamport marker code --------------
@@ -214,9 +219,5 @@ public class Bank implements Runnable {
 
     public MAlgorithm getmAlgorithm() {
         return mAlgorithm;
-    }
-
-    public void setmAlgorithm(MAlgorithm mAlgorithm) {
-        this.mAlgorithm = mAlgorithm;
     }
 }

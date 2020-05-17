@@ -10,7 +10,7 @@ public class MAlgorithm {
     public static final int SEND = 1;
     public static final int RECEIVE = -1;
 
-    private Bank bank;
+    private final Bank bank;
     private InitiatorInfo initiatorInfo;
     private final HashMap<UUID, Boolean> acknowledgements = new HashMap<>();
     private final Set<Snapshot> globalSnapshots = new HashSet<>();
@@ -19,6 +19,10 @@ public class MAlgorithm {
     private int globalCounter = 0;
     private int numSnapshot = 0; // num of snapshots collected
     private TerminationDetector terminationDetector;
+
+    public MAlgorithm(Bank bank) {
+        this.bank = bank;
+    }
 
     // init Mattern's algorithm
     public synchronized void initSnapshot() throws IOException,
@@ -92,10 +96,6 @@ public class MAlgorithm {
 
     public Bank getBank() {
         return bank;
-    }
-
-    public void setBank(Bank bank) {
-        this.bank = bank;
     }
 
     public InitiatorInfo getInitiatorInfo() {

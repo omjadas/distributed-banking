@@ -12,20 +12,17 @@ public class Main implements Runnable {
      * Create a bank, and initialise algorithms.
      *
      * @param port port to start listening socket on
-     * @throws IOException
+     * @throws IOException if unable to open socket
      */
     public Main(int port) throws IOException {
         bank = new Bank(UUID.randomUUID(), port);
-        MAlgorithm mAlgorithm = new MAlgorithm();
-        mAlgorithm.setBank(bank);
-        bank.setmAlgorithm(mAlgorithm);
     }
 
     /**
      * Entry point.
      *
      * @param args command line arguments
-     * @throws IOException
+     * @throws IOException if unable to open socket
      */
     public static void main(String[] args) throws IOException {
         if (args.length < 1) {
