@@ -151,7 +151,19 @@ public class Main implements Runnable {
                 }
             } else if (command.equals("exit")) {
                 break;
-            } else if (command.equals("mattern")) {
+                
+            } 
+            else if (command.equals("delay")) {
+            	//simulate a delay of this process for 10 seconds
+            	synchronized (bank) {
+            		try {
+    					Thread.sleep(10000);
+    				} catch (InterruptedException e) {
+    					e.printStackTrace();
+    				}
+				}
+            } 
+            else if (command.equals("mattern")) {
                 try {
                     bank.getmAlgorithm().initSnapshot();
                 } catch (IOException e) {

@@ -155,8 +155,7 @@ public class RemoteBank implements Runnable {
         out.flush();
     }
 
-    public void sendWhiteMessageToInitiator(Message whiteMessage)
-            throws IOException {
+    public void sendWhiteMessageToInitiator(Message whiteMessage) throws IOException {
         VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
         Message message = new Message(
@@ -195,8 +194,7 @@ public class RemoteBank implements Runnable {
     }
 
     // process an input
-    public void process(String input) throws IOException,
-            UnknownAccountException {
+    public void process(String input) throws IOException, UnknownAccountException {
         synchronized (bank) {
             Gson gson = new Gson();
             Message message = gson.fromJson(input, Message.class);

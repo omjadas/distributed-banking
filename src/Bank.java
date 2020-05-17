@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -166,9 +167,11 @@ public class Bank implements Runnable {
     }
 
     public synchronized Snapshot takeSnapshot() {
-        Snapshot snapshot = new Snapshot(
-            getBankId(),
-            getLocalAccounts().values());
+    	ArrayList<Account> clone = new ArrayList<>();
+    	for (Account account : localAccounts.values()) {
+    		clone.add(new Account(account.getAccountId(), account.getBalance()));
+    	}
+        Snapshot snapshot = new Snapshot(getBankId(),clone);
         return snapshot;
     }
 
