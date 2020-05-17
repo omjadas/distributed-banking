@@ -27,15 +27,6 @@ public class ChandyLamport {
     }
 
     /**
-     * Add a bank to the list of connected banks.
-     *
-     * @param bankId ID of the bank to add
-     */
-    public void addBank(UUID bankId) {
-        otherStates.put(bankId, null);
-    }
-
-    /**
      * Store the current state of the bank.
      *
      * @param currentState state to store
@@ -71,8 +62,11 @@ public class ChandyLamport {
     public boolean startAlgorithm(
             Snapshot currentState,
             Collection<RemoteBank> remoteBanks) throws IOException {
-        if (otherStates.isEmpty()) {
+        if (remoteBanks.isEmpty()) {
             return false;
+        }
+        for (RemoteBank remoteBank : remoteBanks) {
+            this.otherStates.put(remoteBank.getBankId(), null);
         }
         recordState(currentState);
         broadCastMarker(remoteBanks);
