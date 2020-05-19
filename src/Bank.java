@@ -20,7 +20,7 @@ public class Bank implements Runnable {
      * Initialise a bank.
      *
      * @param bankId ID of the bank
-     * @param port port to listen on
+     * @param port   port to listen on
      * @throws IOException if unable to open socket
      */
     public Bank(UUID bankId, int port) throws IOException {
@@ -32,9 +32,13 @@ public class Bank implements Runnable {
 
     // -------------- Chandy-Lamport marker code --------------
 
-    // Call this method like any other system method e.g. deposit, transfer,
-    // etc.
-
+    /**
+     * The method to initiate the Chandy-Lamport algorithm.
+     *
+     * <p>
+     * To be treated similarly to other system messages such as deposit,
+     * withdraw, etc.
+     */
     public void startChandyLamport() throws IOException {
         Snapshot snapshot = takeSnapshot();
         if (chandyLamportAlgorithm
@@ -45,9 +49,14 @@ public class Bank implements Runnable {
         }
     }
 
-    // Method to handle all chandy lamport messages - usage can be found in
-    // run() method of RemoteBank.
-
+    /**
+     * Method to handle all chandy lamport messages - usage can be found in
+     * run() method of RemoteBank.
+     *
+     * @param remoteBankId  ID of the remote bank
+     * @param markerMessage state of the remote bank
+     * @param currentState  current local state
+     */
     public void handleChandyLamportMarker(
             UUID remoteBankId,
             Snapshot markerMessage,
@@ -56,6 +65,13 @@ public class Bank implements Runnable {
             remoteBankId,
             markerMessage,
             currentState);
+    }
+
+    /**
+     * Method to erase the snapshot stored in local branch.
+     */
+    public void resetChandyLamport() {
+        chandyLamportAlgorithm.eraseSnapshot();
     }
 
     // --------------------------------------------------------

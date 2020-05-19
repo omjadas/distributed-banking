@@ -13,6 +13,7 @@ public class ChandyLamport {
     private Snapshot bankState;
     private HashMap<UUID, Snapshot> otherStates;
     private boolean stateRecorded;
+    private boolean finished;
 
     /**
      * Constructor.
@@ -23,16 +24,8 @@ public class ChandyLamport {
         this.bankId = bank.getBankId();
         this.bank = bank;
         this.stateRecorded = false;
+        this.finished = false;
         this.otherStates = new HashMap<>();
-    }
-
-    /**
-     * Add a bank to the list of connected banks.
-     *
-     * @param bankId ID of the bank to add
-     */
-    public void addBank(UUID bankId) {
-        otherStates.put(bankId, null);
     }
 
     /**
@@ -46,7 +39,7 @@ public class ChandyLamport {
     }
 
     /**
-     * Attempts to send the current state to the other banks.
+     * Attempts to send the current state to the other branches.
      *
      * @param remoteBanks connected remote banks
      */
@@ -71,8 +64,12 @@ public class ChandyLamport {
     public boolean startAlgorithm(
             Snapshot currentState,
             Collection<RemoteBank> remoteBanks) throws IOException {
-        if (otherStates.isEmpty()) {
+        if (remoteBanks.isEmpty()) {
             return false;
+        }
+        resetAlgorithm(remoteBanks);
+        for (RemoteBank remoteBank : remoteBanks) {
+            this.otherStates.put(remoteBank.getBankId(), null);
         }
         recordState(currentState);
         broadCastMarker(remoteBanks);
@@ -80,14 +77,32 @@ public class ChandyLamport {
     }
 
     /**
-     * End of algorithm, call this to erase snapshot.
+     * Sends a message to all the branches to reset their snapshots.
+     *
+     * @param remoteBanks all of the connected remote banks
      */
-    public void resetAlgorithm() {
-        for (Map.Entry<UUID, Snapshot> state : otherStates.entrySet()) {
+    public void resetAlgorithm(Collection<RemoteBank> remoteBanks) {
+        for (RemoteBank remoteBank : remoteBanks) {
+            try {
+                remoteBank.resetChandyLamportAlgorithm();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        eraseSnapshot();
+    }
+
+    /**
+     * Resets the snapshot of the branch.
+     */
+    public void eraseSnapshot() {
+        for (Map.Entry<UUID, RemoteBank> state : bank.getRemoteBanks()
+                .entrySet()) {
             otherStates.put(state.getKey(), null);
         }
         bankState = null;
         stateRecorded = false;
+        finished = false;
     }
 
     /**
@@ -102,45 +117,45 @@ public class ChandyLamport {
         return allStates;
     }
 
-    // Method for what to do if a bank receives a chandy-lamport marker.
-
     /**
-     * Handle a received marker.
+     * Handle a received marker. This is the bulk of the algorithm logic.
      *
      * @param remoteBankId   ID of the remote bank
      * @param receivedMarker state of the remote bank
      * @param currentState   current local state
-     * @return true if the algorithm
+     * @return true if the algorithm is finished
      * @throws IOException
      */
     public boolean handleReceivedMarker(
             UUID remoteBankId,
             Snapshot receivedMarker,
             Snapshot currentState) throws IOException {
-        if (stateRecorded) {
-            otherStates.put(remoteBankId, receivedMarker);
-        } else {
-            recordState(currentState);
-            broadCastMarker(bank.getRemoteBanks().values());
+        if (!finished) {
+            if (stateRecorded) {
+                otherStates.put(remoteBankId, receivedMarker);
+            } else {
+                recordState(currentState);
+                otherStates.put(remoteBankId, receivedMarker);
+                broadCastMarker(bank.getRemoteBanks().values());
+            }
         }
 
-        boolean finished = true;
+        finished = true;
         for (Map.Entry<UUID, Snapshot> state : otherStates.entrySet()) {
             if (state.getValue() == null) {
+                System.out.println(state.toString() + " is not recorded yet.");
                 finished = false;
             }
         }
 
         if (finished) {
             HashMap<UUID, Snapshot> snapshot = getStates();
-            for (Map.Entry<UUID, Snapshot> entry : otherStates.entrySet()) {
+            for (Map.Entry<UUID, Snapshot> entry : snapshot.entrySet()) {
                 UUID branch = entry.getKey();
                 Snapshot branchState = snapshot.get(branch);
                 System.out.println(
                     "Branch: " + branch + ", " + "State: " + branchState);
             }
-
-            resetAlgorithm();
         }
 
         return finished;
