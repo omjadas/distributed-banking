@@ -14,12 +14,12 @@ public class Account {
         this.accountId = accountId;
         this.balance = 500;
     }
-    
+
     /**
      * Create an account with a specified balance.
      *
      * @param accountId ID of the account to create
-     * @param balance balance of this account
+     * @param balance   balance of this account
      */
     public Account(String accountId, int balance) {
         this.accountId = accountId;

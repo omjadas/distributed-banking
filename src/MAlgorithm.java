@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Mattern's algorithm
+ * Mattern's algorithm.
  */
 public class MAlgorithm {
     public static final long BROADCAST_INTERVAL = 100;
@@ -28,7 +28,8 @@ public class MAlgorithm {
     }
 
     /**
-     * initialize mattern's algorithm
+     * Initialize mattern's algorithm.
+     *
      * @throws IOException
      * @throws InterruptedException
      */
@@ -64,13 +65,14 @@ public class MAlgorithm {
 
         terminationDetector = new TerminationDetector();
         terminationDetector.start();
-        
+
         // broadcast dummy data
         this.bank.broadcastDummyMsg();
     }
-    
+
     /**
-     * initialize an acknowledgement map
+     * Initialize an acknowledgement map.
+     *
      * @throws InterruptedException
      */
     private void initAcknowledgementMap() throws InterruptedException {
@@ -84,35 +86,37 @@ public class MAlgorithm {
             acknowledgements.put(rb.getKey(), false);
         }
     }
-    
+
     /**
-     * handle receive an acknowledgement from other processed
+     * Handle receive an acknowledgement from other processed.
+     *
      * @param processId the source process of the acknowledgement
      */
     public synchronized void receiveAcknowledgement(UUID processId) {
         this.acknowledgements.put(processId, true);
         notify();
     }
-    
+
     /**
-     * be called when the initiator receives the register response
-     * message from another process
+     * Called when the initiator receives the register response message from
+     * another process.
      */
     public synchronized void notifyInitAck() {
         notify();
     }
 
     /**
-     * update global counter
+     * Update global counter.
+     * 
      * @param count value of the counter
      */
     public void updateCounter(int count) {
         globalCounter += count;
         terminationDetector.notifyNewMsg();
     }
-    
+
     /**
-     * update the number of received snapshots
+     * Update the number of received snapshots.
      */
     public void updateNumSnapshot() {
         numSnapshot += 1;
@@ -160,9 +164,10 @@ public class MAlgorithm {
             // reset
             initiatorInfo = null;
         }
-        
+
         /**
-         * check the termination of mattern's algorithm
+         * Check the termination of mattern's algorithm.
+         *
          * @throws InterruptedException
          */
         public synchronized void checkAlgorithmTermination()
@@ -176,9 +181,9 @@ public class MAlgorithm {
                 }
             }
         }
-        
+
         /**
-         * notify whenever receive a snapshot or forwarded white message
+         * Notify whenever receive a snapshot or forwarded white message.
          */
         public synchronized void notifyNewMsg() {
             notify();

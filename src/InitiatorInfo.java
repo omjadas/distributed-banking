@@ -1,6 +1,7 @@
 import java.util.UUID;
+
 /**
- * a class to store the info of initiator of Mattern's algorithm
+ * A class to store the info of initiator of Mattern's algorithm.
  */
 public class InitiatorInfo {
     private final UUID initiatorId;

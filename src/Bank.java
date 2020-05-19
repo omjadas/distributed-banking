@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Class of bank system 
+ * Class of bank system.
  */
 public class Bank implements Runnable {
     private final ServerSocket serverSocket;
@@ -33,8 +33,6 @@ public class Bank implements Runnable {
         chandyLamportAlgorithm = new ChandyLamport(this);
         mAlgorithm = new MAlgorithm(this);
     }
-
-    // -------------- Chandy-Lamport marker code --------------
 
     /**
      * The method to initiate the Chandy-Lamport algorithm.
@@ -80,11 +78,11 @@ public class Bank implements Runnable {
         chandyLamportAlgorithm.eraseSnapshot();
     }
 
-    // --------------------------------------------------------
     /**
-     * make a connect request to another process
+     * Make a connect request to another process.
+     *
      * @param hostname host name of the other process
-     * @param port port of the other process
+     * @param port     port of the other process
      * @throws IOException
      */
     public void connect(String hostname, int port) throws IOException {
@@ -93,37 +91,41 @@ public class Bank implements Runnable {
         remoteBankThread.start();
         remoteBankThreads.add(remoteBankThread);
     }
-    
+
     /**
-     * open a local account
+     * Open a local account.
+     *
      * @param accountId id of the account
      */
     public void open(String accountId) {
         localAccounts.put(accountId, new Account(accountId));
     }
-    
+
     /**
-     * register a bank of another process
+     * Register a bank of another process.
+     *
      * @param bankId id of the remote bank
-     * @param bank remote bank instance
+     * @param bank   remote bank instance
      */
     public void registerBank(UUID bankId, RemoteBank bank) {
         remoteBanks.put(bankId, bank);
     }
-    
+
     /**
-     * record the id of another account and the bank which owns it
+     * Record the id of another account and the bank which owns it.
+     *
      * @param accountId id of the account
-     * @param bank remote bank instance which owns the account
+     * @param bank      remote bank instance which owns the account
      */
     public void registerAccount(String accountId, RemoteBank bank) {
         remoteAccounts.put(accountId, bank);
     }
-    
+
     /**
-     * deposit to an account
+     * Deposit to an account.
+     *
      * @param accountId id of the account to be deposited to
-     * @param amount amount to be deposited
+     * @param amount    amount to be deposited
      * @throws IOException
      * @throws UnknownAccountException
      */
@@ -139,11 +141,12 @@ public class Bank implements Runnable {
                 String.format("Unknown account %s", accountId));
         }
     }
-    
+
     /**
-     * withdraw from an account
+     * Withdraw from an account.
+     *
      * @param accountId id of the account to be withdrawn from
-     * @param amount amount to be withdrawn
+     * @param amount    amount to be withdrawn
      * @throws IOException
      * @throws UnknownAccountException
      */
@@ -159,12 +162,13 @@ public class Bank implements Runnable {
                 String.format("Unknown account %s", accountId));
         }
     }
-    
+
     /**
-     * transfer from one account to another
+     * Transfer from one account to another.
+     * 
      * @param sourceId id of the source account
-     * @param destId id of the destination account
-     * @param amount amount to be transfered
+     * @param destId   id of the destination account
+     * @param amount   amount to be transferred
      * @throws IOException
      * @throws UnknownAccountException
      */
@@ -176,9 +180,10 @@ public class Bank implements Runnable {
         withdraw(sourceId, amount);
         deposit(destId, amount);
     }
-    
+
     /**
-     * print the balance of an account
+     * Print the balance of an account.
+     *
      * @param accountId id of the account to be printed
      * @throws IOException
      */
@@ -232,23 +237,25 @@ public class Bank implements Runnable {
     public HashMap<UUID, RemoteBank> getRemoteBanks() {
         return remoteBanks;
     }
-    
+
     /**
-     * make a clone of the local accounts and form a snapshot
-     * @return a snapshot contains info of local accounts
+     * Make a clone of the local accounts and form a snapshot.
+     *
+     * @return a snapshot containing info of local accounts
      */
     public synchronized Snapshot takeSnapshot() {
-    	ArrayList<Account> clone = new ArrayList<>();
-    	for (Account account : localAccounts.values()) {
-    		clone.add(new Account(account.getAccountId(), 
-    				account.getBalance()));
-    	}
+        ArrayList<Account> clone = new ArrayList<>();
+        for (Account account : localAccounts.values()) {
+            clone.add(
+                new Account(account.getAccountId(), account.getBalance()));
+        }
         Snapshot snapshot = new Snapshot(getBankId(), clone);
         return snapshot;
     }
-    
+
     /**
-     * broad future tick of a vector clock to all other processes
+     * Broad future tick of a vector clock to all other processes.
+     *
      * @param tick the tick of a vector clock
      */
     public synchronized void broadcastFutureTick(long tick) {
@@ -262,7 +269,7 @@ public class Bank implements Runnable {
     }
 
     /**
-     * broadcast a dummy message
+     * Broadcast a dummy message.
      */
     public synchronized void broadcastDummyMsg() {
         this.remoteBanks.values().forEach(remoteBank -> {
@@ -275,7 +282,8 @@ public class Bank implements Runnable {
     }
 
     /**
-     * send a snapshot to the initiator
+     * Send a snapshot to the initiator.
+     *
      * @param snapshot the snapshot instance to be sent
      * @throws IOException
      */
@@ -283,9 +291,10 @@ public class Bank implements Runnable {
         UUID initiatorId = mAlgorithm.getInitiatorInfo().getInitiatorId();
         remoteBanks.get(initiatorId).sendSnapshotToInitiator(snapshot);
     }
-    
+
     /**
-     * forward a white message to the initiator
+     * Forward a white message to the initiator.
+     *
      * @param whiteMessage the white message instance
      * @throws IOException
      */
