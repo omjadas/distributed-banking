@@ -42,7 +42,9 @@
         <module name="InvalidJavadocPosition" />
         <module name="JavadocContentLocationCheck" />
         <module name="JavadocMethod" />
-        <module name="JavadocParagraph" />
+        <module name="JavadocParagraph">
+            <property name="allowNewlineParagraph" value="false"/>
+        </module>
         <module name="JavadocTagContinuationIndentation" />
         <module name="JavadocType" />
         <module name="LambdaParameterName" />
