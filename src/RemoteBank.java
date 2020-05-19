@@ -181,9 +181,12 @@ public class RemoteBank implements Runnable {
         out.newLine();
         out.flush();
     }
-    
+
     public void resetChandyLamportAlgorithm() throws IOException {
-        Message message = new Message(Command.CHANDY_LAMPORT_RESET, bank.getBankId(), VectorClock.getInstance());
+        Message message = new Message(
+            Command.CHANDY_LAMPORT_RESET,
+            bank.getBankId(),
+            VectorClock.getInstance());
         out.write(new Gson().toJson(message));
         out.newLine();
         out.flush();

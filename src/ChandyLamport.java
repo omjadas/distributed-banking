@@ -14,7 +14,6 @@ public class ChandyLamport {
     private HashMap<UUID, Snapshot> otherStates;
     private boolean stateRecorded;
     private boolean finished;
-    private boolean printed;
 
     /**
      * Constructor.
@@ -92,12 +91,13 @@ public class ChandyLamport {
         }
         eraseSnapshot();
     }
-    
+
     /**
-    * Resets the snapshot of the branch.
-    */
+     * Resets the snapshot of the branch.
+     */
     public void eraseSnapshot() {
-        for (Map.Entry<UUID, RemoteBank> state : bank.getRemoteBanks().entrySet()) {
+        for (Map.Entry<UUID, RemoteBank> state : bank.getRemoteBanks()
+                .entrySet()) {
             otherStates.put(state.getKey(), null);
         }
         bankState = null;
@@ -118,8 +118,7 @@ public class ChandyLamport {
     }
 
     /**
-     * Handle a received marker.
-     * This is the bulk of the algorithm logic.
+     * Handle a received marker. This is the bulk of the algorithm logic.
      *
      * @param remoteBankId   ID of the remote bank
      * @param receivedMarker state of the remote bank
