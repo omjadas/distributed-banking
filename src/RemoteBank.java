@@ -229,6 +229,16 @@ public class RemoteBank implements Runnable {
         out.flush();
     }
 
+    public void resetChandyLamportAlgorithm() throws IOException {
+        Message message = new Message(
+            Command.CHANDY_LAMPORT_RESET,
+            bank.getBankId(),
+            VectorClock.getInstance());
+        out.write(new Gson().toJson(message));
+        out.newLine();
+        out.flush();
+    }
+
     @Override
     public void run() {
         String input;
@@ -363,6 +373,8 @@ public class RemoteBank implements Runnable {
                     message.getSourceId(),
                     message.getSnapshot(),
                     bank.takeSnapshot());
+            } else if (message.getCommand() == Command.CHANDY_LAMPORT_RESET) {
+                bank.resetChandyLamport();
             } else {
                 System.out.println(
                     "unknown command from " + message.getSourceId());
