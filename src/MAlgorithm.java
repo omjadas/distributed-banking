@@ -107,7 +107,7 @@ public class MAlgorithm {
 
     /**
      * Update global counter.
-     * 
+     *
      * @param count value of the counter
      */
     public void updateCounter(int count) {

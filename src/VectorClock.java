@@ -68,5 +68,4 @@ public class VectorClock {
         vcString.append("}");
         return vcString.toString();
     }
-
 }
