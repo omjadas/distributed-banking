@@ -3,7 +3,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Implement of vector clock algorithm
+ * Implementation of vector clock algorithm.
  */
 public class VectorClock {
     private static VectorClock vectorClock = null;
@@ -18,7 +18,8 @@ public class VectorClock {
     }
 
     /**
-     * Increment the logic clock of a process by 1
+     * Increment the logic clock of a process by 1.
+     *
      * @param pid the id of process
      */
     public synchronized void tick(UUID pid) {
@@ -30,16 +31,18 @@ public class VectorClock {
     }
 
     /**
-     * set a logic clock for a process
-     * @param pid the id of the process
+     * Set a logic clock for a process.
+     *
+     * @param pid   the id of the process
      * @param ticks the clock value of the process
      */
     public synchronized void set(UUID pid, Long ticks) {
         this.vc.put(pid, ticks);
     }
-    
+
     /**
-     * get the clock value of a process
+     * Get the clock value of a process.
+     *
      * @param pid the id of the process
      * @return the clock value
      */
@@ -53,9 +56,10 @@ public class VectorClock {
     public HashMap<UUID, Long> getVc() {
         return vc;
     }
-    
+
     /**
-     * merge local vector lock with another clock
+     * Merge local vector lock with another clock.
+     *
      * @param other the other vector clock
      */
     public synchronized void merge(VectorClock other) {
