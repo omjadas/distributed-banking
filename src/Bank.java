@@ -303,6 +303,36 @@ public class Bank implements Runnable {
         UUID initiatorId = mAlgorithm.getInitiatorInfo().getInitiatorId();
         remoteBanks.get(initiatorId).sendWhiteMessageToInitiator(whiteMessage);
     }
+    
+    /**
+     * Visualize the collected snapshots
+     * @param snapshots global snapshots
+     */
+    public void printSnapshots(Set<Snapshot> snapshots) {
+    	System.out.println("Snapshots:");
+    	for (Snapshot snapshot :snapshots) {
+    		System.out.println("-------------------------------");
+    		System.out.println("process id: " + snapshot.getProcessId());
+    		for (Account account : snapshot.getAccounts()) {
+    			System.out.print("account id:" + account.getAccountId());
+    			System.out.println(", balance: " + account.getBalance());
+    		}
+    	}
+    }
+    
+    /**
+     * Visualize the message in transit(white messages)
+     * @param whiteMessages forwarded white messages to initiator
+     */
+    public void printWhiteMessages(Set<Message> whiteMessages) {
+    	System.out.println("Messages in transit:");
+    	for (Message message : whiteMessages) {
+    		System.out.println("------------------------------");
+    		System.out.println("source process: " + message.getSourceId());
+    		System.out.println("command: " + message.getCommand());
+    		System.out.println("amount: " + message.getAmount());
+    	}
+    }
 
     public Set<Thread> getRemoteBankThreads() {
         return remoteBankThreads;

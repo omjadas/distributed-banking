@@ -160,7 +160,9 @@ public class MAlgorithm {
                 e.printStackTrace();
             }
 
-            System.out.println("snapshot done");
+            bank.printSnapshots(globalSnapshots);
+            System.out.println();
+            bank.printWhiteMessages(whiteMessages);
             // reset
             initiatorInfo = null;
         }
