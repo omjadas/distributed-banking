@@ -28,7 +28,6 @@ public class Bank implements Runnable {
         serverSocket = new ServerSocket(port);
         chandyLamportAlgorithm = new ChandyLamport(this);
         mAlgorithm = new MAlgorithm(this);
-        System.out.println("I am " + bankId.toString());
     }
 
     // -------------- Chandy-Lamport marker code --------------
