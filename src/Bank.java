@@ -165,7 +165,7 @@ public class Bank implements Runnable {
 
     /**
      * Transfer from one account to another.
-     * 
+     *
      * @param sourceId id of the source account
      * @param destId   id of the destination account
      * @param amount   amount to be transferred
