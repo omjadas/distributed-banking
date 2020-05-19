@@ -2,6 +2,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Implement of vector clock algorithm
+ */
 public class VectorClock {
     private static VectorClock vectorClock = null;
     private final HashMap<UUID, Long> vc = new HashMap<>();
@@ -14,7 +17,10 @@ public class VectorClock {
         return vectorClock;
     }
 
-    // this method is called when send or receive a message
+    /**
+     * Increment the logic clock of a process by 1
+     * @param pid the id of process
+     */
     public synchronized void tick(UUID pid) {
         if (this.vc.containsKey(pid)) {
             this.vc.put(pid, this.vc.get(pid) + 1);
@@ -23,10 +29,20 @@ public class VectorClock {
         }
     }
 
+    /**
+     * set a logic clock for a process
+     * @param pid the id of the process
+     * @param ticks the clock value of the process
+     */
     public synchronized void set(UUID pid, Long ticks) {
         this.vc.put(pid, ticks);
     }
-
+    
+    /**
+     * get the clock value of a process
+     * @param pid the id of the process
+     * @return the clock value
+     */
     public synchronized long findTick(UUID pid) {
         if (!this.vc.containsKey(pid)) {
             return -1;
@@ -37,8 +53,11 @@ public class VectorClock {
     public HashMap<UUID, Long> getVc() {
         return vc;
     }
-
-    // merge local lock with another clock
+    
+    /**
+     * merge local vector lock with another clock
+     * @param other the other vector clock
+     */
     public synchronized void merge(VectorClock other) {
         for (Map.Entry<UUID, Long> clock : other.vc.entrySet()) {
             Long time = this.vc.get(clock.getKey());
@@ -48,24 +67,5 @@ public class VectorClock {
                 this.vc.put(clock.getKey(), clock.getValue());
             }
         }
-    }
-
-    public String returnVCString() {
-        int mapSize = this.vc.size();
-        int i = 0;
-        StringBuilder vcString = new StringBuilder();
-        vcString.append("{");
-        for (Map.Entry<UUID, Long> clock : this.vc.entrySet()) {
-            vcString.append("\"");
-            vcString.append(clock.getKey());
-            vcString.append("\":");
-            vcString.append(clock.getValue());
-            if (i < mapSize - 1) {
-                vcString.append(", ");
-            }
-            i++;
-        }
-        vcString.append("}");
-        return vcString.toString();
     }
 }
