@@ -1,44 +1,149 @@
 @startuml P2P Bank
 class Main {
-    + Main()
+    + Main(int port)
     + {static} void main(String[] args)
     + void run()
 }
 
 class Bank {
-    - ServerSocket serverSocket
-    - UUID bankId
-    - HashMap<String, RemoteBank> remoteAccounts
-    - HashMap<String, Account> localAccounts
-    - HashMap<UUID, RemoteBank> remoteBanks
-    - Set<Thread> remoteBankThreads
-    - ChandyLamport chandyLamportAlgorithm
-    - MAlgorithm mAlgorithm
-    + Bank(int port)
+    + Bank(java.util.UUID id, int port)
+    + void startChandyLamport()
+    + void handleChandyLamportMarker(java.util.UUID remoteBankId, Snapshot markerMessage, Snapshot currentState)
+    + void resetChandyLamport()
     + void connect(String hostname, int port)
     + void open(String accountId)
-    + void register(String accountId, RemoteBank bank)
+    + void registerBank(java.util.UUID bankId, RemoteBank bank)
+    + void registerAccount(String accountId, RemoteBank bank)
     + void deposit(String accountId, int amount)
     + void withdraw(String accountId, int amount)
     + void transfer(String sourceId, String destId, int amount)
     + void printBalance(String accountId)
+    + int getBalance(String accountId)
     + Set<String> getAccountIds()
+    + java.util.UUID getBankId()
+    + HashMap<String, Account> getLocalAccounts()
+    + HashMap<UUID, RemoteBank> getRemoteBanks()
+    + Snapshot takeSnapshot()
+    + void broadcastFutureTick(long tick)
+    + void broadcastDummyMsg()
+    + void sendSnapshotToInitiator()
+    + void sendWhiteMessageToInitiator(Message whiteMessage)
+    + void printSnapshot(Set<Snapshot> snapshots)
+    + void printWhiteMessages(Set<Message> whiteMessages)
+    + Set<Thread> getRemoteBankThreads()
+    + MAlgorithm getmAlgorithm()
     + void run()
+}
+
+class ChandyLamport {
+    - boolean stateRecorded
+    - boolean finished
+    + void recordState(Snapshot currentState)
+    + void broadCastMarker(Collection<RemoteBank> remoteBanks)
+    + boolean startAlgorithm (Snapshot currentState, Collection<RemoteBank> remoteBanks)
+    + void resetAlgorithm(Collection<RemoteBank> remoteBanks)
+    + void eraseSnapshot()
+    + HashMap<UUID, Snapshot> getStates()
+    + boolean handleReceivedMarker(UUID remoteBankId, Snapshot receivedMarker, Snapshot currentState)
+}
+
+enum Command {
+    REGISTER
+    REGISTER_RESPONSE
+    DEPOSIT
+    WITHDRAW
+    GET_BALANCE
+    GET_BALANCE_RESPONSE
+    TAKE_SNAPSHOT
+    ACKNOWLEDGEMENT
+    DUMMY
+    SNAPSHOT
+    WHITE_MESSAGE
+    CHANDY_LAMPORT_MARKER
+    CHANDY_LAMPORT_RESET
+}
+
+class InitiatorInfo {
+    - long futureTick
+    + InitiatorInfo(java.util.UUID initiatorId, long furuteTick)
+    + UUID getInitiatorId()
+    + long getFutureTick()
+}
+
+class MAlgorithm {
+    + {static} long BROADCAST_INTERVAL
+    + {static} int SEND
+    + {static} int RECEIVE
+    - HashMap<UUID, Boolean> acknowledgements
+    + MAlgorithm(Bank bank)
+    + void initSnapshot()
+    + void initAcknowledgementMap()
+    + void receiveAcknowledgement(java.util.UUID processId)
+    + void notifyInitAck()
+    + void updateCounter(int count)
+    + void updateNumSnapshot()
+    + Bank getBank()
+    + InitiatorInfo getInitiatorInfo()
+    + void setInitiatorInfo()
+    + Set<Snapshot> getGlobalSnapshots()
+    + Set<Message> getWhiteMessages()
+    + int getGlobalCounter()
+    + int setGlobalCounter(int globalCounter)
+}
+
+class TerminationDetector {
+    + void checkAlgorithmTermination()
+    + void notifyNewMsg()
+    + void run()
+}
+
+class Message {
+    - long futureTick
+    - ArrayList<String> accountIds
+    - int amount
+    - int msgCounter;
+    + Command getCommand()
+    + java.util.UUID getSourceId()
+    + VectorClock getVectorClock()
+    + ArrayList<String> getAccountIds()
+    + int getAmount()
+    + int setAmount()
+    + void addAccountId(String id)
+    + void addAccountIds(Set<String> ids)
+    + void setFutureTick(long futureTick)
+    + Snapshot getSnapshot()
+    + void setSnapshot(Snapshot snapshot)
+    + Message getWhiteMessage()
+    + void setWhiteMessage(Message whiteMessage)
+    + int getMsgCounter()
+    + void setMsgCounter(int msgCounter)
 }
 
 class RemoteBank {
     + RemoteBank(String hostname, int port, Bank bank)
-    + RemoteBank(java.net.Socket, Bank bank)
+    + RemoteBank(java.net.Socket socket, Bank bank)
     + void deposit(String accountId, int amount)
     + void withdraw(String accountId, int amount)
     + void printBalance(String accountId)
+    + void sendFutureTick(long tick)
+    + void sendDummyMsg()
+    + void sendSnapshotToInitiator(Snapshot snapshot)
+    + void sendWhiteMessageToInitiator(Message whiteMessage)
+    + void sendChandyLamportMarker(Snapshot snapshot)
+    + void resetChandyLamportAlgorithm()
+    + void process(String input)
+    + void checkTakeSnapshot(Message message)
+    + void checkFwdWhiteMessage(Message message)
+    + UUID getBankId()
+    + void setBankdId(UUID bankId)
     + void run()
 }
 
 class Account {
     - String accountId
     - int balance
-    + Account()
+    + Account(String accountId)
+    + Account(String accountId, int balance)
     + void deposit(int amount)
     + void withdraw(int amount)
     + String getAccountId()
@@ -46,95 +151,71 @@ class Account {
 }
 
 class Snapshot {
-    - UUID processId
-    - Collection<Account> accounts
-    + UUID getProcessId()
+    + Snapshot(java.util.UUID processId, Collection<Account> accounts)
+    + java.util.UUID getProcessId()
     + Collection<Account> getAccounts()
 }
 
-class ChandyLamport {
-    - UUID bankId
-    - Bank bank
-    - Snapshot bankState
-    - HashMap otherStates
-    - boolean stateRecorded
-    - boolean finished
-    + void recordState(Snapshot currentState)
-    + void broadCastMarker(Collection<RemoteBank> remoteBanks)
-    + boolean startAlgorithm (Snapshot currentState,
-        Collection<RemoteBank> remoteBanks)
-    + void resetAlgorithm(Collection<RemoteBank> remoteBanks)
-    + void eraseSnapshot()
-    + HashMap<UUID, Snapshot> getStates()
-    + boolean handleReceivedMarker(
-            UUID remoteBankId,
-            Snapshot receivedMarker,
-            Snapshot currentState)
-}
-
-class MAlgorithm {
-    - Bank bank
-    - InitiatorInfo initiatorInfo
-    - HashMap<UUID, Boolean> acknowledgements
-    - Set<Snapshot> globalSnapshots
-    - Set<Message> whiteMessages
-    - TerminationDetector terminationDetector
-    + void initSnapshot()
-    + void initAcknowledgementMap()
-    + void receiveAcknowledgement(UUID processId)
-    + void notifyInitAck()
-    + void updateCounter(int count)
-    + void updateNumSnapshot()
-}
-
-class Message {
-    - Command command
-    - UUID sourceId
-    - VectorClock vectorClock
-    - long futureTick
-    - ArrayList<String> accountIds
-    - int amount
-    - Snapshot snapshot;
-    - Message whiteMessage;
-    - int msgCounter;
+class UnknownAccountException {
+    - {static} long serialVersionUID
+    + UnknownAccountException(String message)
 }
 
 class VectorClock {
-    - HashMap<UUID, Long> vc
+    - HashMap<java.util.UUID, Long> vc
     + VectorClock getInstance()
-    + void tick(UUID pid)
-    + void set(UUID pid, Long ticks)
-    + long findTick(UUID pid)
+    + void tick(java.util.UUID pid)
+    + void set(java.util.UUID pid, Long ticks)
+    + long findTick(java.util.UUID pid)
+    + HashMap<java.util.UUID, Long> getVc()
     + void merge(VectorClock other)
 }
 
 interface java.lang.Runnable
 
+
+Bank --* "1" java.net.ServerSocket : - serverSocket
+Bank --* "1" java.util.UUID : - bankId
+Bank --* "*" Account : - localAccounts
+Bank --* "*" java.lang.Thread : - remoteBankThreads
+Bank --* "*" RemoteBank : - remoteAccounts
+Bank --* "*" RemoteBank : - remoteBanks
+Bank ..|> java.lang.Runnable
+Bank --* "1" ChandyLamport : - chandyLamportAlgorithm
+Bank --* "1" MAlgorithm : - mAlgorithm
+
+ChandyLamport --* "1" java.util.UUID : - bankId
+ChandyLamport --* "1" Bank : - bank
+ChandyLamport --* "1" Snapshot : - bankState
+ChandyLamport --* "*" Snapshot : - otherStates
+
 Main --* "1" Bank : - bank
 Main ..|> java.lang.Runnable
 
-Bank --* "1" java.net.ServerSocket : - serverSocket
-Bank --* "0..*" Account : - localAccounts
-Bank --* "0..*" java.lang.Thread : - remoteBankThreads
-Bank --* "1..*" RemoteBank : - remoteAccounts
-Bank ..|> java.lang.Runnable
+MAlgorithm --* "1" Bank : - bank
+MAlgorithm --* "1" InitiatorInfo: - initiatorInfo
+MAlgorithm --* "*" Snapshot : - globalSnapshots
+MAlgorithm --* "*" Message : - whiteMessages
+MAlgorithm --* "1" TerminationDetector : - terminationDetector
 
-Bank --* "1" ChandyLamport : - ChandyLamportAlgorithm
-Bank --* "1" MAlgorithm : - MatternsAlgorithm
+TerminationDetector --+ MAlgorithm
+
+Message --* "1" Command : - command
+Message --* "1" java.util.UUID : - sourceId
+Message --* "1" VectorClock : - vectorClock
+Message --* "1" Snapshot : - snapshot
+Message --* "1" Message : - whiteMessage
 
 RemoteBank --* "1" java.net.Socket : - socket
-RemoteBank --> "1" Bank : - bank
-RemoteBank --* "1" java.io.BufferedReader : - in
 RemoteBank --* "1" java.io.BufferedWriter : - out
+RemoteBank --* "1" java.io.BufferedReader : - in
+RemoteBank --* "1" Bank : - bank
+RemoteBank --* "1" java.util.UUID : - bankId
 RemoteBank ..|> java.lang.Runnable
-RemoteBank --* "1" Snapshot : SnapshotLocalState
 
-ChandyLamport --* "0..*" Snapshot : - Snapshots
-MAlgorithm --* "0..*" Snapshot : - Snapshots
-MAlgorithm --* "0..*" Message : - Messages
+Snapshot --* "1" java.util.UUID : - processId
+Snapshot --* "*" Account : - accounts
 
-Snapshot o-- "0..*" Account : - Accounts
-
-Message o-- "1" VectorClock : - MessageVectorClock
+VectorClock --* "1" VectorClock : - vectorClock {static}
 
 @enduml
