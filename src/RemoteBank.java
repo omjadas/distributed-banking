@@ -56,7 +56,7 @@ public class RemoteBank implements Runnable {
      *
      * @param socket socket this remote bank will listen to
      * @param bank   local bank reference
-     * @throws IOException
+     * @throws IOException if unable to connect to the remote bank
      */
     public RemoteBank(Socket socket, Bank bank) throws IOException {
         this.socket = socket;
@@ -74,7 +74,7 @@ public class RemoteBank implements Runnable {
      *
      * @param accountId id of the account to be deposited to
      * @param amount    amount to be deposited
-     * @throws IOException
+     * @throws IOException if unable to send message
      */
     public void deposit(String accountId, int amount) throws IOException {
         VectorClock.getInstance().tick(bank.getBankId());
@@ -98,7 +98,7 @@ public class RemoteBank implements Runnable {
      *
      * @param accountId id of the account to be withdrawn from
      * @param amount    amount to be withdrawn
-     * @throws IOException
+     * @throws IOException if unable to send message
      */
     public void withdraw(String accountId, int amount) throws IOException {
         VectorClock.getInstance().tick(bank.getBankId());
@@ -119,7 +119,7 @@ public class RemoteBank implements Runnable {
      * Print the balance of a remote account.
      *
      * @param accountId ID of the account whose balance should be printed
-     * @throws IOException
+     * @throws IOException if unable to send message
      */
     public void printBalance(String accountId) throws IOException {
         synchronized (bank) {
@@ -141,7 +141,7 @@ public class RemoteBank implements Runnable {
      * Send a tick to another process.
      *
      * @param tick the vector clock time of snapshot
-     * @throws IOException
+     * @throws IOException if unable to send message
      */
     public void sendFutureTick(long tick) throws IOException {
         VectorClock.getInstance().tick(bank.getBankId());
@@ -160,7 +160,7 @@ public class RemoteBank implements Runnable {
     /**
      * Send a dummy message to another process.
      *
-     * @throws IOException
+     * @throws IOException if unable to send message
      */
     public void sendDummyMsg() throws IOException {
         synchronized (bank) {
@@ -182,7 +182,7 @@ public class RemoteBank implements Runnable {
      * method will only be called in a synchronized block.
      *
      * @param snapshot the snapshot to be sent
-     * @throws IOException
+     * @throws IOException if unable to send message
      */
     public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
         VectorClock.getInstance().tick(bank.getBankId());
@@ -203,8 +203,8 @@ public class RemoteBank implements Runnable {
      * Send a white message to initiator, this method will only be called in a
      * synchronized block.
      *
-     * @param whiteMessage the white messge to be sent
-     * @throws IOException
+     * @param whiteMessage the white message to be sent
+     * @throws IOException if unable to send message
      */
     public void sendWhiteMessageToInitiator(Message whiteMessage)
             throws IOException {
@@ -225,7 +225,7 @@ public class RemoteBank implements Runnable {
      * Send a marker (snapshot) to another process.
      *
      * @param snapshot the snapshot to be sent
-     * @throws IOException
+     * @throws IOException if unable to send message
      */
     public void sendChandyLamportMarker(Snapshot snapshot) throws IOException {
         Message message = new Message(

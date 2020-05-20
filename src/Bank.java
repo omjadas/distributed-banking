@@ -41,7 +41,7 @@ public class Bank implements Runnable {
      * To be treated similarly to other system messages such as deposit,
      * withdraw, etc.
      *
-     * @throws IOException
+     * @throws IOException if unable to start algorithm
      */
     public void startChandyLamport() throws IOException {
         Snapshot snapshot = takeSnapshot();
@@ -83,7 +83,7 @@ public class Bank implements Runnable {
      *
      * @param hostname host name of the other process
      * @param port     port of the other process
-     * @throws IOException
+     * @throws IOException if unable to connec to to remote bank
      */
     public void connect(String hostname, int port) throws IOException {
         RemoteBank remoteBank = new RemoteBank(hostname, port, this);
@@ -126,7 +126,7 @@ public class Bank implements Runnable {
      *
      * @param accountId id of the account to be deposited to
      * @param amount    amount to be deposited
-     * @throws IOException
+     * @throws IOException if unable to perform action
      * @throws UnknownAccountException
      */
     public synchronized void deposit(String accountId, int amount)
@@ -147,7 +147,7 @@ public class Bank implements Runnable {
      *
      * @param accountId id of the account to be withdrawn from
      * @param amount    amount to be withdrawn
-     * @throws IOException
+     * @throws IOException if unable to perform action
      * @throws UnknownAccountException
      */
     public synchronized void withdraw(String accountId, int amount)
@@ -169,7 +169,7 @@ public class Bank implements Runnable {
      * @param sourceId id of the source account
      * @param destId   id of the destination account
      * @param amount   amount to be transferred
-     * @throws IOException
+     * @throws IOException if unable to perform action
      * @throws UnknownAccountException
      */
     public synchronized void transfer(
@@ -185,7 +185,7 @@ public class Bank implements Runnable {
      * Print the balance of an account.
      *
      * @param accountId id of the account to be printed
-     * @throws IOException
+     * @throws IOException if unable to perform action
      */
     public void printBalance(String accountId) throws IOException {
         if (localAccounts.containsKey(accountId)) {
@@ -285,7 +285,7 @@ public class Bank implements Runnable {
      * Send a snapshot to the initiator.
      *
      * @param snapshot the snapshot instance to be sent
-     * @throws IOException
+     * @throws IOException if unable to send snapshot
      */
     public void sendSnapshotToInitiator(Snapshot snapshot) throws IOException {
         UUID initiatorId = mAlgorithm.getInitiatorInfo().getInitiatorId();
@@ -296,7 +296,7 @@ public class Bank implements Runnable {
      * Forward a white message to the initiator.
      *
      * @param whiteMessage the white message instance
-     * @throws IOException
+     * @throws IOException if unable to send message
      */
     public void sendWhiteMessageToInitiator(Message whiteMessage)
             throws IOException {
