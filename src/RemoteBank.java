@@ -25,7 +25,7 @@ public class RemoteBank implements Runnable {
      * @param hostname host name of the other process
      * @param port     port of the other process
      * @param bank     local bank reference
-     * @throws IOException
+     * @throws IOException if unable to connect to the remote bank
      */
     public RemoteBank(String hostname, int port, Bank bank) throws IOException {
         synchronized (bank) {

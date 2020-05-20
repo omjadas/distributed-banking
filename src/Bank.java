@@ -95,7 +95,7 @@ public class Bank implements Runnable {
     /**
      * Open a local account.
      *
-     * @param accountId id of the account
+     * @param accountId ID of the account
      */
     public void open(String accountId) {
         localAccounts.put(accountId, new Account(accountId));
@@ -104,7 +104,7 @@ public class Bank implements Runnable {
     /**
      * Register a bank of another process.
      *
-     * @param bankId id of the remote bank
+     * @param bankId ID of the remote bank
      * @param bank   remote bank instance
      */
     public void registerBank(UUID bankId, RemoteBank bank) {
@@ -112,9 +112,9 @@ public class Bank implements Runnable {
     }
 
     /**
-     * Record the id of another account and the bank which owns it.
+     * Record the ID of another account and the bank which owns it.
      *
-     * @param accountId id of the account
+     * @param accountId ID of the account
      * @param bank      remote bank instance which owns the account
      */
     public void registerAccount(String accountId, RemoteBank bank) {
@@ -124,7 +124,7 @@ public class Bank implements Runnable {
     /**
      * Deposit to an account.
      *
-     * @param accountId id of the account to be deposited to
+     * @param accountId ID of the account to be deposited to
      * @param amount    amount to be deposited
      * @throws IOException             if unable to perform action
      * @throws UnknownAccountException if there is no known account with ID
@@ -146,7 +146,7 @@ public class Bank implements Runnable {
     /**
      * Withdraw from an account.
      *
-     * @param accountId id of the account to be withdrawn from
+     * @param accountId ID of the account to be withdrawn from
      * @param amount    amount to be withdrawn
      * @throws IOException             if unable to perform action
      * @throws UnknownAccountException if there is no known account with ID
@@ -168,8 +168,8 @@ public class Bank implements Runnable {
     /**
      * Transfer from one account to another.
      *
-     * @param sourceId id of the source account
-     * @param destId   id of the destination account
+     * @param sourceId ID of the source account
+     * @param destId   ID of the destination account
      * @param amount   amount to be transferred
      * @throws IOException             if unable to perform action
      * @throws UnknownAccountException if there is no known account with ID

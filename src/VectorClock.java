@@ -20,7 +20,7 @@ public class VectorClock {
     /**
      * Increment the logic clock of a process by 1.
      *
-     * @param pid the id of process
+     * @param pid the ID of process
      */
     public synchronized void tick(UUID pid) {
         if (this.vc.containsKey(pid)) {
@@ -33,7 +33,7 @@ public class VectorClock {
     /**
      * Set a logic clock for a process.
      *
-     * @param pid   the id of the process
+     * @param pid   the ID of the process
      * @param ticks the clock value of the process
      */
     public synchronized void set(UUID pid, Long ticks) {
@@ -43,7 +43,7 @@ public class VectorClock {
     /**
      * Get the clock value of a process.
      *
-     * @param pid the id of the process
+     * @param pid the ID of the process
      * @return the clock value
      */
     public synchronized long findTick(UUID pid) {

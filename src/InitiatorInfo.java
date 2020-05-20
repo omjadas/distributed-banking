@@ -12,10 +12,20 @@ public class InitiatorInfo {
         this.futureTick = futureTick;
     }
 
+    /**
+     * Retrieve the initiator ID.
+     *
+     * @return ID of the initiator
+     */
     public UUID getInitiatorId() {
         return initiatorId;
     }
 
+    /**
+     * Retrieve the future tick.
+     *
+     * @return the future tick
+     */
     public long getFutureTick() {
         return futureTick;
     }
