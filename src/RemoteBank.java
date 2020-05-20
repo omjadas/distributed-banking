@@ -72,7 +72,7 @@ public class RemoteBank implements Runnable {
      * at the local branch, this method will only be called in a synchronized
      * block.
      *
-     * @param accountId id of the account to be deposited to
+     * @param accountId ID of the account to be deposited to
      * @param amount    amount to be deposited
      * @throws IOException if unable to send message
      */
@@ -96,7 +96,7 @@ public class RemoteBank implements Runnable {
      * the local branch, this method will only be called in a synchronized
      * block.
      *
-     * @param accountId id of the account to be withdrawn from
+     * @param accountId ID of the account to be withdrawn from
      * @param amount    amount to be withdrawn
      * @throws IOException if unable to send message
      */

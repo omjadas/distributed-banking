@@ -187,7 +187,7 @@ public class Bank implements Runnable {
     /**
      * Print the balance of an account.
      *
-     * @param accountId id of the account to be printed
+     * @param accountId ID of the account to be printed
      * @throws IOException if unable to perform action
      */
     public void printBalance(String accountId) throws IOException {
@@ -204,7 +204,7 @@ public class Bank implements Runnable {
     /**
      * Retrieve the balance for a local account.
      *
-     * @param accountId id of the account
+     * @param accountId ID of the account
      * @return balance of the account
      */
     public int getBalance(String accountId) {
@@ -342,9 +342,9 @@ public class Bank implements Runnable {
         System.out.println("Snapshots:");
         for (Snapshot snapshot : snapshots) {
             System.out.println("-------------------------------");
-            System.out.println("process id: " + snapshot.getProcessId());
+            System.out.println("process ID: " + snapshot.getProcessId());
             for (Account account : snapshot.getAccounts()) {
-                System.out.print("account id:" + account.getAccountId());
+                System.out.print("account ID:" + account.getAccountId());
                 System.out.println(", balance: " + account.getBalance());
             }
         }
