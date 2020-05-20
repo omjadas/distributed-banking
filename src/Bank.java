@@ -201,10 +201,21 @@ public class Bank implements Runnable {
         }
     }
 
+    /**
+     * Retrieve the balance for a local account.
+     *
+     * @param accountId id of the account
+     * @return balance of the account
+     */
     public int getBalance(String accountId) {
         return localAccounts.get(accountId).getBalance();
     }
 
+    /**
+     * Retrieve the IDs of all local account.
+     *
+     * @return the IDs of all local accounts
+     */
     public Set<String> getAccountIds() {
         return localAccounts.keySet();
     }
@@ -229,14 +240,29 @@ public class Bank implements Runnable {
         });
     }
 
+    /**
+     * Retrieve the ID of the bank.
+     *
+     * @return the ID of the bank
+     */
     public UUID getBankId() {
         return bankId;
     }
 
+    /**
+     * Retrieve all localAccounts.
+     *
+     * @return all local accounts indexed by ID
+     */
     public HashMap<String, Account> getLocalAccounts() {
         return localAccounts;
     }
 
+    /**
+     * Retrieve all remote banks.
+     *
+     * @return all remote banks indexed by ID
+     */
     public HashMap<UUID, RemoteBank> getRemoteBanks() {
         return remoteBanks;
     }
@@ -339,6 +365,11 @@ public class Bank implements Runnable {
         }
     }
 
+    /**
+     * Retrieve all remote bank threads.
+     *
+     * @return all remote bank threads.
+     */
     public Set<Thread> getRemoteBankThreads() {
         return remoteBankThreads;
     }
