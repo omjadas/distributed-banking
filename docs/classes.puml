@@ -6,6 +6,14 @@ class Main {
 }
 
 class Bank {
+    - ServerSocket serverSocket
+    - UUID bankId
+    - HashMap<String, RemoteBank> remoteAccounts
+    - HashMap<String, Account> localAccounts
+    - HashMap<UUID, RemoteBank> remoteBanks
+    - Set<Thread> remoteBankThreads
+    - ChandyLamport chandyLamportAlgorithm
+    - MAlgorithm mAlgorithm
     + Bank(int port)
     + void connect(String hostname, int port)
     + void open(String accountId)
@@ -38,10 +46,69 @@ class Account {
 }
 
 class Snapshot {
+    - UUID processId
+    - Collection<Account> accounts
+    + UUID getProcessId()
+    + Collection<Account> getAccounts()
+}
+
+class ChandyLamport {
+    - UUID bankId
+    - Bank bank
+    - Snapshot bankState
+    - HashMap otherStates
+    - boolean stateRecorded
+    - boolean finished
+    + void recordState(Snapshot currentState)
+    + void broadCastMarker(Collection<RemoteBank> remoteBanks)
+    + boolean startAlgorithm (Snapshot currentState,
+        Collection<RemoteBank> remoteBanks)
+    + void resetAlgorithm(Collection<RemoteBank> remoteBanks)
+    + void eraseSnapshot()
+    + HashMap<UUID, Snapshot> getStates()
+    + boolean handleReceivedMarker(
+            UUID remoteBankId,
+            Snapshot receivedMarker,
+            Snapshot currentState)
+}
+
+class MAlgorithm {
+    - Bank bank
+    - InitiatorInfo initiatorInfo
+    - HashMap<UUID, Boolean> acknowledgements
+    - Set<Snapshot> globalSnapshots
+    - Set<Message> whiteMessages
+    - TerminationDetector terminationDetector
+    + void initSnapshot()
+    + void initAcknowledgementMap()
+    + void receiveAcknowledgement(UUID processId)
+    + void notifyInitAck()
+    + void updateCounter(int count)
+    + void updateNumSnapshot()
+}
+
+class Message {
+    - Command command
+    - UUID sourceId
+    - VectorClock vectorClock
+    - long futureTick
+    - ArrayList<String> accountIds
+    - int amount
+    - Snapshot snapshot;
+    - Message whiteMessage;
+    - int msgCounter;
+}
+
+class VectorClock {
+    - HashMap<UUID, Long> vc
+    + VectorClock getInstance()
+    + void tick(UUID pid)
+    + void set(UUID pid, Long ticks)
+    + long findTick(UUID pid)
+    + void merge(VectorClock other)
 }
 
 interface java.lang.Runnable
-interface Algorithm
 
 Main --* "1" Bank : - bank
 Main ..|> java.lang.Runnable
@@ -49,13 +116,25 @@ Main ..|> java.lang.Runnable
 Bank --* "1" java.net.ServerSocket : - serverSocket
 Bank --* "0..*" Account : - localAccounts
 Bank --* "0..*" java.lang.Thread : - remoteBankThreads
-Bank "[String accountId]" --* "1..*" RemoteBank : - remoteAccounts
+Bank --* "1..*" RemoteBank : - remoteAccounts
 Bank ..|> java.lang.Runnable
 
+Bank --* "1" ChandyLamport : - ChandyLamportAlgorithm
+Bank --* "1" MAlgorithm : - MatternsAlgorithm
+
 RemoteBank --* "1" java.net.Socket : - socket
-RemoteBank --* "1" Bank : - bank
+RemoteBank --> "1" Bank : - bank
 RemoteBank --* "1" java.io.BufferedReader : - in
 RemoteBank --* "1" java.io.BufferedWriter : - out
 RemoteBank ..|> java.lang.Runnable
+RemoteBank --* "1" Snapshot : SnapshotLocalState
+
+ChandyLamport --* "0..*" Snapshot : - Snapshots
+MAlgorithm --* "0..*" Snapshot : - Snapshots
+MAlgorithm --* "0..*" Message : - Messages
+
+Snapshot o-- "0..*" Account : - Accounts
+
+Message o-- "1" VectorClock : - MessageVectorClock
 
 @enduml
