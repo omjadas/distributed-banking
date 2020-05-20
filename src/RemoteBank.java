@@ -228,7 +228,7 @@ public class RemoteBank implements Runnable {
      * @throws IOException if unable to send message
      */
     public void sendChandyLamportMarker(Snapshot snapshot) throws IOException {
-    	VectorClock.getInstance().tick(bank.getBankId());
+        VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
         Message message = new Message(
             Command.CHANDY_LAMPORT_MARKER,
@@ -242,7 +242,7 @@ public class RemoteBank implements Runnable {
     }
 
     public void resetChandyLamportAlgorithm() throws IOException {
-    	VectorClock.getInstance().tick(bank.getBankId());
+        VectorClock.getInstance().tick(bank.getBankId());
         bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
         Message message = new Message(
             Command.CHANDY_LAMPORT_RESET,
