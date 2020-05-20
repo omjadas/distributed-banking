@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,7 +48,6 @@ public class Bank implements Runnable {
         Snapshot snapshot = takeSnapshot();
         if (chandyLamportAlgorithm
                 .startAlgorithm(snapshot, remoteBanks.values())) {
-            System.out.println("Completed snapshot process.");
         } else {
             System.out.println("Not connected to other banks.");
         }
@@ -338,13 +338,14 @@ public class Bank implements Runnable {
      *
      * @param snapshots global snapshots
      */
-    public void printSnapshots(Set<Snapshot> snapshots) {
+    public void printSnapshots(Collection<Snapshot> snapshots) {
         System.out.println("Snapshots:");
         for (Snapshot snapshot : snapshots) {
-            System.out.println("-------------------------------");
+            System.out.println(
+                "------------------------------------------------");
             System.out.println("process ID: " + snapshot.getProcessId());
             for (Account account : snapshot.getAccounts()) {
-                System.out.print("account ID:" + account.getAccountId());
+                System.out.print("account ID: " + account.getAccountId());
                 System.out.println(", balance: " + account.getBalance());
             }
         }
@@ -355,10 +356,11 @@ public class Bank implements Runnable {
      *
      * @param whiteMessages forwarded white messages to initiator
      */
-    public void printWhiteMessages(Set<Message> whiteMessages) {
+    public void printWhiteMessages(Collection<Message> whiteMessages) {
         System.out.println("Messages in transit:");
         for (Message message : whiteMessages) {
-            System.out.println("------------------------------");
+            System.out.println(
+                "------------------------------------------------");
             System.out.println("source process: " + message.getSourceId());
             System.out.println("command: " + message.getCommand());
             System.out.println("amount: " + message.getAmount());

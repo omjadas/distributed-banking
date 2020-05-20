@@ -141,19 +141,13 @@ public class ChandyLamport {
         finished = true;
         for (Map.Entry<UUID, Snapshot> state : otherStates.entrySet()) {
             if (state.getValue() == null) {
-                System.out.println(state.toString() + " is not recorded yet.");
                 finished = false;
             }
         }
 
         if (finished) {
-            HashMap<UUID, Snapshot> snapshot = getStates();
-            for (Map.Entry<UUID, Snapshot> entry : snapshot.entrySet()) {
-                UUID branch = entry.getKey();
-                Snapshot branchState = snapshot.get(branch);
-                System.out.println(
-                    "Branch: " + branch + ", " + "State: " + branchState);
-            }
+            HashMap<UUID, Snapshot> snapshots = getStates();
+            bank.printSnapshots(snapshots.values());
         }
 
         return finished;
