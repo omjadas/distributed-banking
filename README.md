@@ -4,3 +4,27 @@
 
 Distributed banking application written in Java that utilizes Snapshot recovery
 algorithms such as those proposed by Chandy-Lamport and Friedemann Mattern.
+
+## Usage
+
+To start the program specify the port to listen on as an argument.
+
+```bash
+java -jar <path-to-jar> <port>
+```
+
+Once you have started the program you will be presented with a prompt where you
+are able to enter commands to interact with the system.
+
+```bash
+open <account-id> # open an account with a given ID
+deposit <account-id> <amount> # deposit into an account
+withdraw <account-id> <amount> # withdraw from an account
+transfer <source-id> <dest-id> <amount> # transfer from one account to another
+connect <hostname> <port> # connect to a remote branch
+balance <account-id> # print the balance for an account
+mattern # initiate Mattern's algorithm
+chandy-lamport # initiate the Chandy Lamport algorithm
+delay # wait for 10 seconds
+exit # exit the program
+```

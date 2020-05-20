@@ -59,11 +59,10 @@ public class ChandyLamport {
      * @param currentState current state of the local bank
      * @param remoteBanks  all of the connected remote banks
      * @return false if no remote banks are connected
-     * @throws IOException
      */
     public boolean startAlgorithm(
             Snapshot currentState,
-            Collection<RemoteBank> remoteBanks) throws IOException {
+            Collection<RemoteBank> remoteBanks) {
         if (remoteBanks.isEmpty()) {
             return false;
         }
@@ -124,12 +123,11 @@ public class ChandyLamport {
      * @param receivedMarker state of the remote bank
      * @param currentState   current local state
      * @return true if the algorithm is finished
-     * @throws IOException
      */
     public boolean handleReceivedMarker(
             UUID remoteBankId,
             Snapshot receivedMarker,
-            Snapshot currentState) throws IOException {
+            Snapshot currentState) {
         if (!finished) {
             if (stateRecorded) {
                 otherStates.put(remoteBankId, receivedMarker);

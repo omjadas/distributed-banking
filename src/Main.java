@@ -42,6 +42,7 @@ public class Main implements Runnable {
         bankThread.start();
         Scanner scanner = new Scanner(System.in);
         while (!Thread.interrupted()) {
+            System.out.print("> ");
             String input = scanner.nextLine();
             String[] tokens = input.split(" ");
             String command = tokens[0];
@@ -151,6 +152,15 @@ public class Main implements Runnable {
                 }
             } else if (command.equals("exit")) {
                 break;
+            } else if (command.equals("delay")) {
+                // simulate a delay of this process for 10 seconds
+                synchronized (bank) {
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             } else if (command.equals("mattern")) {
                 try {
                     bank.getmAlgorithm().initSnapshot();

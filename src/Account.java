@@ -16,6 +16,17 @@ public class Account {
     }
 
     /**
+     * Create an account with a specified balance.
+     *
+     * @param accountId ID of the account to create
+     * @param balance   balance of this account
+     */
+    public Account(String accountId, int balance) {
+        this.accountId = accountId;
+        this.balance = balance;
+    }
+
+    /**
      * Deposit money into the account.
      *
      * @param amount amount to deposit
