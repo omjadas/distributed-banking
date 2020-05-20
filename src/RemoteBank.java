@@ -265,8 +265,10 @@ public class RemoteBank implements Runnable {
      * Receive and process messages from other processes.
      *
      * @param input JSON string from other processes
-     * @throws IOException
-     * @throws UnknownAccountException
+     * @throws IOException             if the response message to the sender is
+     *                                 unable to be sent
+     * @throws UnknownAccountException if a message with an unknown account ID
+     *                                 is processed
      */
     public void process(String input) throws IOException,
             UnknownAccountException {

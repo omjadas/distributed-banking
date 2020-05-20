@@ -126,8 +126,9 @@ public class Bank implements Runnable {
      *
      * @param accountId id of the account to be deposited to
      * @param amount    amount to be deposited
-     * @throws IOException if unable to perform action
-     * @throws UnknownAccountException
+     * @throws IOException             if unable to perform action
+     * @throws UnknownAccountException if there is no known account with ID
+     *                                 matching accountId
      */
     public synchronized void deposit(String accountId, int amount)
             throws IOException,
@@ -147,8 +148,9 @@ public class Bank implements Runnable {
      *
      * @param accountId id of the account to be withdrawn from
      * @param amount    amount to be withdrawn
-     * @throws IOException if unable to perform action
-     * @throws UnknownAccountException
+     * @throws IOException             if unable to perform action
+     * @throws UnknownAccountException if there is no known account with ID
+     *                                 matching accountId
      */
     public synchronized void withdraw(String accountId, int amount)
             throws IOException,
@@ -169,8 +171,9 @@ public class Bank implements Runnable {
      * @param sourceId id of the source account
      * @param destId   id of the destination account
      * @param amount   amount to be transferred
-     * @throws IOException if unable to perform action
-     * @throws UnknownAccountException
+     * @throws IOException             if unable to perform action
+     * @throws UnknownAccountException if there is no known account with ID
+     *                                 matching accountId
      */
     public synchronized void transfer(
             String sourceId,
