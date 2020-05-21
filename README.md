@@ -5,6 +5,16 @@
 Distributed banking application written in Java that utilizes Snapshot recovery
 algorithms such as those proposed by Chandy-Lamport and Friedemann Mattern.
 
+## Building
+
+To build the program use Maven.
+
+```bash
+mvn package
+```
+
+An uber JAR will be created in the target directory.
+
 ## Usage
 
 To start the program specify the port to listen on as an argument.

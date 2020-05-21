@@ -90,7 +90,8 @@ public class Main implements Runnable {
             } else if (command.equals("transfer")) {
                 if (tokens.length < 4) {
                     System.out.println(
-                        "Please provide a source ID, destination ID and transfer amount");
+                        "Please provide a source ID, destination ID and " +
+                            "transfer amount");
                     continue;
                 }
 
@@ -102,7 +103,8 @@ public class Main implements Runnable {
                 } catch (IOException e) {
                     System.out.println(
                         String.format(
-                            "Unable to transfer $%d from account %s to account %s",
+                            "Unable to transfer $%d from account %s to " +
+                                "account %s",
                             amount,
                             sourceId,
                             destId));
