@@ -339,7 +339,7 @@ public class Bank implements Runnable {
      * @param snapshots global snapshots
      */
     public void printSnapshots(Collection<Snapshot> snapshots) {
-        System.out.println("Snapshots:");
+        System.out.println("\nSnapshots:");
         for (Snapshot snapshot : snapshots) {
             System.out.println(
                 "------------------------------------------------");
@@ -365,6 +365,7 @@ public class Bank implements Runnable {
             System.out.println("command: " + message.getCommand());
             System.out.println("amount: " + message.getAmount());
         }
+        System.out.print("> ");
     }
 
     /**

@@ -148,6 +148,7 @@ public class ChandyLamport {
         if (finished) {
             HashMap<UUID, Snapshot> snapshots = getStates();
             bank.printSnapshots(snapshots.values());
+            System.out.print("> ");
         }
 
         return finished;

@@ -355,7 +355,8 @@ public class RemoteBank implements Runnable {
                 out.newLine();
                 out.flush();
             } else if (message.getCommand() == Command.GET_BALANCE_RESPONSE) {
-                System.out.println("$" + message.getAmount());
+                System.out.println("\n$" + message.getAmount());
+                System.out.print("> ");
             } else if (message.getCommand() == Command.TAKE_SNAPSHOT) {
                 // remember the information of the initiator
                 UUID initiatorId = message.getSourceId();
@@ -402,7 +403,8 @@ public class RemoteBank implements Runnable {
                 bank.resetChandyLamport();
             } else {
                 System.out.println(
-                    "unknown command from " + message.getSourceId());
+                    "\nUnknown command from " + message.getSourceId());
+                System.out.print("> ");
             }
         }
     }
