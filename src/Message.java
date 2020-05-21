@@ -19,8 +19,8 @@ public class Message {
     /**
      * Create a message to send to another process.
      *
-     * @param command command type of the message
-     * @param sourceId ID of the sending process
+     * @param command     command type of the message
+     * @param sourceId    ID of the sending process
      * @param vectorClock vector clock
      */
     public Message(Command command, UUID sourceId, VectorClock vectorClock) {

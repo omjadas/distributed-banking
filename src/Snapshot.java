@@ -11,7 +11,7 @@ public class Snapshot {
     /**
      * Create a snapshot for a bank.
      *
-     * @param bankId ID of the bank the snapshot is for
+     * @param bankId   ID of the bank the snapshot is for
      * @param accounts the accounts that the bank contains
      */
     public Snapshot(UUID bankId, Collection<Account> accounts) {
@@ -43,8 +43,7 @@ public class Snapshot {
         int result = 1;
         result = prime * result +
             ((accounts == null) ? 0 : accounts.hashCode());
-        result = prime * result +
-            ((bankId == null) ? 0 : bankId.hashCode());
+        result = prime * result + ((bankId == null) ? 0 : bankId.hashCode());
         return result;
     }
 
