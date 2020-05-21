@@ -7,6 +7,12 @@ public class InitiatorInfo {
     private final UUID initiatorId;
     private final long futureTick;
 
+    /**
+     * Create an instance of InitiatorInfo.
+     *
+     * @param initiatorId ID of the initiator process
+     * @param futureTick time the snapshot will be recorded
+     */
     public InitiatorInfo(UUID initiatorId, long futureTick) {
         this.initiatorId = initiatorId;
         this.futureTick = futureTick;

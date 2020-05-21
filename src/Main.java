@@ -167,16 +167,15 @@ public class Main implements Runnable {
                     try {
                         Thread.sleep(10000);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        System.out.println("Unable to sleep.");
                     }
                 }
             } else if (command.equals("mattern")) {
                 try {
                     bank.getmAlgorithm().initSnapshot();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    System.out
+                            .println("Unable to initiate Mattern's algorithm");
                 }
             } else if (command.equals("chandy-lamport")) {
                 System.out

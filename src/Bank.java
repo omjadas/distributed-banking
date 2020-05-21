@@ -46,9 +46,8 @@ public class Bank implements Runnable {
      */
     public void startChandyLamport() throws IOException {
         Snapshot snapshot = takeSnapshot();
-        if (chandyLamportAlgorithm
+        if (!chandyLamportAlgorithm
                 .startAlgorithm(snapshot, remoteBanks.values())) {
-        } else {
             System.out.println("Not connected to other banks.");
         }
     }
@@ -96,7 +95,7 @@ public class Bank implements Runnable {
      * Open a local account.
      *
      * @param accountId ID of the account
-     * @throws IOException
+     * @throws IOException if unable to notify remote banks about new account
      */
     public void open(String accountId) throws IOException {
         localAccounts.put(accountId, new Account(accountId));
@@ -106,13 +105,22 @@ public class Bank implements Runnable {
     }
 
     /**
-     * Register a bank of another process.
+     * Register a remote bank.
      *
      * @param bankId ID of the remote bank
      * @param bank   remote bank instance
      */
-    public void registerBank(UUID bankId, RemoteBank bank) {
+    public synchronized void registerBank(UUID bankId, RemoteBank bank) {
         remoteBanks.put(bankId, bank);
+    }
+
+    /**
+     * Remote a remote bank.
+     *
+     * @param bankId ID of the bank to remove
+     */
+    public synchronized void removeBank(UUID bankId) {
+        remoteBanks.remove(bankId);
     }
 
     /**
@@ -121,8 +129,19 @@ public class Bank implements Runnable {
      * @param accountId ID of the account
      * @param bank      remote bank instance which owns the account
      */
-    public void registerAccount(String accountId, RemoteBank bank) {
+    public synchronized void registerRemoteAccount(
+            String accountId,
+            RemoteBank bank) {
         remoteAccounts.put(accountId, bank);
+    }
+
+    /**
+     * Remove a remote account.
+     *
+     * @param accountId ID of the account to remove
+     */
+    public synchronized void removeRemoteAccount(String accountId) {
+        remoteAccounts.remove(accountId);
     }
 
     /**
@@ -224,6 +243,11 @@ public class Bank implements Runnable {
         return localAccounts.keySet();
     }
 
+    /**
+     * Retrieve the IDs of all known remote accounts.
+     *
+     * @return the IDs of all known remote accounts.
+     */
     public Set<String> getRemoteAccountIds() {
         return remoteAccounts.keySet();
     }
@@ -242,6 +266,7 @@ public class Bank implements Runnable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.print("> ");
         }
         remoteBankThreads.forEach(remoteBankThread -> {
             remoteBankThread.interrupt();
@@ -301,6 +326,7 @@ public class Bank implements Runnable {
                 remoteBank.sendFutureTick(tick);
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.print("> ");
             }
         });
     }
@@ -314,6 +340,7 @@ public class Bank implements Runnable {
                 remoteBank.sendDummyMsg();
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.print("> ");
             }
         });
     }
@@ -351,7 +378,7 @@ public class Bank implements Runnable {
         for (Snapshot snapshot : snapshots) {
             System.out.println(
                 "------------------------------------------------");
-            System.out.println("process ID: " + snapshot.getProcessId());
+            System.out.println("process ID: " + snapshot.getBankId());
             for (Account account : snapshot.getAccounts()) {
                 System.out.print("account ID: " + account.getAccountId());
                 System.out.println(", balance: " + account.getBalance());
@@ -385,6 +412,11 @@ public class Bank implements Runnable {
         return remoteBankThreads;
     }
 
+    /**
+     * Retrieve the MAlgorithm instance used by this bank.
+     *
+     * @return the MAlgorithm instance used by this bank.
+     */
     public MAlgorithm getmAlgorithm() {
         return mAlgorithm;
     }

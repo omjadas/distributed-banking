@@ -23,6 +23,11 @@ public class MAlgorithm {
     private int numSnapshot = 0; // num of snapshots collected
     private TerminationDetector terminationDetector;
 
+    /**
+     * Create an instance of MAlgorithm.
+     *
+     * @param bank bank the algorithm is for
+     */
     public MAlgorithm(Bank bank) {
         this.bank = bank;
     }
@@ -30,11 +35,9 @@ public class MAlgorithm {
     /**
      * Initialize mattern's algorithm.
      *
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws InterruptedException if interrupted
      */
-    public synchronized void initSnapshot() throws IOException,
-            InterruptedException {
+    public synchronized void initSnapshot() throws InterruptedException {
         acknowledgements.clear();
         globalSnapshots.clear();
         whiteMessages.clear();
@@ -73,7 +76,7 @@ public class MAlgorithm {
     /**
      * Initialize an acknowledgement map.
      *
-     * @throws InterruptedException
+     * @throws InterruptedException if interrupted
      */
     private void initAcknowledgementMap() throws InterruptedException {
         while (bank.getRemoteBanks().size() < bank.getRemoteBankThreads()
@@ -123,30 +126,65 @@ public class MAlgorithm {
         terminationDetector.notifyNewMsg();
     }
 
+    /**
+     * Retrieve the bank.
+     *
+     * @return the bank this algorithm is for
+     */
     public Bank getBank() {
         return bank;
     }
 
+    /**
+     * Retrieve the initiator info.
+     *
+     * @return info on the initiator of the algorithm
+     */
     public InitiatorInfo getInitiatorInfo() {
         return initiatorInfo;
     }
 
+    /**
+     * Set the initiator info.
+     *
+     * @param initiatorInfo info on the initiator of the algorithm
+     */
     public void setInitiatorInfo(InitiatorInfo initiatorInfo) {
         this.initiatorInfo = initiatorInfo;
     }
 
+    /**
+     * Get global snapshots.
+     *
+     * @return Snapshots for all processes.
+     */
     public Set<Snapshot> getGlobalSnapshots() {
         return globalSnapshots;
     }
 
+    /**
+     * Retrieve white messages.
+     *
+     * @return white messages
+     */
     public Set<Message> getWhiteMessages() {
         return whiteMessages;
     }
 
+    /**
+     * Retrieve the global counter.
+     *
+     * @return the global counter.
+     */
     public int getGlobalCounter() {
         return globalCounter;
     }
 
+    /**
+     * Set the global counter.
+     *
+     * @param globalCounter value to set the global counter to
+     */
     public void setGlobalCounter(int globalCounter) {
         this.globalCounter = globalCounter;
     }
@@ -158,6 +196,7 @@ public class MAlgorithm {
                 checkAlgorithmTermination();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                System.out.print("> ");
             }
 
             bank.printSnapshots(globalSnapshots);
@@ -170,7 +209,7 @@ public class MAlgorithm {
         /**
          * Check the termination of mattern's algorithm.
          *
-         * @throws InterruptedException
+         * @throws InterruptedException if interrupted
          */
         public synchronized void checkAlgorithmTermination()
                 throws InterruptedException {

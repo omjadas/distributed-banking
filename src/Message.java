@@ -16,6 +16,13 @@ public class Message {
     private Message whiteMessage;
     private int msgCounter;
 
+    /**
+     * Create a message to send to another process.
+     *
+     * @param command command type of the message
+     * @param sourceId ID of the sending process
+     * @param vectorClock vector clock
+     */
     public Message(Command command, UUID sourceId, VectorClock vectorClock) {
         this.command = command;
         this.sourceId = sourceId;
@@ -94,10 +101,20 @@ public class Message {
         this.accountIds.addAll(ids);
     }
 
+    /**
+     * Retrieve the future tick.
+     *
+     * @return the future tick
+     */
     public long getFutureTick() {
         return futureTick;
     }
 
+    /**
+     * Set the future tick.
+     *
+     * @param futureTick the future tick
+     */
     public void setFutureTick(long futureTick) {
         this.futureTick = futureTick;
     }
@@ -120,18 +137,38 @@ public class Message {
         this.snapshot = snapshot;
     }
 
+    /**
+     * Retrieve the white message contained in the message.
+     *
+     * @return the white message contained in the message.
+     */
     public Message getWhiteMessage() {
         return whiteMessage;
     }
 
+    /**
+     * Set the white message.
+     *
+     * @param whiteMessage white message to set
+     */
     public void setWhiteMessage(Message whiteMessage) {
         this.whiteMessage = whiteMessage;
     }
 
+    /**
+     * Retrieve the message counter.
+     *
+     * @return the message counter
+     */
     public int getMsgCounter() {
         return msgCounter;
     }
 
+    /**
+     * Set the message counter.
+     *
+     * @param msgCounter value to set the message counter
+     */
     public void setMsgCounter(int msgCounter) {
         this.msgCounter = msgCounter;
     }

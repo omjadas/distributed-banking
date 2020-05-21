@@ -42,14 +42,12 @@ public class ChandyLamport {
      * Attempts to send the current state to the other branches.
      *
      * @param remoteBanks connected remote banks
+     * @throws IOException if unable to send markers
      */
-    public void broadCastMarker(Collection<RemoteBank> remoteBanks) {
+    public void broadCastMarker(Collection<RemoteBank> remoteBanks)
+            throws IOException {
         for (RemoteBank remoteBank : remoteBanks) {
-            try {
-                remoteBank.sendChandyLamportMarker(bankState);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            remoteBank.sendChandyLamportMarker(bankState);
         }
     }
 
@@ -79,14 +77,12 @@ public class ChandyLamport {
      * Sends a message to all the branches to reset their snapshots.
      *
      * @param remoteBanks all of the connected remote banks
+     * @throws IOException if unable to send reset
      */
-    public void resetAlgorithm(Collection<RemoteBank> remoteBanks) {
+    public void resetAlgorithm(Collection<RemoteBank> remoteBanks)
+            throws IOException {
         for (RemoteBank remoteBank : remoteBanks) {
-            try {
-                remoteBank.resetChandyLamportAlgorithm();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            remoteBank.resetChandyLamportAlgorithm();
         }
         eraseSnapshot();
     }
