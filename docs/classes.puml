@@ -13,13 +13,16 @@ class Bank {
     + void connect(String hostname, int port)
     + void open(String accountId)
     + void registerBank(java.util.UUID bankId, RemoteBank bank)
-    + void registerAccount(String accountId, RemoteBank bank)
+    + void removeBank(java.util.UUID bankId)
+    + void registerRemoteAccount(String accountId, RemoteBank bank)
+    + void remoteRemoteAccount(String accountId)
     + void deposit(String accountId, int amount)
     + void withdraw(String accountId, int amount)
     + void transfer(String sourceId, String destId, int amount)
     + void printBalance(String accountId)
     + int getBalance(String accountId)
-    + Set<String> getAccountIds()
+    + Set<String> getLocalAccountIds()
+    + Set<String> getRemoteAccountIds()
     + java.util.UUID getBankId()
     + HashMap<String, Account> getLocalAccounts()
     + HashMap<UUID, RemoteBank> getRemoteBanks()
@@ -28,8 +31,8 @@ class Bank {
     + void broadcastDummyMsg()
     + void sendSnapshotToInitiator()
     + void sendWhiteMessageToInitiator(Message whiteMessage)
-    + void printSnapshot(Set<Snapshot> snapshots)
-    + void printWhiteMessages(Set<Message> whiteMessages)
+    + void printSnapshots(Collection<Snapshot> snapshots)
+    + void printWhiteMessages(Collection<Message> whiteMessages)
     + Set<Thread> getRemoteBankThreads()
     + MAlgorithm getmAlgorithm()
     + void run()
@@ -120,8 +123,10 @@ class Message {
 }
 
 class RemoteBank {
+    - Set<String> accountIds
     + RemoteBank(String hostname, int port, Bank bank)
     + RemoteBank(java.net.Socket socket, Bank bank)
+    + void register()
     + void deposit(String accountId, int amount)
     + void withdraw(String accountId, int amount)
     + void printBalance(String accountId)
@@ -151,8 +156,8 @@ class Account {
 }
 
 class Snapshot {
-    + Snapshot(java.util.UUID processId, Collection<Account> accounts)
-    + java.util.UUID getProcessId()
+    + Snapshot(java.util.UUID bankId, Collection<Account> accounts)
+    + java.util.UUID getBankId()
     + Collection<Account> getAccounts()
 }
 
@@ -167,7 +172,6 @@ class VectorClock {
     + void tick(java.util.UUID pid)
     + void set(java.util.UUID pid, Long ticks)
     + long findTick(java.util.UUID pid)
-    + HashMap<java.util.UUID, Long> getVc()
     + void merge(VectorClock other)
 }
 
@@ -213,7 +217,7 @@ RemoteBank --* "1" Bank : - bank
 RemoteBank --* "1" java.util.UUID : - bankId
 RemoteBank ..|> java.lang.Runnable
 
-Snapshot --* "1" java.util.UUID : - processId
+Snapshot --* "1" java.util.UUID : - bankId
 Snapshot --* "*" Account : - accounts
 
 VectorClock --* "1" VectorClock : - vectorClock {static}

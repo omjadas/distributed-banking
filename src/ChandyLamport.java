@@ -42,14 +42,12 @@ public class ChandyLamport {
      * Attempts to send the current state to the other branches.
      *
      * @param remoteBanks connected remote banks
+     * @throws IOException if unable to send markers
      */
-    public void broadCastMarker(Collection<RemoteBank> remoteBanks) {
+    public void broadCastMarker(Collection<RemoteBank> remoteBanks)
+            throws IOException {
         for (RemoteBank remoteBank : remoteBanks) {
-            try {
-                remoteBank.sendChandyLamportMarker(bankState);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            remoteBank.sendChandyLamportMarker(bankState);
         }
     }
 
@@ -59,10 +57,11 @@ public class ChandyLamport {
      * @param currentState current state of the local bank
      * @param remoteBanks  all of the connected remote banks
      * @return false if no remote banks are connected
+     * @throws IOException if unable to start algorithm
      */
     public boolean startAlgorithm(
             Snapshot currentState,
-            Collection<RemoteBank> remoteBanks) {
+            Collection<RemoteBank> remoteBanks) throws IOException {
         if (remoteBanks.isEmpty()) {
             return false;
         }
@@ -79,14 +78,12 @@ public class ChandyLamport {
      * Sends a message to all the branches to reset their snapshots.
      *
      * @param remoteBanks all of the connected remote banks
+     * @throws IOException if unable to send reset
      */
-    public void resetAlgorithm(Collection<RemoteBank> remoteBanks) {
+    public void resetAlgorithm(Collection<RemoteBank> remoteBanks)
+            throws IOException {
         for (RemoteBank remoteBank : remoteBanks) {
-            try {
-                remoteBank.resetChandyLamportAlgorithm();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            remoteBank.resetChandyLamportAlgorithm();
         }
         eraseSnapshot();
     }
@@ -123,11 +120,12 @@ public class ChandyLamport {
      * @param receivedMarker state of the remote bank
      * @param currentState   current local state
      * @return true if the algorithm is finished
+     * @throws IOException if unable to broadcast marker
      */
     public boolean handleReceivedMarker(
             UUID remoteBankId,
             Snapshot receivedMarker,
-            Snapshot currentState) {
+            Snapshot currentState) throws IOException {
         if (!finished) {
             if (stateRecorded) {
                 otherStates.put(remoteBankId, receivedMarker);
@@ -141,19 +139,14 @@ public class ChandyLamport {
         finished = true;
         for (Map.Entry<UUID, Snapshot> state : otherStates.entrySet()) {
             if (state.getValue() == null) {
-                System.out.println(state.toString() + " is not recorded yet.");
                 finished = false;
             }
         }
 
         if (finished) {
-            HashMap<UUID, Snapshot> snapshot = getStates();
-            for (Map.Entry<UUID, Snapshot> entry : snapshot.entrySet()) {
-                UUID branch = entry.getKey();
-                Snapshot branchState = snapshot.get(branch);
-                System.out.println(
-                    "Branch: " + branch + ", " + "State: " + branchState);
-            }
+            HashMap<UUID, Snapshot> snapshots = getStates();
+            bank.printSnapshots(snapshots.values());
+            System.out.print("> ");
         }
 
         return finished;

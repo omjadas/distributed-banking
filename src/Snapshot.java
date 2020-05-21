@@ -5,18 +5,34 @@ import java.util.UUID;
  * Snapshot of a bank.
  */
 public class Snapshot {
-    private final UUID processId;
+    private final UUID bankId;
     private final Collection<Account> accounts;
 
-    public Snapshot(UUID processId, Collection<Account> accounts) {
-        this.processId = processId;
+    /**
+     * Create a snapshot for a bank.
+     *
+     * @param bankId   ID of the bank the snapshot is for
+     * @param accounts the accounts that the bank contains
+     */
+    public Snapshot(UUID bankId, Collection<Account> accounts) {
+        this.bankId = bankId;
         this.accounts = accounts;
     }
 
-    public UUID getProcessId() {
-        return processId;
+    /**
+     * Retrieve the bank ID.
+     *
+     * @return ID of the bank the snapshot is for
+     */
+    public UUID getBankId() {
+        return bankId;
     }
 
+    /**
+     * Retrieve the accounts as they were when the snapshot was created.
+     *
+     * @return accounts as they were when the snapshot was created
+     */
     public Collection<Account> getAccounts() {
         return accounts;
     }
@@ -27,8 +43,7 @@ public class Snapshot {
         int result = 1;
         result = prime * result +
             ((accounts == null) ? 0 : accounts.hashCode());
-        result = prime * result +
-            ((processId == null) ? 0 : processId.hashCode());
+        result = prime * result + ((bankId == null) ? 0 : bankId.hashCode());
         return result;
     }
 
@@ -51,11 +66,11 @@ public class Snapshot {
         } else if (!accounts.equals(other.accounts)) {
             return false;
         }
-        if (processId == null) {
-            if (other.processId != null) {
+        if (bankId == null) {
+            if (other.bankId != null) {
                 return false;
             }
-        } else if (!processId.equals(other.processId)) {
+        } else if (!bankId.equals(other.bankId)) {
             return false;
         }
         return true;

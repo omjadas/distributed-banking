@@ -90,7 +90,8 @@ public class Main implements Runnable {
             } else if (command.equals("transfer")) {
                 if (tokens.length < 4) {
                     System.out.println(
-                        "Please provide a source ID, destination ID and transfer amount");
+                        "Please provide a source ID, destination ID and " +
+                            "transfer amount");
                     continue;
                 }
 
@@ -102,7 +103,8 @@ public class Main implements Runnable {
                 } catch (IOException e) {
                     System.out.println(
                         String.format(
-                            "Unable to transfer $%d from account %s to account %s",
+                            "Unable to transfer $%d from account %s to " +
+                                "account %s",
                             amount,
                             sourceId,
                             destId));
@@ -116,7 +118,11 @@ public class Main implements Runnable {
                 }
 
                 String accountId = tokens[1];
-                bank.open(accountId);
+                try {
+                    bank.open(accountId);
+                } catch (IOException e) {
+                    System.out.println("Unable to open account " + accountId);
+                }
             } else if (command.equals("connect")) {
                 if (tokens.length < 3) {
                     System.out.println(
@@ -146,9 +152,14 @@ public class Main implements Runnable {
                     bank.printBalance(accountId);
                 } catch (IOException e) {
                     System.out.println(
-                        String.format(
-                            "Unable to print balance for %s",
-                            accountId));
+                        "Unable to print balance for " + accountId);
+                }
+            } else if (command.equals("list")) {
+                for (String accountId : bank.getLocalAccountIds()) {
+                    System.out.println("Account: " + accountId);
+                }
+                for (String accountId : bank.getRemoteAccountIds()) {
+                    System.out.println("Account: " + accountId);
                 }
             } else if (command.equals("exit")) {
                 break;
@@ -158,16 +169,15 @@ public class Main implements Runnable {
                     try {
                         Thread.sleep(10000);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        System.out.println("Unable to sleep.");
                     }
                 }
             } else if (command.equals("mattern")) {
                 try {
                     bank.getmAlgorithm().initSnapshot();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    System.out
+                            .println("Unable to initiate Mattern's algorithm");
                 }
             } else if (command.equals("chandy-lamport")) {
                 System.out

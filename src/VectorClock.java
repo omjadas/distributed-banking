@@ -9,6 +9,11 @@ public class VectorClock {
     private static VectorClock vectorClock = null;
     private final HashMap<UUID, Long> vc = new HashMap<>();
 
+    /**
+     * Retrieve the singleton VectorClock.
+     *
+     * @return the singleton VectorClock
+     */
     public static VectorClock getInstance() {
         if (vectorClock == null) {
             vectorClock = new VectorClock();
@@ -51,10 +56,6 @@ public class VectorClock {
             return -1;
         }
         return this.vc.get(pid);
-    }
-
-    public HashMap<UUID, Long> getVc() {
-        return vc;
     }
 
     /**

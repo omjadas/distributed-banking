@@ -5,6 +5,16 @@
 Distributed banking application written in Java that utilizes Snapshot recovery
 algorithms such as those proposed by Chandy-Lamport and Friedemann Mattern.
 
+## Building
+
+To build the program use Maven.
+
+```bash
+mvn package
+```
+
+An uber JAR will be created in the target directory.
+
 ## Usage
 
 To start the program specify the port to listen on as an argument.
@@ -23,6 +33,7 @@ withdraw <account-id> <amount> # withdraw from an account
 transfer <source-id> <dest-id> <amount> # transfer from one account to another
 connect <hostname> <port> # connect to a remote branch
 balance <account-id> # print the balance for an account
+list # print all known accounts
 mattern # initiate Mattern's algorithm
 chandy-lamport # initiate the Chandy Lamport algorithm
 delay # wait for 10 seconds

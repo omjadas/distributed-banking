@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,10 +46,8 @@ public class Bank implements Runnable {
      */
     public void startChandyLamport() throws IOException {
         Snapshot snapshot = takeSnapshot();
-        if (chandyLamportAlgorithm
+        if (!chandyLamportAlgorithm
                 .startAlgorithm(snapshot, remoteBanks.values())) {
-            System.out.println("Completed snapshot process.");
-        } else {
             System.out.println("Not connected to other banks.");
         }
     }
@@ -83,7 +82,7 @@ public class Bank implements Runnable {
      *
      * @param hostname host name of the other process
      * @param port     port of the other process
-     * @throws IOException if unable to connec to to remote bank
+     * @throws IOException if unable to connect to the remote bank
      */
     public void connect(String hostname, int port) throws IOException {
         RemoteBank remoteBank = new RemoteBank(hostname, port, this);
@@ -96,19 +95,32 @@ public class Bank implements Runnable {
      * Open a local account.
      *
      * @param accountId ID of the account
+     * @throws IOException if unable to notify remote banks about new account
      */
-    public void open(String accountId) {
+    public void open(String accountId) throws IOException {
         localAccounts.put(accountId, new Account(accountId));
+        for (RemoteBank remoteBank : remoteBanks.values()) {
+            remoteBank.register();
+        }
     }
 
     /**
-     * Register a bank of another process.
+     * Register a remote bank.
      *
      * @param bankId ID of the remote bank
      * @param bank   remote bank instance
      */
-    public void registerBank(UUID bankId, RemoteBank bank) {
+    public synchronized void registerBank(UUID bankId, RemoteBank bank) {
         remoteBanks.put(bankId, bank);
+    }
+
+    /**
+     * Remote a remote bank.
+     *
+     * @param bankId ID of the bank to remove
+     */
+    public synchronized void removeBank(UUID bankId) {
+        remoteBanks.remove(bankId);
     }
 
     /**
@@ -117,8 +129,19 @@ public class Bank implements Runnable {
      * @param accountId ID of the account
      * @param bank      remote bank instance which owns the account
      */
-    public void registerAccount(String accountId, RemoteBank bank) {
+    public synchronized void registerRemoteAccount(
+            String accountId,
+            RemoteBank bank) {
         remoteAccounts.put(accountId, bank);
+    }
+
+    /**
+     * Remove a remote account.
+     *
+     * @param accountId ID of the account to remove
+     */
+    public synchronized void removeRemoteAccount(String accountId) {
+        remoteAccounts.remove(accountId);
     }
 
     /**
@@ -216,8 +239,17 @@ public class Bank implements Runnable {
      *
      * @return the IDs of all local accounts
      */
-    public Set<String> getAccountIds() {
+    public Set<String> getLocalAccountIds() {
         return localAccounts.keySet();
+    }
+
+    /**
+     * Retrieve the IDs of all known remote accounts.
+     *
+     * @return the IDs of all known remote accounts.
+     */
+    public Set<String> getRemoteAccountIds() {
+        return remoteAccounts.keySet();
     }
 
     @Override
@@ -234,6 +266,7 @@ public class Bank implements Runnable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.print("> ");
         }
         remoteBankThreads.forEach(remoteBankThread -> {
             remoteBankThread.interrupt();
@@ -293,6 +326,7 @@ public class Bank implements Runnable {
                 remoteBank.sendFutureTick(tick);
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.print("> ");
             }
         });
     }
@@ -306,6 +340,7 @@ public class Bank implements Runnable {
                 remoteBank.sendDummyMsg();
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.print("> ");
             }
         });
     }
@@ -338,13 +373,14 @@ public class Bank implements Runnable {
      *
      * @param snapshots global snapshots
      */
-    public void printSnapshots(Set<Snapshot> snapshots) {
-        System.out.println("Snapshots:");
+    public void printSnapshots(Collection<Snapshot> snapshots) {
+        System.out.println("\nSnapshots:");
         for (Snapshot snapshot : snapshots) {
-            System.out.println("-------------------------------");
-            System.out.println("process ID: " + snapshot.getProcessId());
+            System.out.println(
+                "------------------------------------------------");
+            System.out.println("process ID: " + snapshot.getBankId());
             for (Account account : snapshot.getAccounts()) {
-                System.out.print("account ID:" + account.getAccountId());
+                System.out.print("account ID: " + account.getAccountId());
                 System.out.println(", balance: " + account.getBalance());
             }
         }
@@ -355,14 +391,16 @@ public class Bank implements Runnable {
      *
      * @param whiteMessages forwarded white messages to initiator
      */
-    public void printWhiteMessages(Set<Message> whiteMessages) {
+    public void printWhiteMessages(Collection<Message> whiteMessages) {
         System.out.println("Messages in transit:");
         for (Message message : whiteMessages) {
-            System.out.println("------------------------------");
+            System.out.println(
+                "------------------------------------------------");
             System.out.println("source process: " + message.getSourceId());
             System.out.println("command: " + message.getCommand());
             System.out.println("amount: " + message.getAmount());
         }
+        System.out.print("> ");
     }
 
     /**
@@ -374,6 +412,11 @@ public class Bank implements Runnable {
         return remoteBankThreads;
     }
 
+    /**
+     * Retrieve the MAlgorithm instance used by this bank.
+     *
+     * @return the MAlgorithm instance used by this bank.
+     */
     public MAlgorithm getmAlgorithm() {
         return mAlgorithm;
     }
