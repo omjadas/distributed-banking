@@ -83,7 +83,7 @@ public class Bank implements Runnable {
      *
      * @param hostname host name of the other process
      * @param port     port of the other process
-     * @throws IOException if unable to connec to to remote bank
+     * @throws IOException if unable to connect to the remote bank
      */
     public void connect(String hostname, int port) throws IOException {
         RemoteBank remoteBank = new RemoteBank(hostname, port, this);
@@ -96,9 +96,13 @@ public class Bank implements Runnable {
      * Open a local account.
      *
      * @param accountId ID of the account
+     * @throws IOException
      */
-    public void open(String accountId) {
+    public void open(String accountId) throws IOException {
         localAccounts.put(accountId, new Account(accountId));
+        for (RemoteBank remoteBank : remoteBanks.values()) {
+            remoteBank.register();
+        }
     }
 
     /**
@@ -216,8 +220,12 @@ public class Bank implements Runnable {
      *
      * @return the IDs of all local accounts
      */
-    public Set<String> getAccountIds() {
+    public Set<String> getLocalAccountIds() {
         return localAccounts.keySet();
+    }
+
+    public Set<String> getRemoteAccountIds() {
+        return remoteAccounts.keySet();
     }
 
     @Override

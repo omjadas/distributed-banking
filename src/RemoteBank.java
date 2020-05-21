@@ -35,18 +35,7 @@ public class RemoteBank implements Runnable {
             this.in = new BufferedReader(
                 new InputStreamReader(socket.getInputStream()));
             this.bank = bank;
-
-            VectorClock.getInstance().tick(bank.getBankId());
-            bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
-            Message message = new Message(
-                Command.REGISTER,
-                bank.getBankId(),
-                VectorClock.getInstance());
-
-            message.addAccountIds(bank.getAccountIds());
-            out.write(new Gson().toJson(message));
-            out.newLine();
-            out.flush();
+            register();
         }
     }
 
@@ -65,6 +54,20 @@ public class RemoteBank implements Runnable {
         this.in = new BufferedReader(
             new InputStreamReader(socket.getInputStream()));
         this.bank = bank;
+    }
+
+    public void register() throws IOException {
+        VectorClock.getInstance().tick(bank.getBankId());
+        bank.getmAlgorithm().msgCounter += MAlgorithm.SEND;
+        Message message = new Message(
+            Command.REGISTER,
+            bank.getBankId(),
+            VectorClock.getInstance());
+
+        message.addAccountIds(bank.getLocalAccountIds());
+        out.write(new Gson().toJson(message));
+        out.newLine();
+        out.flush();
     }
 
     /**
@@ -320,7 +323,7 @@ public class RemoteBank implements Runnable {
                     bank.getBankId(),
                     VectorClock.getInstance());
 
-                respMessage.addAccountIds(bank.getAccountIds());
+                respMessage.addAccountIds(bank.getLocalAccountIds());
                 out.write(gson.toJson(respMessage));
                 out.newLine();
                 out.flush();

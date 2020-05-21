@@ -23,6 +23,7 @@ withdraw <account-id> <amount> # withdraw from an account
 transfer <source-id> <dest-id> <amount> # transfer from one account to another
 connect <hostname> <port> # connect to a remote branch
 balance <account-id> # print the balance for an account
+list # print all known accounts
 mattern # initiate Mattern's algorithm
 chandy-lamport # initiate the Chandy Lamport algorithm
 delay # wait for 10 seconds

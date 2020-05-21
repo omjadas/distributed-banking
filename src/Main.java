@@ -116,7 +116,11 @@ public class Main implements Runnable {
                 }
 
                 String accountId = tokens[1];
-                bank.open(accountId);
+                try {
+                    bank.open(accountId);
+                } catch (IOException e) {
+                    System.out.println("Unable to open account " + accountId);
+                }
             } else if (command.equals("connect")) {
                 if (tokens.length < 3) {
                     System.out.println(
@@ -146,9 +150,14 @@ public class Main implements Runnable {
                     bank.printBalance(accountId);
                 } catch (IOException e) {
                     System.out.println(
-                        String.format(
-                            "Unable to print balance for %s",
-                            accountId));
+                        "Unable to print balance for " + accountId);
+                }
+            } else if (command.equals("list")) {
+                for (String accountId : bank.getLocalAccountIds()) {
+                    System.out.println("Account: " + accountId);
+                }
+                for (String accountId : bank.getRemoteAccountIds()) {
+                    System.out.println("Account: " + accountId);
                 }
             } else if (command.equals("exit")) {
                 break;

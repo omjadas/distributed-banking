@@ -19,7 +19,8 @@ class Bank {
     + void transfer(String sourceId, String destId, int amount)
     + void printBalance(String accountId)
     + int getBalance(String accountId)
-    + Set<String> getAccountIds()
+    + Set<String> getLocalAccountIds()
+    + Set<String> getRemoteAccountIds()
     + java.util.UUID getBankId()
     + HashMap<String, Account> getLocalAccounts()
     + HashMap<UUID, RemoteBank> getRemoteBanks()
@@ -122,6 +123,7 @@ class Message {
 class RemoteBank {
     + RemoteBank(String hostname, int port, Bank bank)
     + RemoteBank(java.net.Socket socket, Bank bank)
+    + void register()
     + void deposit(String accountId, int amount)
     + void withdraw(String accountId, int amount)
     + void printBalance(String accountId)
