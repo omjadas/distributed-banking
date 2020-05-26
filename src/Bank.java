@@ -392,7 +392,7 @@ public class Bank implements Runnable {
         System.out.println("Messages in transit:");
         for (Message message : whiteMessages) {
             System.out.println(
-                "------------------------------------------------");
+                "----------------------------------------------------");
             System.out.println("source process: " + message.getSourceId());
             System.out.println("command: " + message.getCommand());
             System.out.println("amount: " + message.getAmount());
