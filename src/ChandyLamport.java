@@ -61,8 +61,8 @@ public class ChandyLamport {
     public void startAlgorithm(
             Snapshot currentState,
             Collection<RemoteBank> remoteBanks) throws IOException {
-        recordState(currentState);
         if (remoteBanks.isEmpty()) {
+            recordState(currentState);
             HashMap<UUID, Snapshot> snapshots = getStates();
             bank.printSnapshots(snapshots.values());
         } else {
@@ -72,6 +72,7 @@ public class ChandyLamport {
                 this.otherStates.put(remoteBank.getBankId(), null);
             }
 
+            recordState(currentState);
             broadCastMarker(remoteBanks);
         }
     }
