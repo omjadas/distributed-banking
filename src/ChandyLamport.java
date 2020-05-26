@@ -66,15 +66,15 @@ public class ChandyLamport {
         if (remoteBanks.isEmpty()) {
             HashMap<UUID, Snapshot> snapshots = getStates();
             bank.printSnapshots(snapshots.values());
-            return;
         }
-        resetAlgorithm(remoteBanks);
-        for (RemoteBank remoteBank : remoteBanks) {
-            this.otherStates.put(remoteBank.getBankId(), null);
+        else {
+            resetAlgorithm(remoteBanks);
+            for (RemoteBank remoteBank : remoteBanks) {
+                this.otherStates.put(remoteBank.getBankId(), null);
+            }
+            
+            broadCastMarker(remoteBanks);
         }
-        
-        broadCastMarker(remoteBanks);
-        return;
     }
 
     /**
