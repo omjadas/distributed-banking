@@ -46,7 +46,7 @@ public class Bank implements Runnable {
      */
     public void startChandyLamport() throws IOException {
         Snapshot snapshot = takeSnapshot();
-        chandyLamportAlgorithm.startAlgorithm(snapshot, remoteBanks.values()));
+        chandyLamportAlgorithm.startAlgorithm(snapshot, remoteBanks.values());
     }
 
     /**
