@@ -41,12 +41,11 @@ public class ChandyLamport {
     /**
      * Attempts to send the current state to the other branches.
      *
-     * @param remoteBanks connected remote banks
      * @throws IOException if unable to send markers
      */
-    public void broadCastMarker(Collection<RemoteBank> remoteBanks)
+    public void broadCastMarker()
             throws IOException {
-        for (RemoteBank remoteBank : remoteBanks) {
+        for (RemoteBank remoteBank : bank.getRemoteBanks().values()) {
             remoteBank.sendChandyLamportMarker(bankState);
         }
     }
@@ -55,37 +54,29 @@ public class ChandyLamport {
      * Start the algorithm.
      *
      * @param currentState current state of the local bank
-     * @param remoteBanks  all of the connected remote banks
      * @throws IOException if unable to start algorithm
      */
     public void startAlgorithm(
-            Snapshot currentState,
-            Collection<RemoteBank> remoteBanks) throws IOException {
-        if (remoteBanks.isEmpty()) {
+            Snapshot currentState) throws IOException {
+        if (bank.getRemoteBanks().isEmpty()) {
             recordState(currentState);
             HashMap<UUID, Snapshot> snapshots = getStates();
             bank.printSnapshots(snapshots.values());
         } else {
-            resetAlgorithm(remoteBanks);
-
-            for (RemoteBank remoteBank : remoteBanks) {
-                this.otherStates.put(remoteBank.getBankId(), null);
-            }
-
+            resetAlgorithm();
             recordState(currentState);
-            broadCastMarker(remoteBanks);
+            broadCastMarker();
         }
     }
 
     /**
      * Sends a message to all the branches to reset their snapshots.
      *
-     * @param remoteBanks all of the connected remote banks
      * @throws IOException if unable to send reset
      */
-    public void resetAlgorithm(Collection<RemoteBank> remoteBanks)
+    public void resetAlgorithm()
             throws IOException {
-        for (RemoteBank remoteBank : remoteBanks) {
+        for (RemoteBank remoteBank : bank.getRemoteBanks().values()) {
             remoteBank.resetChandyLamportAlgorithm();
         }
         eraseSnapshot();
@@ -96,6 +87,10 @@ public class ChandyLamport {
      */
     public void eraseSnapshot() {
         otherStates = new HashMap<>();
+        for (Map.Entry<UUID, RemoteBank> state : bank.getRemoteBanks()
+                .entrySet()) {
+            otherStates.put(state.getKey(), null);
+        }
         bankState = null;
         stateRecorded = false;
         finished = false;
@@ -132,7 +127,7 @@ public class ChandyLamport {
             } else {
                 recordState(currentState);
                 otherStates.put(remoteBankId, receivedMarker);
-                broadCastMarker(bank.getRemoteBanks().values());
+                broadCastMarker();
             }
         }
 
