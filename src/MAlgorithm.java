@@ -213,12 +213,11 @@ public class MAlgorithm {
         public synchronized void checkAlgorithmTermination()
                 throws InterruptedException {
             while (true) {
-                // check termination every half a second
-                wait();
                 if (globalCounter == 0 &&
                     numSnapshot == bank.getRemoteBanks().size() + 1) {
                     break;
                 }
+                wait();
             }
         }
 
