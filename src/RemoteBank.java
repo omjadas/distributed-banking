@@ -377,6 +377,7 @@ public class RemoteBank implements Runnable {
                 bankId = message.getSourceId();
                 // process this register_response message
                 for (String accountId : message.getAccountIds()) {
+                    accountIds.add(accountId);
                     bank.registerRemoteAccount(accountId, this);
                 }
             } else if (message.getCommand() == Command.GET_BALANCE) {
