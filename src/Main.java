@@ -180,8 +180,6 @@ public class Main implements Runnable {
                             .println("Unable to initiate Mattern's algorithm");
                 }
             } else if (command.equals("chandy-lamport")) {
-                System.out
-                        .println("Attempting to take Chandy-Lamport Snapshot.");
                 try {
                     bank.startChandyLamport();
                 } catch (IOException e) {

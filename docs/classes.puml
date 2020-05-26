@@ -43,7 +43,7 @@ class ChandyLamport {
     - boolean finished
     + void recordState(Snapshot currentState)
     + void broadCastMarker(Collection<RemoteBank> remoteBanks)
-    + boolean startAlgorithm (Snapshot currentState, Collection<RemoteBank> remoteBanks)
+    + void startAlgorithm (Snapshot currentState, Collection<RemoteBank> remoteBanks)
     + void resetAlgorithm(Collection<RemoteBank> remoteBanks)
     + void eraseSnapshot()
     + HashMap<UUID, Snapshot> getStates()
