@@ -214,11 +214,11 @@ public class MAlgorithm {
 				throws InterruptedException {
 			while (true) {
 				if (globalCounter == 0 && 
-						numSnapshot == bank.getRemoteBanks().size() + 1) {
+					numSnapshot == bank.getRemoteBanks().size() + 1) {
 					break;
-				}
-				wait();
-			}
+			    }
+			    wait();
+		    }
 		}
 
 		/**
