@@ -43,8 +43,7 @@ public class ChandyLamport {
      *
      * @throws IOException if unable to send markers
      */
-    public void broadCastMarker()
-            throws IOException {
+    public void broadCastMarker() throws IOException {
         for (RemoteBank remoteBank : bank.getRemoteBanks().values()) {
             remoteBank.sendChandyLamportMarker(bankState);
         }
@@ -56,8 +55,7 @@ public class ChandyLamport {
      * @param currentState current state of the local bank
      * @throws IOException if unable to start algorithm
      */
-    public void startAlgorithm(
-            Snapshot currentState) throws IOException {
+    public void startAlgorithm(Snapshot currentState) throws IOException {
         if (bank.getRemoteBanks().isEmpty()) {
             recordState(currentState);
             HashMap<UUID, Snapshot> snapshots = getStates();
@@ -74,8 +72,7 @@ public class ChandyLamport {
      *
      * @throws IOException if unable to send reset
      */
-    public void resetAlgorithm()
-            throws IOException {
+    public void resetAlgorithm() throws IOException {
         for (RemoteBank remoteBank : bank.getRemoteBanks().values()) {
             remoteBank.resetChandyLamportAlgorithm();
         }
