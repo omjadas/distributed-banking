@@ -8,8 +8,8 @@ import java.util.UUID;
  * Chandy-Lamport algorithm.
  */
 public class ChandyLamport {
-    private UUID bankId;
-    private Bank bank;
+    private final UUID bankId;
+    private final Bank bank;
     private Snapshot bankState;
     private HashMap<UUID, Snapshot> otherStates;
     private boolean stateRecorded;
@@ -94,10 +94,7 @@ public class ChandyLamport {
      * Resets the snapshot of the branch.
      */
     public void eraseSnapshot() {
-        for (Map.Entry<UUID, RemoteBank> state : bank.getRemoteBanks()
-                .entrySet()) {
-            otherStates.put(state.getKey(), null);
-        }
+        otherStates = new HashMap<>();
         bankState = null;
         stateRecorded = false;
         finished = false;
