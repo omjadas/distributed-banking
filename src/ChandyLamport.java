@@ -56,22 +56,24 @@ public class ChandyLamport {
      *
      * @param currentState current state of the local bank
      * @param remoteBanks  all of the connected remote banks
-     * @return false if no remote banks are connected
      * @throws IOException if unable to start algorithm
      */
-    public boolean startAlgorithm(
+    public void startAlgorithm(
             Snapshot currentState,
             Collection<RemoteBank> remoteBanks) throws IOException {
-        if (remoteBanks.isEmpty()) {
-            return false;
-        }
-        resetAlgorithm(remoteBanks);
-        for (RemoteBank remoteBank : remoteBanks) {
-            this.otherStates.put(remoteBank.getBankId(), null);
-        }
         recordState(currentState);
-        broadCastMarker(remoteBanks);
-        return true;
+        if (remoteBanks.isEmpty()) {
+            HashMap<UUID, Snapshot> snapshots = getStates();
+            bank.printSnapshots(snapshots.values());
+        } else {
+            resetAlgorithm(remoteBanks);
+
+            for (RemoteBank remoteBank : remoteBanks) {
+                this.otherStates.put(remoteBank.getBankId(), null);
+            }
+
+            broadCastMarker(remoteBanks);
+        }
     }
 
     /**

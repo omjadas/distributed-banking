@@ -46,10 +46,7 @@ public class Bank implements Runnable {
      */
     public void startChandyLamport() throws IOException {
         Snapshot snapshot = takeSnapshot();
-        if (!chandyLamportAlgorithm
-                .startAlgorithm(snapshot, remoteBanks.values())) {
-            System.out.println("Not connected to other banks.");
-        }
+        chandyLamportAlgorithm.startAlgorithm(snapshot, remoteBanks.values());
     }
 
     /**
