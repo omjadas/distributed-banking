@@ -197,7 +197,7 @@ public class MAlgorithm {
                 e.printStackTrace();
                 System.out.print("> ");
             }
-
+            
             bank.printSnapshots(globalSnapshots);
             System.out.println();
             bank.printWhiteMessages(whiteMessages);
@@ -214,11 +214,11 @@ public class MAlgorithm {
                 throws InterruptedException {
             while (true) {
                 // check termination every half a second
+            	if (globalCounter == 0 &&
+                        numSnapshot == bank.getRemoteBanks().size() + 1) {
+                        break;
+                    }
                 wait();
-                if (globalCounter == 0 &&
-                    numSnapshot == bank.getRemoteBanks().size() + 1) {
-                    break;
-                }
             }
         }
 
