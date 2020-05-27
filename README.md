@@ -1,4 +1,4 @@
-# comp90020
+# distributed-banking
 
 ![Java CI with Maven](https://github.com/omjadas/distributed-banking/workflows/Java%20CI%20with%20Maven/badge.svg)
 [![CodeFactor](https://www.codefactor.io/repository/github/omjadas/distributed-banking/badge?s=078d53ad33c35efcce666df8e54c2ac7c82496fd)](https://www.codefactor.io/repository/github/omjadas/distributed-banking)
