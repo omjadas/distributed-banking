@@ -1,7 +1,7 @@
 # comp90020
 
 ![Java CI with Maven](https://github.com/omjadas/comp90020/workflows/Java%20CI%20with%20Maven/badge.svg?branch=master)
-[![CodeFactor](https://www.codefactor.io/repository/github/omjadas/comp90020/badge?s=e63190bc215f22d323425533d74470789495079a)](https://www.codefactor.io/repository/github/omjadas/comp90020)
+[![CodeFactor](https://www.codefactor.io/repository/github/omjadas/distributed-banking/badge?s=078d53ad33c35efcce666df8e54c2ac7c82496fd)](https://www.codefactor.io/repository/github/omjadas/distributed-banking)
 
 Distributed banking application written in Java that utilizes Snapshot recovery
 algorithms such as those proposed by Chandy-Lamport and Friedemann Mattern.
